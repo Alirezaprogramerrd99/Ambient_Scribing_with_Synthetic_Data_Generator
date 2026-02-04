@@ -7,6 +7,9 @@ Based on:
 - Woo et al. (2025) - Synthetic data quality metrics
 - RAGAS framework - RAG evaluation
 - Clinical NLP benchmarks - Medical accuracy
+
+Author: Alireza Rashidi
+MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
 
 import logging
@@ -115,7 +118,7 @@ class BenchmarkResult:
     
     @property
     def overall_score(self) -> float:
-        """Weighted overall score"""
+        """Weighted overall score (0-1 scale)"""
         weights = {
             "quality": 0.25,
             "clinical": 0.35,
@@ -128,29 +131,46 @@ class BenchmarkResult:
         total_weight = 0
         
         if self.quality_metrics:
-            scores.append(weights["quality"] * self._avg_metrics(self.quality_metrics))
+            avg = self._avg_metrics(self.quality_metrics)
+            scores.append(weights["quality"] * avg)
             total_weight += weights["quality"]
         if self.clinical_metrics:
-            scores.append(weights["clinical"] * self._avg_metrics(self.clinical_metrics))
+            avg = self._avg_metrics(self.clinical_metrics)
+            scores.append(weights["clinical"] * avg)
             total_weight += weights["clinical"]
         if self.rag_metrics:
-            scores.append(weights["rag"] * self._avg_metrics(self.rag_metrics))
+            avg = self._avg_metrics(self.rag_metrics)
+            scores.append(weights["rag"] * avg)
             total_weight += weights["rag"]
         if self.ragas_metrics:
-            scores.append(weights["ragas"] * self._avg_metrics(self.ragas_metrics))
+            # Use overall_score from RAGAS if available, otherwise average
+            ragas_score = self.ragas_metrics.get("overall_score", self._avg_metrics(self.ragas_metrics))
+            scores.append(weights["ragas"] * ragas_score)
             total_weight += weights["ragas"]
         if self.efficiency_metrics:
             scores.append(weights["efficiency"] * self._normalize_efficiency())
             total_weight += weights["efficiency"]
         
-        return sum(scores) / total_weight if total_weight > 0 else 0.0
+        final_score = sum(scores) / total_weight if total_weight > 0 else 0.0
+        return min(1.0, max(0.0, final_score))  # Clamp to 0-1
     
     def _avg_metrics(self, metrics: Dict[str, float]) -> float:
+        """Average metrics, only including values that are valid scores (0-1 range)"""
         if not metrics:
             return 0.0
-        # Filter only float values
-        float_values = [v for v in metrics.values() if isinstance(v, (int, float))]
-        return sum(float_values) / len(float_values) if float_values else 0.0
+        
+        # Filter for float values that look like scores (0-1 range)
+        # Exclude things like 'total_samples', 'num_samples', counts, etc.
+        exclude_keys = {'total_samples', 'num_samples', 'total', 'count'}
+        
+        valid_scores = []
+        for key, value in metrics.items():
+            if key.lower() in exclude_keys:
+                continue
+            if isinstance(value, (int, float)) and 0 <= value <= 1:
+                valid_scores.append(value)
+        
+        return sum(valid_scores) / len(valid_scores) if valid_scores else 0.0
     
     def _normalize_efficiency(self) -> float:
         """Normalize efficiency metrics to 0-1 scale"""
@@ -892,6 +912,7 @@ def _compute_ragas_fallback(samples: List[Any]) -> RAGASResult:
     faithfulness_scores = []
     relevancy_scores = []
     precision_scores = []
+    recall_scores = []
     
     for sample in samples:
         if not hasattr(sample, 'rag') or not sample.rag or not sample.rag.rag_enabled:
@@ -902,37 +923,80 @@ def _compute_ragas_fallback(samples: List[Any]) -> RAGASResult:
             if sample.validation.rag_faithfulness:
                 faithfulness_scores.append(sample.validation.rag_faithfulness)
         
-        # Relevancy: Check if answer addresses key elements from context
-        if hasattr(sample, 'summary') and sample.summary:
-            answer = sample.summary.history_of_present_illness or ""
-            context = sample.rag.context_used or ""
-            
-            if answer and context:
-                # Simple word overlap metric
-                answer_words = set(answer.lower().split())
-                context_words = set(context.lower().split())
-                
-                # Remove stop words
-                stop_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and', 'in', 'for', 'with'}
-                answer_words -= stop_words
-                context_words -= stop_words
-                
-                if context_words:
-                    overlap = len(answer_words & context_words) / len(context_words)
-                    relevancy_scores.append(min(1.0, overlap * 2))  # Scale up
+        # Get scenario/query
+        query = ""
+        if hasattr(sample, 'scenario') and sample.scenario:
+            query = sample.scenario.scenario_text or ""
+        if not query and hasattr(sample, 'summary') and sample.summary:
+            query = sample.summary.chief_complaint or ""
         
-        # Precision: Use retrieval scores
+        # Get answer (full summary)
+        answer = ""
+        if hasattr(sample, 'summary') and sample.summary:
+            parts = []
+            if sample.summary.chief_complaint:
+                parts.append(sample.summary.chief_complaint)
+            if sample.summary.history_of_present_illness:
+                parts.append(sample.summary.history_of_present_illness)
+            if sample.summary.assessment:
+                parts.append(sample.summary.assessment)
+            if sample.summary.plan:
+                parts.append(sample.summary.plan)
+            answer = " ".join(parts)
+        
+        context = sample.rag.context_used or ""
+        
+        # Answer Relevancy: Does the answer address the query?
+        # Check overlap between query terms and answer
+        if query and answer:
+            # Extract key terms from query (remove stop words)
+            stop_words = {
+                'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and', 
+                'in', 'for', 'with', 'presenting', 'year', 'old', 'male', 'female',
+                'history', 'associated', 'severity', 'moderate', 'mild', 'severe'
+            }
+            
+            query_words = set(query.lower().split()) - stop_words
+            answer_words = set(answer.lower().split()) - stop_words
+            
+            if query_words:
+                # How many query terms appear in the answer?
+                overlap = len(query_words & answer_words)
+                relevancy = overlap / len(query_words)
+                relevancy_scores.append(min(1.0, relevancy))
+        
+        # Context Precision: Are retrieved contexts relevant to query?
         if sample.rag.retrieval_scores:
             # Proportion of high-scoring retrievals
             high_scores = sum(1 for s in sample.rag.retrieval_scores if s >= 0.5)
             precision = high_scores / len(sample.rag.retrieval_scores)
             precision_scores.append(precision)
+        
+        # Context Recall: Does context contain information used in answer?
+        # Approximate by checking if answer uses context terms
+        if context and answer:
+            context_words = set(context.lower().split()) - stop_words
+            answer_words = set(answer.lower().split()) - stop_words
+            
+            # Medical/clinical terms that might come from context
+            clinical_terms = {
+                w for w in answer_words 
+                if len(w) > 4 and any(suffix in w for suffix in 
+                    ['tion', 'ment', 'itis', 'osis', 'emia', 'gram', 'scopy', 'pathy'])
+            }
+            
+            if clinical_terms:
+                # How many clinical terms in answer also appear in context?
+                in_context = len(clinical_terms & context_words)
+                recall = in_context / len(clinical_terms) if clinical_terms else 0
+                recall_scores.append(min(1.0, recall))
     
     return RAGASResult(
         faithfulness=sum(faithfulness_scores) / len(faithfulness_scores) if faithfulness_scores else 0.0,
         answer_relevancy=sum(relevancy_scores) / len(relevancy_scores) if relevancy_scores else 0.0,
         context_precision=sum(precision_scores) / len(precision_scores) if precision_scores else 0.0,
-        context_recall=0.0,  # Can't compute without ground truth
+        context_recall=sum(recall_scores) / len(recall_scores) if recall_scores else 0.0,
+        sample_scores=[{"sample_index": i} for i in range(len(faithfulness_scores))],
     )
 
 

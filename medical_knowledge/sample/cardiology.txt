@@ -1,0 +1,45 @@
+# Cardiology Assessment and Management
+
+## Acute Coronary Syndrome (ACS)
+### Presentation
+- **Typical Pain**: Central, crushing chest pain radiating to the left arm, jaw, or neck.
+- **Associated Symptoms**: Sweating (diaphoresis), nausea, shortness of breath, palpitations.
+- **Silent MI**: Common in elderly or diabetic patients (may present as confusion or just breathlessness).
+
+### Management (Pre-hospital/ED)
+1. **MONA Protocol**:
+   - **M**orphine (if severe pain).
+   - **O**xygen (only if SpO2 < 94%).
+   - **N**itrates (GTN spray 2 puffs, repeat if necessary).
+   - **A**spirin (300mg chewable).
+2. **Investigation**: 12-lead ECG immediately.
+
+## Heart Failure (Acute Decompensated)
+### Symptoms
+- Severe breathlessness (orthopnoea, paroxysmal nocturnal dyspnoea).
+- Pink frothy sputum.
+- Fluid overload (ankle oedema, raised JVP).
+### Physical Signs
+- Bilateral basal crackles on lung auscultation.
+- Third heart sound (S3 gallop).
+### Management
+- IV Furosemide (Diuretic).
+- Oxygen (titrated).
+- Sit patient upright.
+
+## Atrial Fibrillation (AF)
+### ECG Findings
+- "Irregularly irregular" rhythm.
+- Absent P-waves.
+- Variable ventricular rate (often tachycardic).
+### Management Rules
+- **Rate Control**: Beta-blockers (Bisoprolol) or Calcium Channel Blockers (Diltiazem).
+- **Rhythm Control**: Considered if young, symptomatic, or new onset (<48 hours).
+- **Stroke Prevention**: Calculate CHADS2-VASC score to determine need for anticoagulation (DOAC or Warfarin).
+
+## Basic ECG Interpretation Guidelines
+- **Rate**: Calculate 300 / number of large squares between R-R.
+- **Rhythm**: Is it regular? Are P-waves present?
+- **ST Elevation**: Sign of STEMI (Heart Attack). Look for >1mm elevation in limb leads or >2mm in chest leads.
+- **ST Depression/T-wave inversion**: Signs of Ischaemia or NSTEMI.
+- **Prolonged PR Interval**: First-degree heart block (>0.2s).

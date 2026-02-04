@@ -1,0 +1,40 @@
+# Emergency Medicine Protocols
+
+## Sepsis (The Sepsis Six)
+### Recognition (qSOFA)
+- Respiratory rate ≥22/min.
+- Altered mental status (GCS <15).
+- Systolic blood pressure ≤100 mmHg.
+### Management (The Sepsis Six - Deliver within 1 hour)
+**Three In:**
+1. **Oxygen**: Maintain saturations >94% (88-92% in COPD).
+2. **IV Antibiotics**: Broad spectrum as per local guidelines.
+3. **IV Fluids**: Fluid challenge (e.g., 500ml Hartmann's/Saline stat).
+**Three Out:**
+4. **Blood Cultures**: Take before antibiotics.
+5. **Lactate**: Venous or arterial gas.
+6. **Urine Output**: Monitor hourly (catheterize if necessary).
+
+## Anaphylaxis
+### Symptoms
+- Sudden onset.
+- Airway: Swelling of tongue/throat, stridor.
+- Breathing: Wheeze, dyspnoea.
+- Circulation: Hypotension, tachycardia.
+- Skin: Urticaria (hives), angioedema.
+### Management
+1. **Adrenaline (IM)**: 1:1000 concentration.
+   - Adult: 500 micrograms (0.5ml).
+   - Child (6-12): 300 micrograms (0.3ml).
+   - Child (<6): 150 micrograms (0.15ml).
+2. High-flow oxygen.
+3. IV Fluids.
+4. Chlorphenamine (Antihistamine) and Hydrocortisone (Steroid) - *Secondary to Adrenaline*.
+
+## Trauma: Primary Survey (<c>ABCDE)
+- **<c> Catastrophic Haemorrhage**: Control massive external bleeding (tourniquet/pressure) first.
+- **A - Airway**: Check patency with C-spine control.
+- **B - Breathing**: Rate, effort, oxygenation. Rule out tension pneumothorax.
+- **C - Circulation**: Pulse, BP, capillary refill, external bleeding.
+- **D - Disability**: GCS, pupil response, blood glucose.
+- **E - Exposure**: Full examination, prevent hypothermia.

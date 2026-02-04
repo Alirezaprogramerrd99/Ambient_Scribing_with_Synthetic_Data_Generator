@@ -8,7 +8,7 @@ from src.pipeline import SyntheticDataPipeline, PipelineConfig
 
 config = PipelineConfig(
     num_scenarios=7,
-    
+    rag_top_k=7,
     # OpenAI settings
     teacher_provider="openai",
     teacher_model="gpt-4o-mini",
@@ -25,6 +25,13 @@ config = PipelineConfig(
     # Validation
     enable_validation=True,
     filter_invalid=True,
+    
+    
+     # Benchmarking (NEW)
+    enable_benchmarking=True,       # Enable benchmarks
+    compute_bertscore=False,        # Skip BERTScore (slow)
+    compute_ragas=True,             # Enable full RAGAS metrics
+    generate_benchmark_report=True, # Generate markdown report
 )
 
 pipeline = SyntheticDataPipeline(config)

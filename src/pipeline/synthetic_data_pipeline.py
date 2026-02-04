@@ -4,6 +4,8 @@ Synthetic Data Generation Pipeline
 End-to-end orchestration for generating synthetic clinical dialogue-summary pairs.
 Integrates all components: scenarios, RAG, teacher model, validation, and export.
 
+Based on: Woo et al. (2025) - Synthetic data distillation enables the
+extraction of clinical information at scale
 """
 
 import json
@@ -58,6 +60,12 @@ from src.utils import (
     print_info,
     logger,
 )
+from src.evaluation import (
+    TeacherBenchmark,
+    BenchmarkResult,
+    BenchmarkReporter,
+    run_benchmark,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -101,6 +109,12 @@ class PipelineConfig:
     enable_clinical_validation: bool = True
     enable_rag_validation: bool = True
     filter_invalid: bool = True  # Only keep valid samples
+    
+    # Benchmarking settings
+    enable_benchmarking: bool = True  # Run benchmarks after generation
+    compute_bertscore: bool = False  # BERTScore (slow, requires GPU)
+    compute_ragas: bool = False  # Full RAGAS metrics (requires API calls)
+    generate_benchmark_report: bool = True  # Generate markdown report
     
     # Processing settings
     batch_size: int = 10
@@ -170,6 +184,10 @@ class PipelineResult:
     # Metrics
     validation_stats: Dict[str, Any] = field(default_factory=dict)
     
+    # Benchmark results
+    benchmark_result: Optional[BenchmarkResult] = None
+    benchmark_report_path: Optional[Path] = None
+    
     # Paths
     output_path: Optional[Path] = None
     
@@ -186,7 +204,7 @@ class PipelineResult:
         return (self.total_valid / self.total_seconds) * 60
     
     def to_summary(self) -> Dict[str, Any]:
-        return {
+        summary = {
             "total_scenarios": self.total_scenarios,
             "total_generated": self.total_generated,
             "total_valid": self.total_valid,
@@ -196,6 +214,23 @@ class PipelineResult:
             "total_time": f"{self.total_seconds:.1f}s",
             "output_path": str(self.output_path) if self.output_path else None,
         }
+        
+        # Add benchmark summary if available
+        if self.benchmark_result:
+            summary["benchmark"] = {
+                "overall_score": f"{self.benchmark_result.overall_score:.3f}",
+                "quality_metrics": self.benchmark_result.quality_metrics,
+                "clinical_metrics": {
+                    k: v for k, v in self.benchmark_result.clinical_metrics.items()
+                    if isinstance(v, (int, float))
+                },
+                "rag_metrics": self.benchmark_result.rag_metrics,
+                "ragas_metrics": self.benchmark_result.ragas_metrics,
+            }
+            if self.benchmark_report_path:
+                summary["benchmark_report"] = str(self.benchmark_report_path)
+        
+        return summary
 
 
 # =============================================================================
@@ -379,7 +414,13 @@ class SyntheticDataPipeline:
             if tracking_context:
                 tracking_context.__exit__(None, None, None)
         
-        # Step 5: Export results (AFTER timing is calculated)
+        # Step 5: Run benchmarks (AFTER timing is calculated)
+        if self.config.enable_benchmarking and result.samples:
+            benchmark_result, report_path = self._run_benchmarks(result.samples)
+            result.benchmark_result = benchmark_result
+            result.benchmark_report_path = report_path
+        
+        # Step 6: Export results
         output_path = self._export_results(result.samples, result)
         result.output_path = output_path
         
@@ -499,6 +540,77 @@ class SyntheticDataPipeline:
         
         return valid_samples, stats
     
+    def _run_benchmarks(
+        self,
+        samples: List[SyntheticSample],
+    ) -> tuple[Optional[BenchmarkResult], Optional[Path]]:
+        """
+        Run benchmarks on generated samples
+        
+        Args:
+            samples: List of validated samples
+            
+        Returns:
+            Tuple of (BenchmarkResult, report_path)
+        """
+        print_info("Running benchmarks...")
+        
+        try:
+            # Create benchmark
+            benchmark = TeacherBenchmark(
+                compute_bertscore=self.config.compute_bertscore,
+                compute_ragas=self.config.compute_ragas,
+                relevance_threshold=0.5,
+                ragas_llm_provider=self.config.teacher_provider,
+                ragas_llm_model=self.config.teacher_model,
+            )
+            
+            # Run evaluation
+            benchmark_result = benchmark.evaluate(
+                samples=samples,
+                model_name=self.config.teacher_model,
+                model_provider=self.config.teacher_provider,
+            )
+            
+            # Print key metrics
+            print_success(f"Benchmark complete:")
+            print_info(f"  Overall Score: {benchmark_result.overall_score:.3f}")
+            print_info(f"  Quality Metrics: {benchmark_result.quality_metrics}")
+            print_info(f"  Clinical Accuracy: {benchmark_result.clinical_metrics.get('clinical_accuracy', 'N/A')}")
+            if benchmark_result.ragas_metrics:
+                print_info(f"  RAGAS Score: {benchmark_result.ragas_metrics.get('overall_score', 'N/A')}")
+            
+            # Generate report if enabled
+            report_path = None
+            if self.config.generate_benchmark_report:
+                reporter = BenchmarkReporter(output_dir=self.config.output_dir)
+                
+                # Save JSON
+                json_path = reporter.save_json(benchmark_result)
+                print_success(f"Benchmark JSON saved: {json_path}")
+                
+                # Generate markdown report
+                report_path = reporter.generate_markdown_report(benchmark_result)
+                print_success(f"Benchmark report saved: {report_path}")
+            
+            # Log to experiment tracker if available
+            if self._tracker:
+                self._tracker.log_metrics({
+                    "benchmark/overall_score": benchmark_result.overall_score,
+                    "benchmark/success_rate": benchmark_result.success_rate,
+                    **{f"benchmark/quality/{k}": v for k, v in benchmark_result.quality_metrics.items()},
+                    **{f"benchmark/clinical/{k}": v for k, v in benchmark_result.clinical_metrics.items() if isinstance(v, (int, float))},
+                    **{f"benchmark/rag/{k}": v for k, v in benchmark_result.rag_metrics.items()},
+                    **{f"benchmark/ragas/{k}": v for k, v in benchmark_result.ragas_metrics.items() if isinstance(v, (int, float))},
+                })
+            
+            return benchmark_result, report_path
+            
+        except Exception as e:
+            print_warning(f"Benchmarking failed: {e}")
+            pipeline_logger.exception("Benchmark error")
+            return None, None
+    
     def _export_results(
         self,
         samples: List[SyntheticSample],
@@ -580,6 +692,32 @@ class SyntheticDataPipeline:
         print(f"  Total time:          {result.total_seconds:.1f}s")
         print(f"  Samples/minute:      {result.samples_per_minute:.2f}")
         print(f"  Output:              {result.output_path}")
+        
+        # Print benchmark results if available
+        if result.benchmark_result:
+            print()
+            print_header("Benchmark Results")
+            br = result.benchmark_result
+            print(f"  Overall Score:       {br.overall_score:.3f}")
+            print(f"  Success Rate:        {br.success_rate:.1%}")
+            
+            if br.quality_metrics:
+                print(f"  Quality Metrics:")
+                for k, v in br.quality_metrics.items():
+                    print(f"    - {k}: {v:.3f}")
+            
+            if br.clinical_metrics:
+                clinical_acc = br.clinical_metrics.get('clinical_accuracy', None)
+                if clinical_acc:
+                    print(f"  Clinical Accuracy:   {clinical_acc:.3f}")
+            
+            if br.ragas_metrics:
+                ragas_overall = br.ragas_metrics.get('overall_score', None)
+                if ragas_overall:
+                    print(f"  RAGAS Score:         {ragas_overall:.3f}")
+            
+            if result.benchmark_report_path:
+                print(f"  Report:              {result.benchmark_report_path}")
 
 
 # =============================================================================

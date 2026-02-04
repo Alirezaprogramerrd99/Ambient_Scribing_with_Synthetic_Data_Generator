@@ -1,0 +1,37 @@
+# Acute Neurology Guidelines
+
+## Stroke and TIA
+### FAST Assessment
+- **F**ace: Facial weakness (can they smile?).
+- **A**rms: Arm weakness (can they raise both arms?).
+- **S**peech: Slurred speech (can they repeat a sentence?).
+- **T**ime: Time is brain. Call emergency services immediately.
+
+### Transient Ischaemic Attack (TIA)
+- Symptoms resolve completely within 24 hours (usually <1 hour).
+- **Risk**: High risk of full stroke in following days.
+- **Management**: Aspirin 300mg immediately (after excluding hemorrhage if possible), urgent referral to TIA clinic, ABCD2 score assessment.
+
+### Acute Stroke Management
+- Maintain oxygen saturation >95%.
+- Check blood glucose (rule out hypoglycaemia mimicking stroke).
+- Urgent CT Head to differentiate Ischaemic vs Haemorrhagic.
+- Thrombolysis (Alteplase) consideration if <4.5 hours from onset.
+
+## Seizures and Epilepsy
+### Acute Seizure Management
+1. **Safety**: Protect head, do not restrain, do not put anything in mouth.
+2. **Timing**: Time the seizure duration.
+3. **Status Epilepticus**: Seizure >5 minutes or recurrent seizures without recovery.
+   - **First line**: Buccal Midazolam (10mg) or Rectal Diazepam.
+   - **Second line**: IV Lorazepam (if access available).
+
+### Post-Ictal State
+- Confusion, drowsiness, or headache following a seizure.
+- Monitor vitals and GCS until full recovery.
+
+### Red Flags
+- First-ever seizure.
+- Seizure lasting >5 minutes.
+- History of recent head trauma.
+- Persistent neurological deficit (Todd's Paresis).

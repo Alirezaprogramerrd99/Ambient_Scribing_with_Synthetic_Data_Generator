@@ -1,0 +1,40 @@
+# Geriatric Medicine Guidelines
+
+## Falls Assessment
+### History
+- "SPLATT": Symptoms, Previous falls, Location, Activity, Time, Trauma.
+- Mechanical (trip) vs. Medical (syncope/dizziness).
+### Risk Factors
+- Intrinsic: Visual impairment, muscle weakness, gait disorder, hypotension.
+- Extrinsic: Loose rugs, poor lighting, ill-fitting footwear.
+### Management
+- Check lying and standing blood pressure (Postural Hypotension).
+- Review medications (sedatives, antihypertensives).
+- Physiotherapy referral for strength and balance training.
+- Bone health: Consider Osteoporosis risk (FRAX score).
+
+## Dementia vs. Delirium
+### Delirium (Acute Confusional State)
+- **Onset**: Acute (hours/days).
+- **Course**: Fluctuating.
+- **Consciousness**: Altered/clouded.
+- **Causes ("PINCH ME")**: Pain, Infection, Nutrition, Constipation, Hydration, Medication, Environment.
+- **Management**: Treat underlying cause.
+
+### Dementia (Major Neurocognitive Disorder)
+- **Onset**: Insidious (months/years).
+- **Course**: Progressive decline.
+- **Consciousness**: Generally clear until late stages.
+- **Types**: Alzheimer's (memory loss), Vascular (step-wise decline), Lewy Body (hallucinations, Parkinsonism).
+
+## Polypharmacy
+### Definition
+- Concurrent use of multiple medications (usually 5+).
+### Risks
+- Adverse Drug Reactions (ADRs).
+- Falls (especially with benzodiazepines, opiates, anticholinergics).
+- Reduced medication adherence.
+### Deprescribing Strategy
+- Identify medications with no clear indication.
+- Review "ACB Score" (Anticholinergic Burden).
+- Stop medications where harm outweighs benefit (e.g., statins in end-of-life care).

@@ -1,0 +1,44 @@
+# Common Pediatric Illnesses
+
+## Otitis Media (Ear Infection)
+### Presentation
+- Earache, tugging at ear, fever, irritability, poor feeding.
+- Red, bulging tympanic membrane on otoscopy.
+### Management
+- **Analgesia**: Paracetamol and Ibuprofen are the mainstay.
+- **Antibiotics**: Usually not required (viral). Prescribe Amoxicillin ONLY if:
+  - Systemically unwell.
+  - Perforation (discharge).
+  - Bilateral infection in child <2 years.
+  - Symptoms persist >3 days.
+
+## Tonsillitis
+### Presentation
+- Sore throat, fever, difficulty swallowing (dysphagia).
+- Enlarged, inflamed tonsils with exudate (pus).
+### Centor Criteria (for Antibiotics)
+1. Fever >38°C.
+2. Tonsillar exudate.
+3. No cough.
+4. Tender anterior cervical lymphadenopathy.
+- **Score 3-4**: Consider Phenoxymethylpenicillin (Penicillin V) for 10 days.
+
+## Croup (Laryngotracheobronchitis)
+### Presentation
+- Barking "seal-like" cough.
+- Stridor (high-pitched inspiratory sound).
+- Hoarse voice.
+- Worse at night.
+### Management
+- Single dose of Oral Dexamethasone (0.15mg/kg).
+- Keep child calm (agitation worsens stridor).
+- Red Flag: Drooling + high fever = Suspect Epiglottitis (Emergency).
+
+## Gastroenteritis (Vomiting & Diarrhoea)
+### Assessment
+- Check for dehydration: Sunken fontanelle, dry mucous membranes, reduced wet nappies, prolonged capillary refill (>2s).
+### Management
+- **Fluid Challenge**: Oral Rehydration Solution (small amounts, frequently).
+- 5ml every 5 mins if vomiting.
+- Maintain breastfeeding.
+- **Avoid**: Antidiarrheals (e.g., Loperamide) in children under 12.
