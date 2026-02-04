@@ -1,0 +1,182 @@
+
+#--------- module circuit verification.
+python -c "from src.models import SyntheticSample; print('✓ Models OK')"
+python -c "from src.pipeline import SyntheticDataPipeline; print(' Success!')"
+python -c "from src.config import get_clinical_prompts; print('✓ Config OK')"
+
+
+#--------- venv and running the project (locally).
+
+.\venv\Scripts\activate
+pip install -e . --no-deps
+
+
+
+# --------- manual smoke tests:
+
+
+Quick Test (No RAG):
+
+python -c "
+from src.teacher import create_teacher
+
+# Create teacher (Ollama)
+teacher = create_teacher(
+    provider='ollama',
+    model_name='llama3.1:8b',
+    temperature=0.7,
+    use_rag=False,
+)
+
+# Test generation
+result = teacher.generate('45-year-old female with chest pain for 2 days')
+
+if result.success:
+    print('SUCCESS!')
+    print(f'Dialogue turns: {len(result.sample.dialogue)}')
+    print(f'Chief complaint: {result.sample.summary.chief_complaint}')
+else:
+    print(f'FAILED: {result.error}')
+"
+
+
+Test Scenario Generation:
+
+python -c "
+from src.scenarios import ScenarioGenerator
+
+generator = ScenarioGenerator(seed=42)
+scenarios = generator.generate_batch(count=5)
+
+for i, scenario in enumerate(scenarios, 1):
+    print(f'{i}. [{scenario.specialty.value}]')
+    print(f'   {scenario.to_text()}')
+    print()
+"
+
+
+
+Build knowledgebase:
+
+python -c "
+from src.knowledge_base import RAGFactory, RAGConfig, RAGBackend
+from pathlib import Path
+
+# Configure RAG
+config = RAGConfig(
+    backend=RAGBackend.MANUAL,
+    vector_store='chroma',
+    persist_dir='./data/chroma_db',
+    collection_name='medical_knowledge',
+)
+
+# Create factory
+factory = RAGFactory(config)
+
+# Build knowledge base
+print('Building knowledge base...')
+stats = factory.build_knowledge_base(
+    Path('./medical_knowledge'),
+    clear_existing=True,
+)
+
+print(f'Knowledge base built!')
+print(f'Stats: {stats}')
+"
+
+Test RAG Retrieval:
+
+python -c "
+from src.knowledge_base import RAGFactory, RAGConfig, RAGBackend
+
+config = RAGConfig(
+    backend=RAGBackend.MANUAL,
+    persist_dir='./data/chroma_db',
+)
+
+factory = RAGFactory(config)
+retriever = factory.get_retriever()
+
+# Test retrieval
+response = retriever.retrieve('chest pain management', top_k=3)
+
+print(f'Query: chest pain management')
+print(f'Results: {response.num_results}')
+print()
+
+for i, result in enumerate(response.results, 1):
+    print(f'{i}. Score: {result.score:.3f}')
+    print(f'   {result.text[:200]}...')
+    print()
+"
+
+
+For larger runs, use the CLI:
+
+# Generate 100 samples
+
+python -m src.pipeline.synthetic_data_pipeline \
+    --num-scenarios 100 \
+    --provider ollama \
+    --model llama3.1:8b \
+    --use-rag \
+    --knowledge-base ./medical_knowledge \
+    --output-dir ./data/synthetic_output \
+    --format jsonl
+
+
+After running, check your output:
+
+# List output files
+ls -la data/synthetic_output/
+
+# View first few lines of generated data
+head -n 50 data/synthetic_output/synthetic_data_*.jsonl
+
+# Count samples
+wc -l data/synthetic_output/synthetic_data_*.jsonl
+
+
+
+Generated samples inspection in python:
+
+python -c "
+import json
+from pathlib import Path
+
+# Find the latest output file
+output_dir = Path('./data/synthetic_output')
+files = list(output_dir.glob('synthetic_data_*.jsonl'))
+if not files:
+    print('No output files found')
+    exit()
+
+latest_file = max(files, key=lambda p: p.stat().st_mtime)
+print(f'Reading: {latest_file}')
+
+# Load and display first sample
+with open(latest_file) as f:
+    sample = json.loads(f.readline())
+
+print()
+print('=== SAMPLE ===')
+print(f'ID: {sample[\"id\"]}')
+print()
+print('--- Dialogue ---')
+for turn in sample['dialogue'][:4]:
+    print(f\"{turn['speaker']}: {turn['text'][:100]}...\")
+print('...')
+print()
+print('--- Summary ---')
+print(f\"Chief Complaint: {sample['summary']['chief_complaint']}\")
+print(f\"Assessment: {sample['summary']['assessment'][:200]}...\")
+print(f\"Plan: {sample['summary']['plan'][:200]}...\")
+"
+
+
+#--------------- Issue: ChromaDB errors
+
+# Remove existing database and rebuild
+
+rm -rf data/chroma_db
+# Then run the knowledge base building step again

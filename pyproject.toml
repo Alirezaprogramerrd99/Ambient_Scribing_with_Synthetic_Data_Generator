@@ -1,0 +1,171 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-scribe-teacher"
+version = "0.1.0"
+description = "RAG-Enhanced Teacher Model for Synthetic Clinical Data Generation"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Alireza Rashidi", email = "your.email@example.com"}
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+keywords = [
+    "clinical-nlp",
+    "ambient-scribing", 
+    "medical-ai",
+    "synthetic-data",
+    "knowledge-distillation",
+    "rag",
+    "llm"
+]
+
+# =============================================================================
+# DEPENDENCIES (matching requirements.txt)
+# =============================================================================
+dependencies = [
+    # Core Framework
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    
+    # LLM & RAG Framework
+    "llama-index>=0.10.0",
+    "llama-index-llms-ollama>=0.1.0",
+    "llama-index-llms-openai>=0.1.0",
+    "llama-index-llms-anthropic>=0.1.0",
+    "llama-index-embeddings-huggingface>=0.1.0",
+    "llama-index-vector-stores-qdrant>=0.1.0",
+    "llama-index-vector-stores-chroma>=0.1.0",
+    "langchain>=0.1.0",
+    "langchain-community>=0.0.20",
+    "litellm>=1.0.0",
+    
+    # Vector Databases
+    "qdrant-client>=1.7.0",
+    "chromadb>=0.4.22",
+    
+    # Structured Output (Critical for reliable JSON generation)
+    "instructor>=0.5.0",
+    "outlines>=0.0.34",
+    
+    # Document Processing
+    "unstructured[pdf,docx]>=0.12.0",
+    "pypdf>=3.17.0",
+    "python-docx>=1.1.0",
+    "beautifulsoup4>=4.12.0",
+    
+    # Embeddings
+    "sentence-transformers>=2.2.0",
+    "torch>=2.0.0",
+    
+    # Clinical NLP
+    "spacy>=3.7.0",
+    
+    # Evaluation Metrics
+    "ragas>=0.1.0",
+    "rouge-score>=0.1.2",
+    "bert-score>=0.3.13",
+    "nltk>=3.8.0",
+    
+    # Experiment Tracking
+    "mlflow>=2.10.0",
+    "wandb>=0.16.0",
+    
+    # Utilities
+    "tenacity>=8.2.0",
+    "httpx>=0.26.0",
+    "tqdm>=4.66.0",
+    "rich>=13.7.0",
+    "python-json-logger>=2.0.0",
+]
+
+[project.optional-dependencies]
+# Clinical NLP (requires manual installation)
+clinical = [
+    "scispacy>=0.5.3",
+]
+
+# Development & Testing
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.8.0",
+    "ruff>=0.1.0",
+]
+
+# Jupyter notebooks
+notebooks = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.28.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/ambient-scribe-teacher"
+Documentation = "https://github.com/yourusername/ambient-scribe-teacher#readme"
+Repository = "https://github.com/yourusername/ambient-scribe-teacher.git"
+
+[project.scripts]
+generate-synthetic = "src.pipeline.synthetic_data_pipeline:main"
+setup-kb = "src.knowledge_base.indexer:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | medical_knowledge
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = [".venv", "data", "medical_knowledge"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["data", "medical_knowledge", "notebooks"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"

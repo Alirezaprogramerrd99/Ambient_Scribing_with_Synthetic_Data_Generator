@@ -1,0 +1,74 @@
+You are a medical education expert assessing the complexity of clinical scenarios for training purposes.
+
+## SCENARIO
+{scenario}
+
+## GENERATED DIALOGUE
+{dialogue}
+
+## GENERATED SUMMARY
+{summary}
+
+## TASK
+Assess the difficulty and complexity of this clinical case for training an AI medical scribe.
+
+## ASSESSMENT CRITERIA
+
+### Clinical Complexity Factors:
+1. **Diagnostic Complexity**: How challenging is the differential diagnosis?
+   - Single obvious diagnosis = Low
+   - 2-3 possible diagnoses = Medium
+   - Multiple differentials requiring careful reasoning = High
+
+2. **History Complexity**: How complex is the patient history?
+   - Straightforward, single complaint = Low
+   - Multiple related symptoms = Medium
+   - Multiple comorbidities, complex timeline = High
+
+3. **Red Flags**: Are there concerning features requiring urgent action?
+   - None = Low
+   - Potential red flags to consider = Medium
+   - Definite red flags requiring immediate action = High
+
+4. **Treatment Complexity**: How complex is the management plan?
+   - Single intervention/medication = Low
+   - Multiple interventions = Medium
+   - Complex multi-step management = High
+
+5. **Documentation Challenge**: How difficult is it to document accurately?
+   - Straightforward documentation = Low
+   - Moderate complexity = Medium
+   - Requires careful attention to detail = High
+
+## OUTPUT FORMAT
+Respond with ONLY valid JSON:
+
+```json
+{{
+    "difficulty_score": 5,
+    "difficulty_level": "medium",
+    "reasoning_steps": [
+        "Step 1: Identify presenting complaint",
+        "Step 2: Gather relevant history",
+        "Step 3: Consider differential diagnoses",
+        "Step 4: Determine appropriate investigations",
+        "Step 5: Formulate management plan"
+    ],
+    "clinical_complexity_factors": [
+        "Multiple symptoms requiring correlation",
+        "Comorbidity affecting management",
+        "Need for risk stratification"
+    ],
+    "assessment_rationale": "Brief explanation of the difficulty rating",
+    "key_learning_points": [
+        "Learning point 1",
+        "Learning point 2"
+    ]
+}}
+```
+
+Where:
+- difficulty_score: 1-10 (1=very simple, 10=very complex)
+- difficulty_level: "low" (1-3), "medium" (4-6), "high" (7-10)
+
+Assess now:

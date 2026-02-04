@@ -1,0 +1,115 @@
+# Urinary Symptoms Assessment Guidelines
+
+## Overview
+Urinary symptoms are common in both men and women, ranging from infections to 
+malignancy. Systematic assessment is essential.
+
+## Red Flags - Urgent Referral Required
+- Visible haematuria (2WW cancer pathway)
+- Microscopic haematuria with age >60
+- Recurrent UTI with haematuria
+- Palpable bladder
+- Acute urinary retention
+- Renal mass on imaging
+- Unexplained lower urinary tract symptoms in men >45
+
+## Urinary Tract Infection (UTI)
+
+### Presentation
+- Dysuria (painful urination)
+- Frequency and urgency
+- Suprapubic pain
+- Haematuria
+- Offensive/cloudy urine
+
+### Diagnosis
+- Urine dipstick: Nitrites and/or leucocytes
+- MSU if: recurrent, pregnant, male, atypical symptoms, treatment failure
+
+### Uncomplicated UTI in Women
+- Nitrofurantoin 100mg BD for 3 days (avoid if eGFR <45)
+- Or Trimethoprim 200mg BD for 3 days
+- Or Pivmecillinam 400mg stat then 200mg TDS for 3 days
+
+### UTI in Men
+- Always send MSU
+- Trimethoprim 200mg BD for 7 days
+- Or Nitrofurantoin 100mg BD for 7 days
+- Consider prostatitis if recurrent
+
+### UTI in Pregnancy
+- Send MSU
+- Nitrofurantoin 100mg BD for 7 days (avoid at term)
+- Or Cefalexin 500mg BD for 7 days
+- Treat asymptomatic bacteriuria
+
+### Recurrent UTI (≥3/year)
+- Urine culture each episode
+- Consider prophylaxis: Nitrofurantoin 50-100mg nocte
+- Post-coital prophylaxis if related
+- Refer if persistent
+
+## Lower Urinary Tract Symptoms (LUTS) in Men
+
+### Storage Symptoms
+- Frequency
+- Urgency
+- Nocturia
+- Incontinence
+
+### Voiding Symptoms
+- Hesitancy
+- Poor stream
+- Intermittency
+- Terminal dribbling
+- Incomplete emptying
+
+### Assessment
+- IPSS score (International Prostate Symptom Score)
+- Digital rectal examination
+- PSA (after counselling)
+- Flow rate and post-void residual if available
+- U&E (check for renal impairment)
+
+### Management of BPH
+1. Watchful waiting if mild symptoms
+2. Alpha-blocker (Tamsulosin 400mcg OD) - rapid onset
+3. 5-alpha reductase inhibitor (Finasteride 5mg OD) - if prostate >30g
+4. Combination therapy for larger prostates
+5. Refer for surgery if medical treatment fails
+
+## Overactive Bladder (OAB)
+
+### Symptoms
+- Urgency (main symptom)
+- Frequency (>8 voids/day)
+- Nocturia (>1/night)
+- With or without urgency incontinence
+
+### Management
+1. Bladder training (first-line)
+2. Reduce caffeine and alcohol
+3. Anticholinergic: Oxybutynin 2.5-5mg TDS, Solifenacin 5mg OD
+4. Beta-3 agonist: Mirabegron 50mg OD (if anticholinergics contraindicated)
+
+## Haematuria
+
+### Visible (Macroscopic)
+- Always investigate
+- Refer via 2WW pathway if:
+  - Age ≥45 with unexplained visible haematuria
+  - Age ≥60 with unexplained non-visible haematuria + dysuria/raised WCC
+- Urgent CT urogram and cystoscopy
+
+### Non-Visible (Microscopic)
+- Confirm on 2 of 3 samples
+- Check BP and renal function
+- Refer if: age ≥60, proteinuria, reduced eGFR, hypertension
+
+## Safety Netting
+Advise patient to return if:
+- Symptoms not improving within 48 hours of antibiotics
+- Fever, loin pain, vomiting (pyelonephritis)
+- Blood in urine
+- Unable to pass urine
+- Significant increase in symptoms

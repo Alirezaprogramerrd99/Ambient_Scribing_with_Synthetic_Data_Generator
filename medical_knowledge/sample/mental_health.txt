@@ -1,0 +1,115 @@
+# Mental Health Assessment Guidelines
+
+## Overview
+Mental health conditions are common, affecting 1 in 4 people. Primary care plays 
+a crucial role in identification, initial management, and ongoing support.
+
+## Red Flags - Urgent Action Required
+- Active suicidal ideation with plan
+- Psychotic symptoms (hallucinations, delusions)
+- Severe self-neglect
+- Risk to others
+- Severe depression with inability to function
+- Manic episode
+
+## Depression Assessment
+
+### Core Symptoms (at least one required)
+- Persistent low mood
+- Loss of interest/pleasure (anhedonia)
+- Fatigue/low energy
+
+### Additional Symptoms
+- Poor concentration
+- Low self-esteem
+- Guilt/worthlessness
+- Sleep disturbance
+- Appetite/weight change
+- Psychomotor changes
+- Suicidal thoughts
+
+### Severity Classification
+- Mild: 5+ symptoms, minor functional impairment
+- Moderate: 5+ symptoms, moderate functional impairment
+- Severe: Most symptoms, marked functional impairment, may have psychotic features
+
+### Screening Tools
+- PHQ-9: Score ≥10 suggests moderate depression
+- GAD-7: For concurrent anxiety assessment
+
+## Anxiety Disorders
+
+### Generalised Anxiety Disorder (GAD)
+- Excessive worry about multiple areas for ≥6 months
+- Difficulty controlling worry
+- Associated: restlessness, fatigue, concentration problems, irritability, muscle tension, sleep disturbance
+
+### Panic Disorder
+- Recurrent unexpected panic attacks
+- Persistent concern about future attacks
+- Avoidance behaviours
+
+### Social Anxiety
+- Marked fear of social situations
+- Fear of negative evaluation
+- Avoidance of social situations
+
+## Management
+
+### Mild-Moderate Depression
+- Self-help resources, bibliotherapy
+- Computerised CBT (e.g., Beating the Blues)
+- Exercise programmes
+- Consider antidepressant if persistent
+
+### Moderate-Severe Depression
+- Antidepressant + psychological therapy
+- First-line: SSRI (e.g., Sertraline 50mg, Citalopram 20mg)
+- Continue for 6+ months after remission
+
+### Anxiety Disorders
+- First-line: Self-help, psychoeducation
+- CBT (individual or group)
+- SSRI if moderate-severe (e.g., Sertraline 50mg)
+- Pregabalin for GAD if SSRI not tolerated
+
+## Antidepressant Prescribing
+
+### SSRIs (First-line)
+- Sertraline 50mg (safest in cardiac disease)
+- Citalopram 20mg (max 40mg, 20mg if >65)
+- Fluoxetine 20mg (long half-life, activating)
+
+### Other Options
+- Mirtazapine 15-45mg (sedating, weight gain)
+- Venlafaxine 75-225mg (monitor BP)
+- Duloxetine 60mg (also for neuropathic pain)
+
+### Important Counselling Points
+- Takes 2-4 weeks to feel benefit
+- Continue for 6+ months minimum
+- Do not stop abruptly (taper)
+- Common side effects: nausea, headache, initial anxiety increase
+- Warn about increased anxiety/suicidal ideation in early weeks (young people)
+
+## Suicide Risk Assessment
+- Ask directly about suicidal thoughts
+- Assess frequency, intensity, plans, access to means
+- Protective factors: social support, reasons for living
+- Previous attempts (strongest risk factor)
+- Document risk assessment clearly
+
+## Safety Netting
+Advise patient/family to seek urgent help if:
+- Suicidal thoughts or plans
+- Self-harm
+- Unable to care for self
+- Symptoms significantly worsen
+- Unusual thoughts or behaviours
+- Side effects causing concern
+
+## Crisis Resources
+- NHS 111
+- Samaritans: 116 123
+- Crisis team (local)
+- A&E if immediate risk

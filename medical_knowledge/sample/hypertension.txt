@@ -1,0 +1,88 @@
+# Hypertension Management Guidelines
+
+## Overview
+Hypertension affects approximately 1 in 4 adults and is a major risk factor for 
+cardiovascular disease, stroke, and chronic kidney disease.
+
+## Diagnosis
+- Clinic BP ≥140/90 mmHg on 2 separate occasions
+- Confirm with ABPM (average ≥135/85) or HBPM (average ≥135/85)
+- Stage 1: Clinic 140-159/90-99, ABPM/HBPM 135-149/85-94
+- Stage 2: Clinic 160-179/100-109, ABPM/HBPM 150-169/95-104
+- Stage 3 (Severe): Clinic ≥180/110
+
+## Red Flags - Urgent Referral
+- Accelerated hypertension (BP ≥180/120 with signs of papilloedema/retinal haemorrhage)
+- Suspected phaeochromocytoma (episodic headache, sweating, palpitations)
+- New onset in young patient (<40 years)
+- Resistant hypertension (uncontrolled on 3+ agents)
+- Suspected secondary cause
+
+## Target Blood Pressure
+- Age <80: Clinic <140/90, ABPM/HBPM <135/85
+- Age ≥80: Clinic <150/90, ABPM/HBPM <145/85
+- With diabetes: <140/80 (consider <130/80 if tolerated)
+- With CKD: <140/90 (or <130/80 if ACR ≥70)
+
+## Initial Assessment
+- Confirm diagnosis with ABPM/HBPM
+- Assess cardiovascular risk (QRISK3)
+- Check for end-organ damage
+- Exclude secondary causes
+- Bloods: U&E, HbA1c, lipids, eGFR
+- Urine: ACR
+- ECG: LVH assessment
+
+## Treatment Algorithm
+
+### Step 1
+- Age <55 or T2DM: ACE inhibitor (e.g., Ramipril 2.5-10mg) or ARB
+- Age ≥55 or Black African/Caribbean: CCB (e.g., Amlodipine 5-10mg)
+
+### Step 2 (if BP not at target)
+- ACEi/ARB + CCB
+
+### Step 3 (if BP still not at target)
+- ACEi/ARB + CCB + Thiazide-like diuretic (e.g., Indapamide 2.5mg)
+
+### Step 4 (Resistant hypertension)
+- Consider low-dose spironolactone 25mg (if K+ ≤4.5)
+- Or alpha-blocker (e.g., Doxazosin 4-8mg)
+- Or beta-blocker (e.g., Bisoprolol 5-10mg)
+
+## Lifestyle Modifications
+- Reduce salt intake (<6g/day)
+- DASH diet: fruits, vegetables, whole grains, low-fat dairy
+- Weight loss if overweight (target BMI <25)
+- Exercise: 150 minutes moderate activity per week
+- Limit alcohol: ≤14 units/week
+- Smoking cessation
+- Reduce caffeine intake
+
+## Monitoring
+- Review within 4 weeks of starting/changing treatment
+- Once stable, review every 6-12 months
+- Check U&E 1-2 weeks after starting ACEi/ARB
+- Annual: BP, U&E, eGFR, ACR, cardiovascular risk assessment
+
+## Special Populations
+
+### Pregnancy
+- Stop ACEi/ARB, switch to Labetalol or Nifedipine
+- Target <135/85 mmHg
+
+### Chronic Kidney Disease
+- First-line: ACEi or ARB (renoprotective)
+- Monitor K+ and creatinine closely
+
+### Heart Failure
+- ACEi/ARB, Beta-blocker, and MRA indicated
+- Avoid Verapamil/Diltiazem
+
+## Safety Netting
+Advise patient to seek help if:
+- Severe headache with visual disturbance
+- Chest pain or breathlessness
+- New weakness or numbness
+- Persistent dizziness or fainting
+- Significant side effects from medication

@@ -1,0 +1,101 @@
+You are an expert medical documentation specialist and clinical educator creating high-quality synthetic training data for an AI medical scribe system.
+
+## SCENARIO
+{scenario}
+
+## CLINICAL GUIDELINES (Retrieved from Knowledge Base)
+{guidelines_context}
+
+## TASK
+Generate a realistic doctor-patient consultation dialogue and comprehensive clinical documentation.
+
+## CRITICAL SAFETY RULES (MUST FOLLOW)
+1. **Pediatric Safety**: For patients under 18, prioritize age-appropriate differential diagnoses. 
+   - Example: A 4-year-old with chest pain likely has musculoskeletal pain or a respiratory infection, NOT a heart attack. 
+   - Do NOT apply adult protocols (e.g., Aspirin, Troponins) to children unless the provided guidelines explicitly specify pediatric use.
+
+2. **Diagnostic Caution**: Do NOT definitively diagnose chronic conditions based on short-term symptoms.
+   - Example: Do not diagnose "Major Depressive Disorder" if symptoms have only lasted 1 day (guidelines require weeks).
+   - Use provisional language: "Symptoms consistent with...", "Impression of...", or "Observation of low mood".
+
+3. **Temporal Logic**: Ensure the treatment plan matches the duration of symptoms. 
+   - Do not prescribe long-term maintenance medication (e.g., SSRIs, Antihypertensives) for a first presentation of acute symptoms without a trial of conservative management or monitoring.
+
+## REQUIREMENTS
+
+### Dialogue Requirements:
+1. Create a natural, realistic conversation (8-15 turns minimum)
+2. Doctor should:
+   - Greet the patient professionally
+   - Take a thorough history using open-ended questions
+   - Ask about onset, duration, character, severity, location
+   - Inquire about aggravating/relieving factors
+   - Ask about associated symptoms
+   - Review relevant past medical history
+   - Ask about current medications and allergies
+   - Perform and narrate relevant physical examination
+   - Explain findings and next steps clearly
+
+3. Patient should:
+   - Respond naturally with varying detail levels
+   - Sometimes volunteer information, sometimes need prompting
+   - Express concerns or ask questions
+   - Use lay terms (not medical jargon)
+
+### Clinical Summary Requirements:
+1. Chief Complaint: Concise statement of main problem with duration
+2. History of Present Illness (HPI): Comprehensive narrative including:
+   - Onset and duration
+   - Character/quality of symptoms
+   - Location and radiation
+   - Severity (use scales where appropriate)
+   - Timing/frequency
+   - Aggravating/relieving factors
+   - Associated symptoms
+   - Pertinent negatives (what is NOT present)
+3. Past Medical History (PMH): Relevant conditions
+4. Medications: Drug name, dose, frequency
+5. Allergies: Agent and reaction type
+6. Social History: Smoking, alcohol, occupation, living situation
+7. Family History: Relevant hereditary conditions
+8. Physical Examination: Vital signs and systematic findings
+9. Assessment: Working diagnosis and differential diagnoses
+10. Plan: Investigations, management steps, prescriptions, referrals
+11. Safety Netting: Specific warning signs and follow-up advice
+
+## OUTPUT FORMAT
+Respond with ONLY valid JSON in exactly this structure (no additional text):
+
+{{
+    "dialogue": [
+        {{"speaker": "Doctor", "text": "Good morning, I'm Dr. Smith. What brings you in today?"}},
+        {{"speaker": "Patient", "text": "I've been having this chest pain..."}},
+        ...
+    ],
+    "summary": {{
+        "chief_complaint": "Brief presenting complaint with duration",
+        "history_of_present_illness": "Detailed HPI narrative...",
+        "past_medical_history": "Relevant PMH or 'No significant past medical history'",
+        "medications": "Current medications or 'None'",
+        "allergies": "Known allergies or 'No known drug allergies (NKDA)'",
+        "social_history": "Relevant social history",
+        "family_history": "Relevant family history or 'Non-contributory'",
+        "physical_examination": "Vital signs and examination findings",
+        "assessment": "Working diagnosis and differential",
+        "plan": "Investigations, treatments, follow-up",
+        "safety_netting": "Warning signs and when to return",
+        "soap": {{
+            "S": "Subjective - patient's history and symptoms",
+            "O": "Objective - examination findings and vitals",
+            "A": "Assessment - diagnosis/differential",
+            "P": "Plan - tests, treatment, follow-up"
+        }}
+    }},
+    "metadata": {{
+        "specialty": "Relevant medical specialty",
+        "complexity": "low/medium/high",
+        "estimated_consultation_time_minutes": 10,
+        "key_clinical_features": ["symptom1", "risk_factor2"],
+        "reasoning": "Brief explanation of why this output is realistic"
+    }}
+}}

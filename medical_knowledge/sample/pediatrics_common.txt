@@ -1,0 +1,60 @@
+# Pediatric Common Presentations & Triage
+
+## Pediatric Chest Pain
+### Overview
+Chest pain in children is common but **rarely cardiac** in origin (<1% of cases).
+Most common causes are Musculoskeletal (costochondritis) or Respiratory (cough/asthma).
+
+### Differential Diagnosis
+- **Musculoskeletal**: Costochondritis, chest wall strain (reproducible with palpation).
+- **Respiratory**: Asthma, pneumonia, severe cough.
+- **Gastrointestinal**: Reflux (GORD).
+- **Psychogenic**: Anxiety, stress.
+
+### Red Flags (Referral Required)
+- Exertional chest pain (pain *during* exercise, not after).
+- Syncope (fainting) with exercise.
+- Known congenital heart disease.
+- Significant family history of early cardiac death (<40 years).
+-Abnormal ECG findings.
+
+### Management
+- If no red flags: Reassurance and simple analgesia (Paracetamol/Ibuprofen).
+- Safety netting: Return if pain becomes severe, associated with palpitations, or syncope occurs.
+
+## Fever in Children (NICE Traffic Light System)
+### Green (Low Risk)
+- Normal color skin.
+- Responds to social cues, content/smiling.
+- Stays awake or awakens quickly.
+- Strong cry / normal breathing.
+**Action**: Manage at home with antipyretics and hydration.
+
+### Amber (Intermediate Risk)
+- Pallor (pale skin).
+- Not responding normally to social cues.
+- Wakes only with prolonged stimulation.
+- Decreased activity.
+- Tachypnoea (RR >40 in 12-24mo).
+**Action**: Face-to-face clinical assessment required.
+
+### Red (High Risk)
+- Pale/Mottled/Ashen/Blue skin.
+- No response to social cues.
+- Cannot be woken or stays awake only when stimulated.
+- Weak, high-pitched or continuous cry.
+- Grunting or chest indrawing.
+- Non-blanching rash.
+**Action**: Urgent referral to Paediatrics / Emergency Department.
+
+## Bronchiolitis
+### Overview
+Viral Lower Respiratory Tract Infection (LRTI) common in infants <2 years. Usually caused by RSV.
+### Symptoms
+- Coryzal prodrome (runny nose) for 1-3 days.
+- Followed by persistent cough and tachypnoea (fast breathing).
+- Poor feeding (less than 50-75% of normal).
+### Management
+- Supportive care: Hydration and small frequent feeds.
+- Monitor O2 saturations (admit if <92%).
+- **Do NOT use**: Antibiotics, Salbutamol, or Steroids (ineffective).

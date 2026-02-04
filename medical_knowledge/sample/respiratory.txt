@@ -1,0 +1,45 @@
+# Respiratory Assessment Guidelines
+
+## Common Presenting Complaints
+- Cough (productive or dry)
+- Shortness of breath (dyspnoea)
+- Wheeze
+- Chest tightness
+- Haemoptysis
+
+## COPD Exacerbation
+### Symptoms
+- Increased breathlessness
+- Increased sputum volume
+- Increased sputum purulence
+
+### Management
+- Bronchodilators: Salbutamol 5mg nebulised
+- Steroids: Prednisolone 30mg for 5 days
+- Antibiotics if purulent sputum: Amoxicillin 500mg TDS or Doxycycline 200mg stat then 100mg OD
+
+## Asthma
+### Assessment
+- Peak flow measurement
+- Oxygen saturation
+- Ability to complete sentences
+- Respiratory rate
+- Heart rate
+
+### Severity Classification
+- Mild: PEF >75% predicted
+- Moderate: PEF 50-75% predicted
+- Severe: PEF 33-50% predicted
+- Life-threatening: PEF <33% predicted
+
+### Treatment
+- Salbutamol 100mcg MDI 4-10 puffs via spacer
+- Consider oral prednisolone 40-50mg
+- Oxygen to maintain SpO2 94-98%
+
+## Safety Netting
+Advise patient to return if:
+- Symptoms worsen despite treatment
+- Unable to complete sentences
+- Using reliever inhaler more frequently
+- Peak flow drops significantly

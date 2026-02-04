@@ -1,0 +1,79 @@
+# Headache Assessment Guidelines
+
+## Overview
+Headache is extremely common, with most cases being primary headaches (migraine, 
+tension-type). However, secondary causes must be excluded, particularly in 
+patients with red flag features.
+
+## Red Flags - Urgent Action Required
+- Sudden onset "thunderclap" headache (SAH)
+- New headache in patient >50 years (temporal arteritis, malignancy)
+- Headache with fever and neck stiffness (meningitis)
+- Headache with papilloedema or focal neurology
+- Headache worse on waking or with Valsalva (raised ICP)
+- New headache in immunocompromised patient
+- Progressive headache over weeks
+- Headache following head trauma
+
+## Primary Headache Types
+
+### Migraine
+- Duration: 4-72 hours
+- Character: Unilateral, pulsating
+- Associated: Nausea/vomiting, photophobia, phonophobia
+- May have aura (visual, sensory, speech disturbance)
+
+### Tension-Type Headache
+- Duration: 30 minutes to 7 days
+- Character: Bilateral, pressing/tightening
+- Mild-moderate intensity
+- Not aggravated by physical activity
+
+### Cluster Headache
+- Duration: 15-180 minutes
+- Severe unilateral orbital/temporal pain
+- Associated: Lacrimation, nasal congestion, ptosis
+- Occurs in clusters over weeks/months
+
+## Initial Assessment
+1. Detailed headache history (SOCRATES)
+2. Neurological examination
+3. Blood pressure measurement
+4. Fundoscopy
+5. Temporal artery palpation in >50s
+
+## Investigations
+- Usually not required for typical primary headaches
+- ESR/CRP if temporal arteritis suspected
+- CT/MRI brain if red flags present
+- Lumbar puncture if SAH suspected with normal CT
+
+## Management
+
+### Acute Migraine
+- Aspirin 900mg or Ibuprofen 400mg (first-line)
+- Triptans if simple analgesia inadequate (e.g., Sumatriptan 50mg)
+- Anti-emetic: Metoclopramide 10mg or Prochlorperazine 10mg
+
+### Migraine Prophylaxis (if ≥4 attacks/month)
+- Propranolol 40-160mg daily
+- Topiramate 25-100mg daily
+- Amitriptyline 10-75mg nocte
+
+### Tension-Type Headache
+- Simple analgesia: Paracetamol, NSAIDs
+- Avoid medication overuse (>15 days/month)
+- Lifestyle: stress management, sleep hygiene
+
+### Cluster Headache
+- Acute: High-flow oxygen 12-15L/min, Sumatriptan 6mg SC
+- Prophylaxis: Verapamil 240-960mg daily
+
+## Safety Netting
+Advise patient to seek urgent help if:
+- Sudden severe headache unlike any before
+- Headache with fever and neck stiffness
+- Confusion or drowsiness
+- Weakness or numbness
+- Visual disturbance
+- Headache progressively worsening

@@ -1,0 +1,51 @@
+# Gastroenterology Assessment Guidelines
+
+## Dyspepsia and GORD (Reflux)
+### Overview
+Common condition characterized by upper abdominal discomfort, heartburn, or acid regurgitation.
+
+### Management Steps
+- **Conservative**: Weight loss, smoking cessation, smaller meals, avoid triggers (spicy food, caffeine, alcohol).
+- **Medical**: 
+  - Full dose PPI (e.g., Omeprazole 20mg OD) for 4-8 weeks.
+  - Test and treat for H. Pylori if persistent.
+
+### Red Flags (2-Week Wait Referral)
+- Dysphagia (difficulty swallowing)
+- Unexplained weight loss
+- Persistent vomiting
+- Epigastric mass
+- Age >55 with new onset dyspepsia
+
+## Gallstone Disease (Biliary Colic)
+### Presentation
+- Colicky pain in Right Upper Quadrant (RUQ) or Epigastrium.
+- **Triggers**: Often occurs after eating **fatty foods**.
+- Associated with nausea and vomiting.
+- Risk Factors: "5 F's" (Fat, Female, Forty, Fair, Fertile).
+
+### Management
+- Analgesia (NSAIDs preferred if no contraindications).
+- Lifestyle: Low-fat diet.
+- Investigation: Abdominal Ultrasound (Gold Standard).
+- Referral: Surgical referral for cholecystectomy if symptomatic.
+
+## Appendicitis
+### Presentation
+- Periumbilical pain migrating to Right Iliac Fossa (RIF).
+- Anorexia (loss of appetite), nausea, vomiting.
+- Fever and tachycardia.
+### Physical Exam
+- Tenderness at McBurney's point.
+- Rosving's sign (palpation of LLQ causes pain in RLQ).
+- Guarding or rebound tenderness (peritonism).
+
+## Acute Diarrhoea and Vomiting (Gastroenteritis)
+### Assessment
+- Determine hydration status (mucous membranes, urine output, capillary refill).
+- Assess for blood in stool (dysentery).
+### Management
+- **Fluid Rehydration**: Oral Rehydration Salts (ORS) preferred.
+- **Diet**: Eat light meals as tolerated. Avoid dairy if lactose intolerance suspected temporarily.
+- **Medication**: Loperamide (Imodium) 4mg initially, then 2mg after each loose stool (Avoid in bloody diarrhoea).
+- **Safety Netting**: Return if unable to keep fluids down, blood in stool, or severe abdominal pain.

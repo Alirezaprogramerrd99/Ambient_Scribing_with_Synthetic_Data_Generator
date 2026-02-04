@@ -1,0 +1,86 @@
+# Diabetes Management Guidelines
+
+## Overview
+Diabetes mellitus is a chronic metabolic condition characterised by hyperglycaemia.
+Type 2 diabetes accounts for 90% of cases and is increasingly common.
+
+## Diagnostic Criteria
+- HbA1c ≥48 mmol/mol (6.5%)
+- Fasting glucose ≥7.0 mmol/L
+- Random glucose ≥11.1 mmol/L with symptoms
+- OGTT 2-hour glucose ≥11.1 mmol/L
+
+## Red Flags - Urgent Action Required
+- DKA: glucose >14, ketones >3, pH <7.3, drowsiness, vomiting
+- HHS: glucose >30, severe dehydration, confusion
+- Hypoglycaemia: glucose <4, confusion, seizures, unconsciousness
+- New foot ulcer or infection
+
+## Target Levels
+
+### HbA1c Targets
+- Type 2 on lifestyle/metformin alone: 48 mmol/mol (6.5%)
+- Type 2 on agents causing hypoglycaemia: 53 mmol/mol (7.0%)
+- Individualise for frail/elderly: up to 64 mmol/mol (8.0%)
+
+### Blood Glucose
+- Fasting: 4-7 mmol/L
+- Pre-meal: 4-7 mmol/L
+- 2 hours post-meal: <8.5 mmol/L
+
+### Blood Pressure
+- Target: <140/80 mmHg
+- With renal disease: <130/80 mmHg
+
+### Lipids
+- Total cholesterol: <4 mmol/L
+- LDL cholesterol: <2 mmol/L
+
+## Type 2 Diabetes Management
+
+### Step 1: Lifestyle + Metformin
+- Diet: reduce refined carbohydrates, increase fibre
+- Exercise: 150 minutes moderate activity per week
+- Weight loss: target 5-10% body weight
+- Metformin: start 500mg OD, titrate to 1g BD
+
+### Step 2: Dual Therapy (if HbA1c remains ≥58)
+Add one of:
+- SGLT2 inhibitor (e.g., Empagliflozin 10mg) - especially if CVD/HF
+- GLP-1 agonist (e.g., Semaglutide) - especially if BMI ≥35
+- DPP-4 inhibitor (e.g., Sitagliptin 100mg)
+- Sulphonylurea (e.g., Gliclazide 40-160mg)
+- Pioglitazone 15-30mg
+
+### Step 3: Triple Therapy or Insulin
+- Consider insulin if HbA1c remains ≥58 despite dual therapy
+- Start with basal insulin (e.g., Lantus, Levemir)
+- Initial dose: 10 units or 0.1-0.2 units/kg
+
+## Annual Review Checklist
+- HbA1c
+- Blood pressure
+- Lipid profile
+- Renal function (eGFR, ACR)
+- Foot examination
+- Eye screening (retinopathy)
+- BMI/weight
+- Smoking status
+- Injection site examination (if applicable)
+- Hypoglycaemia review
+
+## Sick Day Rules
+- Never stop metformin if eating/drinking
+- STOP SGLT2 inhibitors during acute illness
+- Monitor glucose more frequently
+- Stay hydrated
+- Seek help if vomiting, ketones, or unable to eat
+
+## Safety Netting
+Advise patient to seek urgent help if:
+- Persistent vomiting or unable to keep fluids down
+- Blood glucose >20 mmol/L with symptoms
+- Blood glucose <4 mmol/L not responding to treatment
+- Signs of infection (fever, new foot wound)
+- Confusion or drowsiness
+- Chest pain or breathlessness

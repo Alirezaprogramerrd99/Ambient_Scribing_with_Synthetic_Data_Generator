@@ -1,0 +1,47 @@
+# Neurology and Headache Assessment
+
+## Headache Assessment
+### Red Flags (SNOOP4)
+- **S**ystemic symptoms (fever, weight loss).
+- **N**eurologic symptoms (confusion, focal weakness, seizure).
+- **O**nset sudden ("Thunderclap" headache - max intensity <1 min).
+- **O**lder age (>50 years with new onset).
+- **P**attern change (progressive, worse with valsava/cough/bending).
+- **P**recipitated by valsava.
+- **P**ostural aggravation.
+- **P**apilloedema.
+
+## Migraine (Without Aura)
+### Diagnostic Criteria (At least 5 attacks)
+- **Duration**: 4-72 hours.
+- **Characteristics** (at least 2):
+  1. Unilateral location.
+  2. Pulsating quality.
+  3. Moderate or severe pain intensity.
+  4. Aggravation by routine physical activity.
+- **Associated Symptoms** (at least 1):
+  1. Nausea and/or vomiting.
+  2. Photophobia and Phonophobia.
+
+### Management
+- **Acute**: Triptans (Sumatriptan 50-100mg) + NSAID (Ibuprofen/Naproxen) taken early.
+- **Prophylaxis** (if impact is high): Propranolol, Amitriptyline, or Topiramate.
+- **Lifestyle**: Headache diary to identify triggers (sleep, stress, caffeine).
+
+## Tension-Type Headache
+### Characteristics
+- Bilateral location.
+- Pressing or tightening (non-pulsating) quality.
+- Mild or moderate intensity.
+- Not aggravated by routine physical activity.
+- **No** nausea or vomiting.
+
+### Management
+- Reassurance.
+- Simple analgesia (Paracetamol/Aspirin).
+- Stress management / Physiotherapy for neck tension.
+
+## Medication Overuse Headache
+- Occurs in patients with pre-existing headache disorder.
+- Regular overuse of acute headache medication for >3 months (e.g., triptans/opioids >10 days/month).
+- **Management**: Abrupt withdrawal of overused medication (warn patient of worsening symptoms for 1-2 weeks).

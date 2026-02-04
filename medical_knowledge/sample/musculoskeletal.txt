@@ -1,0 +1,87 @@
+# Musculoskeletal Assessment Guidelines
+
+## Overview
+Musculoskeletal complaints are among the most common reasons for GP consultations, 
+including back pain, joint pain, and soft tissue injuries.
+
+## Red Flags - Urgent Referral Required
+
+### Back Pain Red Flags
+- Cauda equina syndrome: bilateral leg weakness, saddle anaesthesia, urinary retention
+- Spinal cord compression: progressive weakness, sensory level
+- Spinal infection: fever, IV drug use, immunosuppression
+- Malignancy: age >50 with new onset, weight loss, history of cancer
+- Vertebral fracture: significant trauma, osteoporosis, steroid use
+
+### Joint Red Flags
+- Hot, swollen joint with fever (septic arthritis)
+- Acute monoarthritis (gout, pseudogout, septic)
+- Joint instability following trauma
+
+## Common Presentations
+
+### Low Back Pain
+- Mechanical (95%): worse with movement, better with rest
+- Radicular: dermatomal leg pain, worse sitting
+- Inflammatory: morning stiffness >30 mins, improves with activity
+
+### Shoulder Pain
+- Rotator cuff: painful arc, weakness on testing
+- Frozen shoulder: global restriction, especially external rotation
+- Acromioclavicular: localised tenderness, pain on cross-body adduction
+
+### Knee Pain
+- Osteoarthritis: mechanical pain, crepitus, bony swelling
+- Meniscal: locking, giving way, joint line tenderness
+- Ligamentous: instability, effusion post-trauma
+
+### Hip Pain
+- Osteoarthritis: groin pain, reduced internal rotation
+- Trochanteric bursitis: lateral hip pain, tender over trochanter
+
+## Initial Assessment
+1. History: onset, mechanism, aggravating/relieving factors
+2. Inspection: swelling, deformity, muscle wasting
+3. Palpation: tenderness, warmth, effusion
+4. Range of motion: active and passive
+5. Special tests as indicated
+6. Neurovascular examination
+
+## Investigations
+- X-ray: trauma, suspected OA, persistent symptoms
+- MRI: soft tissue pathology, suspected disc disease
+- Bloods: FBC, CRP, ESR, urate if inflammatory cause suspected
+- Joint aspiration: suspected septic arthritis or crystal arthropathy
+
+## Management
+
+### Acute Soft Tissue Injury (PRICE)
+- Protection
+- Rest (relative)
+- Ice (20 mins, 4-6 times daily)
+- Compression
+- Elevation
+
+### Analgesia Ladder
+1. Paracetamol 1g QDS (first-line)
+2. NSAIDs: Ibuprofen 400mg TDS or Naproxen 500mg BD
+3. Topical NSAIDs for localised pain
+4. Consider weak opioids short-term for severe pain
+
+### Physiotherapy
+- Refer for persistent symptoms (>6 weeks)
+- Exercise programmes for chronic conditions
+- Manual therapy as appropriate
+
+### Injections
+- Corticosteroid injections for inflammatory conditions
+- Limited evidence for long-term benefit
+- Max 3 injections per joint per year
+
+## Safety Netting
+Advise patient to return if:
+- Pain significantly worsens
+- Develops weakness or numbness
+- Unable to weight-bear (lower limb)
+- Signs of infection (fever, redness, swelling)
+- Symptoms not improving after 6 weeks

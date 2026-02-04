@@ -1,0 +1,17 @@
+# Chest Pain Assessment Guidelines
+
+## Red Flags
+- Pain radiating to arm or jaw
+- Associated shortness of breath
+- Diaphoresis (sweating)
+- Pain at rest
+
+## Initial Assessment
+1. Obtain vital signs
+2. Perform 12-lead ECG within 10 minutes
+3. Obtain cardiac biomarkers (troponin)
+
+## Management
+- Aspirin 300mg if ACS suspected
+- GTN spray for ongoing chest pain
+- Supplemental oxygen if SpO2 < 94%

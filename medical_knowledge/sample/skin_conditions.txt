@@ -1,0 +1,121 @@
+# Dermatology Assessment Guidelines
+
+## Overview
+Skin conditions are extremely common in primary care. This guide covers the most 
+frequent presentations and their management.
+
+## Red Flags - Urgent Referral Required
+- Suspected melanoma (ABCDE criteria)
+- Rapidly changing mole
+- Non-healing ulcer
+- Severe blistering conditions
+- Suspected necrotising fasciitis
+- Erythroderma (>90% skin involvement)
+
+## Melanoma Detection (ABCDE)
+- Asymmetry: one half unlike the other
+- Border: irregular, poorly defined
+- Colour: varies from one area to another
+- Diameter: >6mm (though can be smaller)
+- Evolution: changing size, shape, or colour
+
+## Common Presentations
+
+### Eczema/Dermatitis
+- Itchy, red, dry skin
+- Flexural distribution common
+- May have vesicles, weeping, crusting
+
+Management:
+1. Emollients: Apply liberally, multiple times daily
+2. Topical steroids:
+   - Mild (face/flexures): Hydrocortisone 1%
+   - Moderate (body): Betnovate RD, Eumovate
+   - Potent (palms/soles/scalp): Betnovate, Dermovate
+3. Treat infection if present (Flucloxacillin)
+4. Antihistamines for itch (Cetirizine, Chlorphenamine)
+
+### Psoriasis
+- Well-demarcated erythematous plaques
+- Silver scale
+- Commonly affects elbows, knees, scalp, lower back
+
+Management:
+1. Emollients
+2. Topical vitamin D analogues (Calcipotriol)
+3. Topical steroids
+4. Combination products (Dovobet)
+5. Refer for severe/resistant cases
+
+### Acne
+- Comedones, papules, pustules, nodules
+- Affects face, chest, back
+
+Management:
+- Mild: Benzoyl peroxide 5%, topical retinoids
+- Moderate: Add topical antibiotic (Clindamycin)
+- Severe: Oral antibiotics (Lymecycline 408mg OD for 3 months)
+- Consider COC in females
+- Refer for isotretinoin if severe/scarring
+
+### Fungal Infections
+
+#### Tinea (Ringworm)
+- Annular lesion with raised scaly edge
+- Central clearing
+- Treatment: Terbinafine cream BD for 2 weeks
+
+#### Tinea Pedis (Athlete's foot)
+- Itchy, macerated skin between toes
+- Treatment: Clotrimazole or Terbinafine cream for 2-4 weeks
+
+#### Tinea Unguium (Nail fungus)
+- Thickened, discoloured, crumbly nails
+- Treatment: Terbinafine 250mg OD for 6-12 weeks
+
+### Urticaria (Hives)
+- Itchy wheals that resolve within 24 hours
+- Individual lesions last <24 hours
+- Acute: usually resolves within 6 weeks
+- Chronic: >6 weeks duration
+
+Management:
+- Identify and avoid triggers
+- Non-sedating antihistamine (Cetirizine 10mg, Fexofenadine 180mg)
+- Can increase dose up to 4x licensed dose
+- Short course oral steroids for severe flares
+
+### Cellulitis
+- Spreading erythema, warmth, swelling
+- Often lower leg
+- May have systemic symptoms
+
+Management:
+- Flucloxacillin 500mg QDS for 7 days
+- If penicillin allergic: Clarithromycin 500mg BD
+- Mark extent of erythema
+- Elevate affected limb
+- Admit if: systemically unwell, facial cellulitis, not responding
+
+## Topical Steroid Guide
+
+### Potency Ladder
+1. Mild: Hydrocortisone 0.5-1%
+2. Moderate: Clobetasone (Eumovate)
+3. Potent: Betamethasone (Betnovate)
+4. Very potent: Clobetasol (Dermovate)
+
+### Application Rules
+- Use lowest effective potency
+- Fingertip unit (FTU) dosing
+- Once daily usually sufficient
+- Step down after control achieved
+- Avoid long-term potent steroids on face
+
+## Safety Netting
+Advise patient to return if:
+- Symptoms not improving after 2 weeks
+- Signs of infection (increasing redness, pus, fever)
+- New or changing skin lesions
+- Severe or spreading rash
+- Blistering or skin peeling

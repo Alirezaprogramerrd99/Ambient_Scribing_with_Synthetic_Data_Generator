@@ -1,0 +1,80 @@
+# Abdominal Pain Assessment Guidelines
+
+## Overview
+Abdominal pain is one of the most common presenting complaints in primary care 
+and emergency settings, requiring systematic evaluation to identify serious causes.
+
+## Red Flags - Urgent Referral Required
+- Severe pain with rigidity (peritonitis)
+- Pain with haemodynamic instability
+- Abdominal distension with vomiting (obstruction)
+- Pain with PR bleeding and weight loss
+- Pulsatile abdominal mass (AAA)
+- Pain in pregnancy (ectopic)
+
+## Location-Based Differential Diagnosis
+
+### Right Upper Quadrant
+- Biliary colic / Cholecystitis
+- Hepatitis
+- Pneumonia (referred)
+- Peptic ulcer disease
+
+### Epigastric
+- Gastritis / GERD
+- Peptic ulcer disease
+- Pancreatitis
+- Myocardial infarction (referred)
+
+### Left Upper Quadrant
+- Splenic pathology
+- Gastritis
+- Pneumonia (referred)
+
+### Right Lower Quadrant
+- Appendicitis
+- Ovarian pathology
+- Ectopic pregnancy
+- Mesenteric adenitis
+
+### Left Lower Quadrant
+- Diverticulitis
+- Ovarian pathology
+- Constipation
+- Inflammatory bowel disease
+
+### Generalised
+- Gastroenteritis
+- Irritable bowel syndrome
+- Mesenteric ischaemia
+- Bowel obstruction
+
+## Initial Assessment
+1. Vital signs including temperature
+2. Abdominal examination - inspection, palpation, percussion, auscultation
+3. Digital rectal examination if indicated
+4. Pregnancy test in women of childbearing age
+
+## Investigations
+- FBC, U&E, LFTs, Amylase/Lipase
+- CRP
+- Urinalysis
+- Pregnancy test
+- Abdominal X-ray if obstruction suspected
+- CT abdomen if serious pathology suspected
+- Ultrasound for biliary/renal/gynaecological causes
+
+## Management Principles
+- Analgesia: Paracetamol 1g QDS, consider opioids for severe pain
+- Anti-emetics: Ondansetron 4mg or Metoclopramide 10mg
+- IV fluids if dehydrated or vomiting
+- NBM if surgical cause suspected
+- Antibiotics if infection suspected
+
+## Safety Netting
+Advise patient to return if:
+- Pain significantly worsens
+- Develops fever or rigors
+- Unable to keep fluids down
+- Blood in vomit or stool
+- Becomes confused or drowsy

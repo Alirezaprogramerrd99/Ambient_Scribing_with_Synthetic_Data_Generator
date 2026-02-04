@@ -1,0 +1,49 @@
+You are a medical knowledge retrieval specialist. Your task is to expand a clinical scenario into effective search queries for retrieving relevant clinical guidelines.
+
+## CLINICAL SCENARIO
+{scenario}
+
+## TASK
+Generate search queries to retrieve the most relevant clinical guidelines for this scenario.
+
+## GUIDELINES FOR QUERY GENERATION
+
+1. **Primary Condition Query**: Focus on the main presenting complaint
+2. **Symptom-Based Query**: Focus on key symptoms mentioned
+3. **Differential Diagnosis Query**: Consider what conditions to rule out
+4. **Management Query**: Focus on treatment and investigation guidelines
+5. **Red Flag Query**: Focus on warning signs and urgent features
+
+## OUTPUT FORMAT
+Respond with ONLY valid JSON:
+
+```json
+{{
+    "primary_queries": [
+        "Main search query for the presenting condition",
+        "Alternative phrasing of main query"
+    ],
+    "symptom_queries": [
+        "Query focusing on specific symptoms"
+    ],
+    "differential_queries": [
+        "Query for differential diagnosis considerations"
+    ],
+    "management_queries": [
+        "Query for treatment guidelines",
+        "Query for investigation recommendations"
+    ],
+    "red_flag_queries": [
+        "Query for warning signs and urgent features"
+    ],
+    "combined_query": "Single comprehensive query combining key elements",
+    "medical_terms": [
+        "List of medical terms identified in scenario"
+    ],
+    "lay_terms": [
+        "Patient-friendly terms that might appear in notes"
+    ]
+}}
+```
+
+Generate queries now:
