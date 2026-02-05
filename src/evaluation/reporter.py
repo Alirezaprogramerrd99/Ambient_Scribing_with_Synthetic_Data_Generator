@@ -55,7 +55,7 @@ class BenchmarkReporter:
             filename = f"benchmark_{result.model_provider}_{model_name_safe}_{timestamp}.json"
         
         filepath = self.output_dir / filename
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(result.to_json())
         
         return filepath
@@ -73,7 +73,7 @@ class BenchmarkReporter:
         report = self._build_markdown_report(result)
         
         filepath = self.output_dir / filename
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(report)
         
         return filepath
@@ -538,7 +538,7 @@ class BenchmarkReporter:
         report = "\n".join(lines)
         
         filepath = self.output_dir / filename
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(report)
         
         return filepath

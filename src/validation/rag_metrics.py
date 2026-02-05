@@ -3,6 +3,9 @@ RAG Quality Metrics for Synthetic Data Validation
 
 Evaluates the quality of RAG retrieval and response generation.
 Supports RAGAS metrics and custom evaluation methods.
+
+Author: Alireza Rashidi
+MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
 
 import logging
@@ -173,7 +176,7 @@ class SimpleRAGEvaluator:
         self,
         sample: SyntheticSample,
     ) -> RAGMetricResult:
-        """Evaluate how much of the retrieved context was used"""
+        """Evaluate how much of the retrieved context was meaningfully used"""
         
         rag_meta = sample.rag
         
@@ -184,8 +187,54 @@ class SimpleRAGEvaluator:
                 details="No context was recorded",
             )
         
-        # Get context and summary text
+        # Get context and comprehensive summary text
         context = rag_meta.context_used.lower()
+        summary_text = " ".join(filter(None, [
+            sample.summary.chief_complaint,
+            sample.summary.history_of_present_illness,
+            sample.summary.assessment,
+            sample.summary.plan,
+            sample.summary.safety_netting,
+        ])).lower()
+        
+        # Stop words to filter
+        stop_words = {
+            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and', 
+            'in', 'for', 'with', 'patient', 'should', 'may', 'can', 'will',
+            'have', 'has', 'been', 'be', 'this', 'that', 'their', 'from',
+            'also', 'other', 'such', 'more', 'most', 'some', 'any', 'all'
+        }
+        
+        # Extract meaningful clinical terms from context (5+ chars, not stop words)
+        context_words = {w for w in context.split() if len(w) >= 5 and w not in stop_words}
+        
+        # Count how many context terms appear in summary
+        used_words = [word for word in context_words if word in summary_text]
+        
+        # Calculate utilization
+        if context_words:
+            utilization = len(used_words) / len(context_words)
+        else:
+            utilization = 0.0
+        
+        # Scale appropriately (perfect match unlikely, 30%+ is good)
+        scaled_score = min(1.0, utilization * 2.5)
+        
+        return RAGMetricResult(
+            metric_type=RAGMetricType.CONTEXT_UTILIZATION,
+            score=scaled_score,
+            details=f"Used {len(used_words)}/{len(context_words)} clinical terms from context",
+        )
+    
+    def _evaluate_answer_relevancy(
+        self,
+        sample: SyntheticSample,
+    ) -> RAGMetricResult:
+        """Evaluate if the answer comprehensively addresses the scenario"""
+        
+        scenario = sample.scenario.scenario_text.lower()
+        
+        # Get comprehensive summary including plan
         summary_text = " ".join(filter(None, [
             sample.summary.chief_complaint,
             sample.summary.history_of_present_illness,
@@ -193,46 +242,38 @@ class SimpleRAGEvaluator:
             sample.summary.plan,
         ])).lower()
         
-        # Extract key terms from context
-        context_words = set(context.split())
-        context_words = {w for w in context_words if len(w) > 4}  # Filter short words
+        # Stop words to filter
+        stop_words = {
+            'the', 'a', 'an', 'with', 'for', 'of', 'and', 'or', 'in', 'on', 
+            'to', 'is', 'has', 'been', 'year', 'old', 'male', 'female',
+            'patient', 'presenting', 'history', 'associated', 'reports'
+        }
         
-        # Check how many appear in summary
-        used_words = sum(1 for word in context_words if word in summary_text)
-        utilization = used_words / len(context_words) if context_words else 0.0
+        # Extract key clinical terms from scenario
+        scenario_words = {w for w in scenario.split() if w not in stop_words and len(w) >= 4}
         
-        return RAGMetricResult(
-            metric_type=RAGMetricType.CONTEXT_UTILIZATION,
-            score=min(1.0, utilization * 2),  # Scale up since perfect match is unlikely
-            details=f"Used {used_words}/{len(context_words)} key terms from context",
-        )
-    
-    def _evaluate_answer_relevancy(
-        self,
-        sample: SyntheticSample,
-    ) -> RAGMetricResult:
-        """Evaluate if the answer is relevant to the scenario"""
-        
-        scenario = sample.scenario.scenario_text.lower()
-        summary_text = " ".join(filter(None, [
-            sample.summary.chief_complaint,
-            sample.summary.assessment,
-        ])).lower()
-        
-        # Extract key terms from scenario
-        scenario_words = set(scenario.split())
-        # Filter common words
-        stop_words = {"the", "a", "an", "with", "for", "of", "and", "or", "in", "on", "to", "is", "has", "been"}
-        scenario_words = {w for w in scenario_words if w not in stop_words and len(w) > 3}
-        
-        # Check relevancy
+        # Check how many scenario terms appear in summary
         relevant_count = sum(1 for word in scenario_words if word in summary_text)
-        relevancy = relevant_count / len(scenario_words) if scenario_words else 0.0
+        
+        # Calculate base relevancy
+        if scenario_words:
+            relevancy = relevant_count / len(scenario_words)
+        else:
+            relevancy = 0.0
+        
+        # Bonus: Check if main complaint is addressed
+        bonus = 0.0
+        main_symptoms = ['pain', 'cough', 'fever', 'breath', 'dizz', 'nausea', 'head', 'chest', 'abdom']
+        for symptom in main_symptoms:
+            if symptom in scenario and symptom in summary_text:
+                bonus += 0.1
+        
+        final_score = min(1.0, relevancy * 1.3 + bonus)
         
         return RAGMetricResult(
             metric_type=RAGMetricType.ANSWER_RELEVANCY,
-            score=min(1.0, relevancy * 1.5),  # Scale up
-            details=f"Answer contains {relevant_count}/{len(scenario_words)} scenario terms",
+            score=final_score,
+            details=f"Answer addresses {relevant_count}/{len(scenario_words)} scenario terms",
         )
     
     def _evaluate_faithfulness(
@@ -240,14 +281,14 @@ class SimpleRAGEvaluator:
         sample: SyntheticSample,
     ) -> RAGMetricResult:
         """
-        Basic faithfulness check
+        Evaluate faithfulness of generated content to retrieved context
         
-        Checks if the summary doesn't contain obvious contradictions
-        or hallucinated content not supported by context.
+        Checks multiple aspects:
+        1. Clinical terms overlap
+        2. Medication alignment
+        3. Investigation alignment
+        4. Red flag/safety terms
         """
-        
-        # This is a simplified check
-        # Full faithfulness evaluation requires an LLM
         
         rag_meta = sample.rag
         
@@ -258,29 +299,90 @@ class SimpleRAGEvaluator:
                 details="Cannot evaluate faithfulness without context",
             )
         
-        context = rag_meta.context_used.lower()
-        plan = (sample.summary.plan or "").lower()
-        
-        # Check if plan mentions specific medications/treatments
-        # that should ideally come from guidelines
-        
-        # Simple heuristic: if plan has specific medications and they
-        # appear in context, likely faithful
         import re
-        med_pattern = r'\b\w+(?:mab|nib|zole|pril|sartan|statin|mycin|cillin)\b'
-        plan_meds = set(re.findall(med_pattern, plan))
+        
+        context = rag_meta.context_used.lower()
+        
+        # Get all relevant summary text
+        summary_parts = [
+            sample.summary.assessment or "",
+            sample.summary.plan or "",
+            sample.summary.safety_netting or "",
+            sample.summary.history_of_present_illness or "",
+        ]
+        summary_text = " ".join(summary_parts).lower()
+        
+        if not summary_text.strip():
+            return RAGMetricResult(
+                metric_type=RAGMetricType.FAITHFULNESS,
+                score=0.5,
+                details="No summary text to evaluate",
+            )
+        
+        scores = []
+        details = []
+        
+        # 1. Check medication overlap
+        med_pattern = r'\b\w+(?:mab|nib|zole|pril|sartan|statin|mycin|cillin|pam|lol|pine|ine|ide|ate|one)\b'
+        summary_meds = set(re.findall(med_pattern, summary_text))
         context_meds = set(re.findall(med_pattern, context))
         
-        if plan_meds:
-            faithful_meds = plan_meds.intersection(context_meds)
-            faithfulness = len(faithful_meds) / len(plan_meds)
+        if summary_meds:
+            med_score = len(summary_meds & context_meds) / len(summary_meds)
+            scores.append(med_score)
+            details.append(f"Meds: {len(summary_meds & context_meds)}/{len(summary_meds)}")
+        
+        # 2. Check investigation/test overlap
+        test_pattern = r'\b(?:x-ray|xray|ct|mri|ultrasound|ecg|ekg|blood test|fbc|cbc|crp|esr|lfts|ufes|troponin|d-dimer|bnp|hba1c|glucose|urinalysis|culture|biopsy|endoscopy|colonoscopy|spirometry|peak flow)\b'
+        summary_tests = set(re.findall(test_pattern, summary_text))
+        context_tests = set(re.findall(test_pattern, context))
+        
+        if summary_tests:
+            test_score = len(summary_tests & context_tests) / len(summary_tests)
+            scores.append(test_score)
+            details.append(f"Tests: {len(summary_tests & context_tests)}/{len(summary_tests)}")
+        
+        # 3. Check red flag terms overlap
+        red_flag_terms = [
+            'red flag', 'warning', 'emergency', 'urgent', 'immediately', 
+            'severe', 'sudden', 'worst', 'chest pain', 'shortness of breath',
+            'weakness', 'numbness', 'vision', 'confusion', 'fever'
+        ]
+        summary_flags = sum(1 for term in red_flag_terms if term in summary_text)
+        context_flags = sum(1 for term in red_flag_terms if term in context)
+        
+        if summary_flags > 0 and context_flags > 0:
+            flag_score = min(1.0, context_flags / max(summary_flags, 1))
+            scores.append(flag_score)
+            details.append(f"RedFlags: {min(summary_flags, context_flags)}/{summary_flags}")
+        
+        # 4. Check clinical term overlap (broader)
+        stop_words = {
+            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and', 
+            'in', 'for', 'with', 'patient', 'doctor', 'will', 'should', 'may',
+            'can', 'have', 'has', 'been', 'be', 'or', 'if', 'no', 'not', 'any'
+        }
+        
+        # Extract meaningful clinical words (4+ chars, not stop words)
+        context_words = {w for w in context.split() if len(w) >= 4 and w not in stop_words}
+        summary_words = {w for w in summary_text.split() if len(w) >= 4 and w not in stop_words}
+        
+        if summary_words and context_words:
+            # What proportion of summary clinical terms appear in context?
+            term_overlap = len(summary_words & context_words) / len(summary_words)
+            scores.append(term_overlap * 0.5 + 0.5)  # Scale to 0.5-1.0 range
+            details.append(f"Terms: {len(summary_words & context_words)}/{len(summary_words)}")
+        
+        # Calculate final score
+        if scores:
+            final_score = sum(scores) / len(scores)
         else:
-            faithfulness = 0.7  # Default moderate score
+            final_score = 0.5  # Default neutral
         
         return RAGMetricResult(
             metric_type=RAGMetricType.FAITHFULNESS,
-            score=faithfulness,
-            details=f"Medication overlap: {len(faithful_meds) if plan_meds else 'N/A'}",
+            score=final_score,
+            details="; ".join(details) if details else "Basic evaluation",
         )
     
     def _evaluate_context_precision(

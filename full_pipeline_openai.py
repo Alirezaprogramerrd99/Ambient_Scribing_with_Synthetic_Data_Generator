@@ -7,7 +7,7 @@ load_dotenv()
 from src.pipeline import SyntheticDataPipeline, PipelineConfig
 
 config = PipelineConfig(
-    num_scenarios=7,
+    num_scenarios=10,
     rag_top_k=7,
     # OpenAI settings
     teacher_provider="openai",

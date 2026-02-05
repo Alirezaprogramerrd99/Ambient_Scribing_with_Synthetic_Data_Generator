@@ -9,17 +9,7 @@ You are an expert medical documentation specialist and clinical educator creatin
 ## TASK
 Generate a realistic doctor-patient consultation dialogue and comprehensive clinical documentation.
 
-## CRITICAL SAFETY RULES (MUST FOLLOW)
-1. **Pediatric Safety**: For patients under 18, prioritize age-appropriate differential diagnoses. 
-   - Example: A 4-year-old with chest pain likely has musculoskeletal pain or a respiratory infection, NOT a heart attack. 
-   - Do NOT apply adult protocols (e.g., Aspirin, Troponins) to children unless the provided guidelines explicitly specify pediatric use.
-
-2. **Diagnostic Caution**: Do NOT definitively diagnose chronic conditions based on short-term symptoms.
-   - Example: Do not diagnose "Major Depressive Disorder" if symptoms have only lasted 1 day (guidelines require weeks).
-   - Use provisional language: "Symptoms consistent with...", "Impression of...", or "Observation of low mood".
-
-3. **Temporal Logic**: Ensure the treatment plan matches the duration of symptoms. 
-   - Do not prescribe long-term maintenance medication (e.g., SSRIs, Antihypertensives) for a first presentation of acute symptoms without a trial of conservative management or monitoring.
+**CRITICAL: You MUST incorporate information from the CLINICAL GUIDELINES above into your response. The assessment, plan, and safety netting sections MUST reference or align with the retrieved guidelines. This is essential for ensuring evidence-based, accurate clinical documentation.**
 
 ## REQUIREMENTS
 
@@ -35,6 +25,7 @@ Generate a realistic doctor-patient consultation dialogue and comprehensive clin
    - Ask about current medications and allergies
    - Perform and narrate relevant physical examination
    - Explain findings and next steps clearly
+   - **Reference clinical guidelines when explaining management (e.g., "Based on current guidelines, I recommend...")**
 
 3. Patient should:
    - Respond naturally with varying detail levels
@@ -50,22 +41,29 @@ Generate a realistic doctor-patient consultation dialogue and comprehensive clin
    - Location and radiation
    - Severity (use scales where appropriate)
    - Timing/frequency
-   - Aggravating/relieving factors
+   - Aggravating and relieving factors
    - Associated symptoms
-   - Pertinent negatives (what is NOT present)
-3. Past Medical History (PMH): Relevant conditions
-4. Medications: Drug name, dose, frequency
-5. Allergies: Agent and reaction type
-6. Social History: Smoking, alcohol, occupation, living situation
-7. Family History: Relevant hereditary conditions
-8. Physical Examination: Vital signs and systematic findings
-9. Assessment: Working diagnosis and differential diagnoses
-10. Plan: Investigations, management steps, prescriptions, referrals
-11. Safety Netting: Specific warning signs and follow-up advice
+3. Past Medical History: Relevant conditions
+4. Medications: Current medications with dosages
+5. Allergies: Drug allergies or NKDA
+6. Social History: Smoking, alcohol, occupation (if relevant)
+7. Physical Examination: Vital signs and focused exam findings
+8. Assessment: Working diagnosis/differential diagnoses
+9. Plan: **MUST include specific investigations, treatments, and management steps that align with the CLINICAL GUIDELINES provided above**
+10. Safety Netting: **MUST include red flag symptoms and warning signs from the CLINICAL GUIDELINES**
+11. SOAP Note: You MUST include a complete SOAP note with all four sections (S, O, A, P)
+
+### Medical Accuracy (CRITICAL):
+- **You MUST use the provided clinical guidelines to ensure accuracy**
+- **Include appropriate investigations EXACTLY as recommended in the guidelines**
+- **Recommend evidence-based treatments FROM the guidelines**
+- **Include red flag symptoms from the guidelines in safety netting**
+- If guidelines mention specific tests, medications, or referral criteria - include them
 
 ## OUTPUT FORMAT
 Respond with ONLY valid JSON in exactly this structure (no additional text):
 
+```json
 {{
     "dialogue": [
         {{"speaker": "Doctor", "text": "Good morning, I'm Dr. Smith. What brings you in today?"}},
@@ -82,20 +80,23 @@ Respond with ONLY valid JSON in exactly this structure (no additional text):
         "family_history": "Relevant family history or 'Non-contributory'",
         "physical_examination": "Vital signs and examination findings",
         "assessment": "Working diagnosis and differential",
-        "plan": "Investigations, treatments, follow-up",
-        "safety_netting": "Warning signs and when to return",
+        "plan": "Investigations, treatments, follow-up - aligned with clinical guidelines",
+        "safety_netting": "Warning signs and when to return - based on guidelines",
         "soap": {{
             "S": "Subjective - patient's history and symptoms",
             "O": "Objective - examination findings and vitals",
             "A": "Assessment - diagnosis/differential",
-            "P": "Plan - tests, treatment, follow-up"
+            "P": "Plan - tests, treatment, follow-up from guidelines"
         }}
     }},
     "metadata": {{
         "specialty": "Relevant medical specialty",
         "complexity": "low/medium/high",
         "estimated_consultation_time_minutes": 10,
-        "key_clinical_features": ["symptom1", "risk_factor2"],
-        "reasoning": "Brief explanation of why this output is realistic"
+        "key_clinical_features": ["feature1", "feature2"],
+        "guidelines_used": ["List key guideline recommendations incorporated"]
     }}
 }}
+```
+
+Generate the consultation now:

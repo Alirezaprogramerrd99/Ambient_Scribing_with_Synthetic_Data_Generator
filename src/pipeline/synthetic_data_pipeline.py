@@ -4,6 +4,9 @@ Synthetic Data Generation Pipeline
 End-to-end orchestration for generating synthetic clinical dialogue-summary pairs.
 Integrates all components: scenarios, RAG, teacher model, validation, and export.
 
+Author: Alireza Rashidi
+MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
+
 Based on: Woo et al. (2025) - Synthetic data distillation enables the
 extraction of clinical information at scale
 """
@@ -636,28 +639,28 @@ class SyntheticDataPipeline:
         
         # Save summary
         summary_path = self.config.output_dir / f"summary_{timestamp}.json"
-        with open(summary_path, "w") as f:
-            json.dump(result.to_summary(), f, indent=2)
+        with open(summary_path, "w", encoding="utf-8") as f:
+            json.dump(result.to_summary(), f, indent=2, ensure_ascii=False)
         
         print_success(f"Results exported to: {output_path}")
         return output_path
     
     def _export_jsonl(self, samples: List[SyntheticSample], path: Path):
         """Export as JSONL"""
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             for sample in samples:
                 f.write(sample.model_dump_json() + "\n")
     
     def _export_json(self, samples: List[SyntheticSample], path: Path):
         """Export as JSON"""
-        with open(path, "w") as f:
-            json.dump([sample.model_dump() for sample in samples], f, indent=2, default=str)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump([sample.model_dump() for sample in samples], f, indent=2, default=str, ensure_ascii=False)
     
     def _export_csv(self, samples: List[SyntheticSample], path: Path):
         """Export as CSV (simplified format)"""
         import csv
         
-        with open(path, "w", newline="") as f:
+        with open(path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow([
                 "id", "dialogue", "chief_complaint", "assessment", "plan",

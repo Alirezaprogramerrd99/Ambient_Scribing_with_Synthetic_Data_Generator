@@ -1,0 +1,197 @@
+# Musculoskeletal Pain Clinical Guidelines
+
+## Red Flags - Require Urgent Assessment
+
+### Back Pain Red Flags
+- Cauda equina syndrome: saddle anaesthesia, bladder/bowel dysfunction, bilateral leg weakness
+- Spinal cord compression
+- Age <20 or >55 with new onset
+- History of malignancy
+- Unexplained weight loss
+- Fever with back pain
+- IV drug use
+- Immunosuppression
+- Thoracic pain
+- Severe night pain
+- Progressive neurological deficit
+
+### Joint Pain Red Flags
+- Hot, swollen joint with fever (septic arthritis)
+- Trauma with inability to weight bear
+- Significant swelling following injury (haemarthrosis)
+- Locked joint
+
+## Lower Back Pain
+
+### Assessment
+- Duration: acute (<6 weeks), subacute (6-12 weeks), chronic (>12 weeks)
+- Neurological examination: straight leg raise, power, sensation, reflexes
+- Red flag screening
+
+### Investigations
+- Usually NOT indicated for acute mechanical back pain
+- MRI spine if: red flags, radiculopathy not improving after 6 weeks
+- X-ray: if trauma, osteoporosis suspected, or chronic pain
+
+### Management - Acute Non-Specific Back Pain
+**First-line:**
+- Reassurance and advice to stay active
+- Paracetamol 1g QDS (limited evidence but safe)
+- NSAIDs: Ibuprofen 400mg TDS or Naproxen 500mg BD
+- Add PPI if NSAID use prolonged: Omeprazole 20mg daily
+
+**Second-line:**
+- Codeine 30-60mg QDS (short-term only)
+- Diazepam 2-5mg TDS for muscle spasm (max 5 days)
+
+**Adjuncts:**
+- Heat or ice packs
+- Physiotherapy referral
+- Avoid bed rest
+
+### Sciatica Management
+- Same as above PLUS:
+- Consider neuropathic agent: Amitriptyline 10-75mg nocte or Gabapentin 300-1200mg TDS
+- Epidural steroid injection if persistent
+- Surgical referral if: cauda equina, progressive deficit, or persistent >6 weeks
+
+## Neck Pain
+
+### Assessment
+- Range of motion
+- Neurological examination of upper limbs
+- Spurling's test for radiculopathy
+
+### Management
+**Acute mechanical neck pain:**
+- Paracetamol 1g QDS
+- NSAIDs: Ibuprofen 400mg TDS
+- Soft collar only if severe (short-term)
+- Heat application
+- Gentle exercises and stretching
+- Physiotherapy
+
+**Cervical radiculopathy:**
+- Add Amitriptyline 10-50mg nocte or Gabapentin
+- Physiotherapy
+- Consider MRI if not improving
+
+## Shoulder Pain
+
+### Differential Diagnosis
+- Rotator cuff tendinopathy/tear
+- Subacromial impingement
+- Frozen shoulder (adhesive capsulitis)
+- Acromioclavicular joint pathology
+- Glenohumeral osteoarthritis
+- Referred pain (cervical spine, cardiac)
+
+### Investigations
+- X-ray shoulder if trauma or chronic symptoms
+- Ultrasound shoulder
+- MRI if rotator cuff tear suspected
+
+### Management
+**Rotator cuff tendinopathy:**
+- Rest from aggravating activities
+- NSAIDs: Ibuprofen 400mg TDS or Naproxen 500mg BD
+- Physiotherapy - strengthening exercises
+- Corticosteroid injection: Triamcinolone 40mg + Lidocaine (max 3 injections)
+
+**Frozen shoulder:**
+- Analgesia: Paracetamol, NSAIDs
+- Physiotherapy and home exercises
+- Corticosteroid injection
+- Hydrodilatation if not responding
+- Duration typically 18-24 months
+
+## Knee Pain
+
+### Differential Diagnosis
+- Osteoarthritis
+- Meniscal tear
+- Ligament injury (ACL, MCL)
+- Patellofemoral pain syndrome
+- Bursitis (prepatellar, infrapatellar)
+- Gout/pseudogout
+- Septic arthritis
+
+### Investigations
+- X-ray knee (weight-bearing if OA suspected)
+- MRI if internal derangement suspected
+- Joint aspiration if effusion (microscopy, culture, crystals)
+
+### Osteoarthritis Management
+**Non-pharmacological:**
+- Weight loss if overweight
+- Exercise and physiotherapy
+- Walking aids if needed
+- Appropriate footwear
+
+**Pharmacological:**
+- Topical NSAIDs: Ibuprofen gel, Diclofenac gel - apply TDS
+- Paracetamol 1g QDS
+- Oral NSAIDs: Ibuprofen 400mg TDS or Naproxen 500mg BD (+ PPI)
+- Capsaicin cream 0.025% QDS
+
+**Interventional:**
+- Intra-articular corticosteroid injection: Triamcinolone 40mg
+- Hyaluronic acid injections
+- Joint replacement if severe
+
+## Hip Pain
+
+### Differential Diagnosis
+- Osteoarthritis
+- Trochanteric bursitis
+- Referred pain from spine
+- Avascular necrosis
+- Labral tear
+- Fracture
+
+### Management
+**Trochanteric bursitis:**
+- NSAIDs
+- Physiotherapy
+- Corticosteroid injection: Triamcinolone 40mg
+
+**Hip osteoarthritis:**
+- Similar to knee OA
+- Walking stick (opposite hand)
+- Hip replacement if severe
+
+## Soft Tissue Injuries
+
+### PRICE Protocol (First 48-72 hours)
+- **P**rotection - avoid further injury
+- **R**est - relative rest from aggravating activities
+- **I**ce - 15-20 minutes every 2-3 hours
+- **C**ompression - elastic bandage
+- **E**levation - above heart level
+
+### Medication
+- Paracetamol 1g QDS
+- NSAIDs: Ibuprofen 400mg TDS
+- Topical NSAIDs for local injuries
+
+### Follow-up
+- Physiotherapy referral for persistent symptoms
+- Gradual return to activity
+
+## Safety Netting
+Advise patients to seek urgent care if:
+- Sudden inability to move a limb
+- Loss of bladder or bowel control
+- Numbness around genitals or bottom (saddle area)
+- Weakness in both legs
+- Severe pain not controlled by medication
+- Hot, red, swollen joint with fever
+- Pain following significant trauma
+- Unable to weight bear
+
+## Referral Criteria
+- Red flag symptoms
+- Suspected septic arthritis (same day orthopaedics)
+- Progressive neurological deficit
+- Failed conservative management (typically 6-12 weeks)
+- Consider joint replacement for severe OA affecting quality of life

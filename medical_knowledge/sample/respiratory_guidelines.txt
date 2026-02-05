@@ -1,0 +1,139 @@
+# Respiratory Conditions Clinical Guidelines
+
+## Cough Assessment
+
+### Red Flags
+- Haemoptysis (coughing up blood)
+- Unexplained weight loss
+- Night sweats
+- Persistent cough >3 weeks with risk factors
+- Stridor or severe breathing difficulty
+- Chest pain with breathing
+- Fever >38.5°C with productive cough
+
+### Differential Diagnosis
+- Upper respiratory tract infection (URTI)
+- Acute bronchitis
+- Pneumonia
+- Asthma
+- COPD exacerbation
+- Post-nasal drip
+- GORD-related cough
+- ACE inhibitor-induced cough
+- Lung cancer
+- Tuberculosis
+
+## Investigations
+
+### First-Line
+- Oxygen saturation (SpO2)
+- Peak expiratory flow rate (PEFR)
+- Chest X-ray (if pneumonia suspected or cough >3 weeks)
+- Full blood count
+- CRP (C-reactive protein)
+
+### Second-Line
+- Spirometry (FEV1, FVC, FEV1/FVC ratio)
+- Sputum culture and sensitivity
+- CT chest
+- Bronchoscopy
+- Tuberculosis testing (Mantoux, IGRA)
+
+## Acute Bronchitis
+
+### Management
+- Usually viral - antibiotics NOT routinely indicated
+- Supportive care: rest, fluids, paracetamol
+- Honey and lemon for symptomatic relief
+- Consider delayed antibiotic prescription
+
+### When to Prescribe Antibiotics
+- Systemically unwell
+- Pre-existing comorbidities (COPD, heart failure, immunocompromised)
+- CRP >100mg/L
+- Antibiotic choice: Amoxicillin 500mg TDS for 5 days
+- Penicillin allergy: Doxycycline 200mg day 1, then 100mg daily for 5 days
+
+## Community-Acquired Pneumonia (CAP)
+
+### CURB-65 Score
+- Confusion
+- Urea >7mmol/L
+- Respiratory rate ≥30/min
+- Blood pressure <90 systolic or ≤60 diastolic
+- Age ≥65 years
+
+### Treatment by Severity
+**Low severity (CURB-65 0-1):**
+- Amoxicillin 500mg TDS for 5 days
+- Alternative: Doxycycline 200mg then 100mg daily
+
+**Moderate severity (CURB-65 2):**
+- Amoxicillin 500mg TDS + Clarithromycin 500mg BD
+- Or Co-amoxiclav 625mg TDS
+
+**High severity (CURB-65 3-5):**
+- Hospital admission required
+- IV Co-amoxiclav + IV Clarithromycin
+
+## Asthma
+
+### Diagnosis
+- Variable symptoms: wheeze, breathlessness, cough, chest tightness
+- Diurnal variation - worse at night/early morning
+- Triggers: exercise, allergens, cold air, infections
+- Spirometry: FEV1/FVC <0.7, reversibility ≥12%
+- Peak flow variability >20%
+
+### Stepwise Management
+**Step 1:** SABA as needed (Salbutamol 100mcg 2 puffs PRN)
+**Step 2:** Add low-dose ICS (Beclometasone 200mcg BD or Budesonide 200mcg BD)
+**Step 3:** Add LABA (Formoterol or Salmeterol) or increase ICS
+**Step 4:** Increase ICS to medium dose, add LTRA (Montelukast 10mg)
+**Step 5:** High-dose ICS, specialist referral, consider biologics
+
+### Acute Asthma Attack
+- Salbutamol 4-6 puffs via spacer (or nebulised 5mg)
+- Prednisolone 40-50mg oral for 5 days
+- Oxygen to maintain SpO2 94-98%
+- Ipratropium bromide nebulised if severe
+
+## COPD
+
+### Diagnosis
+- FEV1/FVC <0.7 post-bronchodilator
+- Smoking history usually >10 pack-years
+- Chronic symptoms: dyspnoea, cough, sputum
+
+### Management
+**Bronchodilators:**
+- SABA: Salbutamol PRN
+- LAMA: Tiotropium 18mcg once daily
+- LABA: Salmeterol 50mcg BD or Formoterol
+
+**Inhaled Corticosteroids:**
+- Add if frequent exacerbations (≥2/year)
+- Triple therapy: ICS + LABA + LAMA
+
+**Other:**
+- Smoking cessation (most important intervention)
+- Pulmonary rehabilitation
+- Annual influenza and pneumococcal vaccination
+- Long-term oxygen therapy if PaO2 <7.3kPa
+
+### COPD Exacerbation
+- Increase bronchodilators
+- Prednisolone 30mg daily for 5 days
+- Antibiotics if purulent sputum: Amoxicillin or Doxycycline
+- Hospital admission if severe
+
+## Safety Netting
+Advise patients to return or seek urgent care if:
+- Breathing becomes more difficult
+- Lips or fingers turn blue
+- Confusion or drowsiness
+- Unable to complete sentences
+- Coughing up blood
+- High fever not responding to paracetamol
+- Symptoms worsening despite treatment
+- Chest pain develops

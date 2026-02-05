@@ -1,0 +1,184 @@
+# Headache Clinical Guidelines
+
+## Red Flags - Require Urgent Assessment
+- Sudden severe headache ("thunderclap") - worst headache of life
+- Headache with fever and neck stiffness (meningitis)
+- Headache with papilloedema
+- New neurological deficit
+- Headache with altered consciousness
+- New headache in patient >50 years
+- Headache worse on coughing/straining/bending
+- Progressive headache over weeks
+- Headache with jaw claudication or scalp tenderness (GCA)
+- Headache following head trauma
+- Headache in immunocompromised patient
+- Headache with early morning vomiting
+
+## Differential Diagnosis
+
+### Primary Headaches
+- Tension-type headache
+- Migraine (with or without aura)
+- Cluster headache
+- Medication overuse headache
+
+### Secondary Headaches
+- Subarachnoid haemorrhage
+- Meningitis/encephalitis
+- Intracranial tumour
+- Giant cell arteritis (temporal arteritis)
+- Idiopathic intracranial hypertension
+- Cervicogenic headache
+- Sinusitis
+- Hypertensive emergency
+
+## Investigations
+
+### When to Investigate
+- Red flag features present
+- New headache pattern
+- Treatment-resistant headache
+- Neurological signs
+
+### Tests
+- Blood pressure measurement
+- ESR/CRP (if GCA suspected - ESR often >50mm/hr)
+- Full blood count
+- CT head (urgent if SAH suspected)
+- Lumbar puncture (after CT, for SAH or meningitis)
+- MRI brain (tumour, venous thrombosis)
+- MRA/CTA (aneurysm, dissection)
+
+## Tension-Type Headache
+
+### Features
+- Bilateral, pressing/tightening quality
+- Mild to moderate intensity
+- Not aggravated by routine activity
+- No nausea or vomiting
+- May have photophobia OR phonophobia (not both)
+
+### Treatment
+**Acute:**
+- Paracetamol 1g QDS (max 4g/day)
+- Ibuprofen 400mg TDS
+- Aspirin 900mg (avoid in under 16s)
+
+**Preventive (if frequent >15 days/month):**
+- Amitriptyline 10-75mg nocte (start 10mg, increase gradually)
+- Lifestyle: stress management, regular sleep, exercise
+
+## Migraine
+
+### Features
+- Unilateral, pulsating headache
+- Moderate to severe intensity
+- Aggravated by physical activity
+- Nausea and/or vomiting
+- Photophobia AND phonophobia
+- Duration 4-72 hours untreated
+- Aura in 25%: visual disturbance, sensory symptoms
+
+### Acute Treatment
+**Mild-Moderate:**
+- Aspirin 900mg + Metoclopramide 10mg
+- Or Paracetamol 1g + Metoclopramide 10mg
+- Or Ibuprofen 400-600mg
+
+**Moderate-Severe:**
+- Triptans: Sumatriptan 50-100mg oral, or 6mg subcutaneous
+- Alternatives: Zolmitriptan 2.5-5mg, Rizatriptan 10mg, Almotriptan 12.5mg
+- Can repeat triptan after 2 hours if needed
+- Antiemetic: Metoclopramide 10mg or Prochlorperazine 10mg
+
+**Contraindications to Triptans:**
+- Ischaemic heart disease
+- Uncontrolled hypertension
+- Previous stroke or TIA
+- Peripheral vascular disease
+- Pregnancy
+
+### Preventive Treatment (if ≥4 migraines/month)
+**First-line:**
+- Propranolol 40-160mg daily (avoid in asthma)
+- Topiramate 25-100mg daily (contraception required - teratogenic)
+- Amitriptyline 10-75mg nocte
+
+**Second-line:**
+- Candesartan 8-16mg daily
+- Sodium valproate 400-1500mg daily (avoid in women of childbearing age)
+- Botulinum toxin (specialist)
+- CGRP monoclonal antibodies: Erenumab, Fremanezumab (specialist)
+
+## Cluster Headache
+
+### Features
+- Severe unilateral orbital/supraorbital pain
+- Duration 15-180 minutes
+- Autonomic features: lacrimation, rhinorrhoea, ptosis, miosis
+- Restlessness/agitation during attack
+- Occurs in clusters over weeks-months
+
+### Acute Treatment
+- Oxygen 100% at 12-15L/min via non-rebreather mask for 15 minutes
+- Sumatriptan 6mg subcutaneous injection
+
+### Preventive Treatment
+- Verapamil 240-960mg daily (requires ECG monitoring)
+- Short course Prednisolone 60-100mg tapering over 2-3 weeks
+
+## Medication Overuse Headache
+
+### Features
+- Headache ≥15 days/month
+- Regular overuse of acute headache medications for >3 months
+- Simple analgesics: ≥15 days/month
+- Triptans/opioids/combination analgesics: ≥10 days/month
+
+### Treatment
+- Withdraw overused medication (can do abruptly or gradually)
+- Warn: withdrawal headache expected for 2-10 days
+- Support: antiemetics, hydration
+- Consider preventive medication
+- Limit acute treatments to <10 days/month
+
+## Giant Cell Arteritis (GCA)
+
+### Features
+- Age >50 years
+- New headache, often temporal
+- Scalp tenderness
+- Jaw claudication
+- Visual disturbance (risk of blindness)
+- Polymyalgia symptoms
+
+### Investigation
+- ESR (usually >50mm/hr)
+- CRP elevated
+- Temporal artery biopsy (gold standard)
+- Temporal artery ultrasound
+
+### Treatment - START IMMEDIATELY IF SUSPECTED
+**Without visual symptoms:**
+- Prednisolone 40-60mg daily
+
+**With visual symptoms:**
+- IV Methylprednisolone 500mg-1g daily for 3 days
+- Then oral Prednisolone 60mg daily
+- Urgent ophthalmology referral
+
+## Safety Netting
+Advise patients to seek immediate medical attention if:
+- Sudden severe headache (worst ever)
+- Headache with fever and stiff neck
+- Headache with confusion or drowsiness
+- Headache with weakness, numbness, or speech problems
+- Visual disturbances with headache (especially if over 50)
+- Headache following head injury
+- Headache with persistent vomiting
+- Headache not responding to usual treatment
+
+## Follow-up
+- Review migraine prophylaxis at 8-12 weeks
+- Headache diary recommended
+- Review medication use to prevent overuse headache

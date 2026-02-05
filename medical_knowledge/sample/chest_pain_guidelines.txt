@@ -1,0 +1,108 @@
+# Chest Pain Clinical Guidelines
+
+## Overview
+Chest pain is a common presentation in primary care requiring systematic assessment to identify serious causes while appropriately managing benign conditions.
+
+## Red Flags (Require Immediate Action)
+- Severe crushing central chest pain
+- Pain radiating to jaw, left arm, or back
+- Associated shortness of breath
+- Sweating (diaphoresis)
+- Nausea or vomiting with chest pain
+- Syncope or near-syncope
+- Hypotension (systolic BP <90mmHg)
+- New heart murmur
+- Unequal blood pressure in both arms (aortic dissection)
+- Pain worse on inspiration with tachycardia (pulmonary embolism)
+
+## Differential Diagnosis
+
+### Cardiac Causes
+- Acute coronary syndrome (ACS) - STEMI, NSTEMI, unstable angina
+- Stable angina pectoris
+- Pericarditis
+- Myocarditis
+- Aortic dissection
+
+### Respiratory Causes
+- Pulmonary embolism
+- Pneumonia
+- Pneumothorax
+- Pleurisy
+
+### Gastrointestinal Causes
+- Gastroesophageal reflux disease (GORD/GERD)
+- Oesophageal spasm
+- Peptic ulcer disease
+
+### Musculoskeletal Causes
+- Costochondritis
+- Muscle strain
+- Rib fracture
+
+## Investigations
+
+### First-Line Investigations
+- 12-lead ECG (within 10 minutes if ACS suspected)
+- Troponin I or Troponin T (high-sensitivity)
+- Full blood count (FBC/CBC)
+- Urea and electrolytes (U&E)
+- Blood glucose
+- Chest X-ray
+
+### Second-Line Investigations
+- D-dimer (if PE suspected)
+- BNP or NT-proBNP (heart failure)
+- CT pulmonary angiogram (CTPA) - for PE
+- CT aorta - for dissection
+- Echocardiogram
+- Exercise stress test
+- Coronary angiography
+
+## Management
+
+### Acute Coronary Syndrome
+- Aspirin 300mg stat (chew)
+- GTN sublingual spray
+- Morphine 2.5-5mg IV for pain
+- Oxygen only if SpO2 <94%
+- Dual antiplatelet therapy: Aspirin + Clopidogrel/Ticagrelor
+- Anticoagulation: Fondaparinux or Enoxaparin
+- Beta-blocker: Bisoprolol or Metoprolol
+- ACE inhibitor: Ramipril or Lisinopril
+- Statin: Atorvastatin 80mg
+
+### Stable Angina
+- GTN sublingual for acute relief
+- Beta-blocker: Bisoprolol 2.5-10mg daily
+- Or Calcium channel blocker: Amlodipine 5-10mg daily
+- Aspirin 75mg daily
+- Statin: Atorvastatin 20-80mg daily
+- Consider referral for angiography
+
+### Musculoskeletal Chest Pain
+- Paracetamol 1g QDS
+- Ibuprofen 400mg TDS (if no contraindications)
+- Reassurance and explanation
+- Local heat application
+- Physiotherapy if persistent
+
+### GORD-Related Chest Pain
+- Proton pump inhibitor: Omeprazole 20mg daily or Lansoprazole 30mg daily
+- Lifestyle advice: weight loss, avoid late meals, elevate head of bed
+- Avoid trigger foods: caffeine, alcohol, spicy foods
+
+## Safety Netting Advice
+Tell patients to seek immediate medical attention if they experience:
+- Chest pain lasting more than 15 minutes
+- Pain spreading to arm, jaw, neck, or back
+- Difficulty breathing or shortness of breath
+- Feeling sick, sweaty, or lightheaded
+- Sudden severe pain
+- Chest pain with collapse or blackout
+
+## Follow-up
+- Review within 2 weeks for new chest pain
+- Cardiac rehabilitation referral post-ACS
+- Annual cardiovascular risk assessment
+- Medication review at 4-6 weeks

@@ -1,0 +1,156 @@
+# Abdominal Pain Clinical Guidelines
+
+## Red Flags - Require Urgent Assessment
+- Severe sudden onset pain
+- Signs of peritonism (guarding, rigidity, rebound tenderness)
+- Abdominal distension with vomiting
+- Haematemesis or melaena
+- Fresh rectal bleeding with haemodynamic instability
+- Fever with severe abdominal pain
+- Pulsatile abdominal mass (AAA)
+- Pregnancy with abdominal pain
+- Jaundice with fever and RUQ pain (Charcot's triad)
+
+## Differential Diagnosis by Location
+
+### Right Upper Quadrant
+- Biliary colic
+- Acute cholecystitis
+- Hepatitis
+- Pneumonia (referred pain)
+- Peptic ulcer disease
+
+### Epigastric
+- Peptic ulcer disease
+- Gastritis
+- GORD
+- Pancreatitis
+- Myocardial infarction (referred)
+
+### Left Upper Quadrant
+- Splenic pathology
+- Gastric ulcer
+- Pancreatitis
+
+### Right Lower Quadrant
+- Appendicitis
+- Ovarian pathology
+- Ectopic pregnancy
+- Mesenteric adenitis
+
+### Left Lower Quadrant
+- Diverticulitis
+- Ovarian pathology
+- Constipation
+- IBS
+
+### Generalised/Central
+- Gastroenteritis
+- Intestinal obstruction
+- Mesenteric ischaemia
+- IBS
+- Constipation
+
+## Investigations
+
+### First-Line
+- Full blood count (FBC)
+- CRP / ESR
+- Urea and electrolytes
+- Liver function tests (LFTs)
+- Amylase or lipase
+- Urinalysis
+- Pregnancy test (all women of childbearing age)
+
+### Second-Line
+- Abdominal X-ray
+- Erect chest X-ray (for perforation)
+- Ultrasound abdomen
+- CT abdomen/pelvis
+- Upper GI endoscopy
+- Colonoscopy
+
+## Specific Conditions
+
+### Gastritis/Peptic Ulcer Disease
+**Investigations:**
+- H. pylori testing (urea breath test, stool antigen, or serology)
+- Upper GI endoscopy if red flags
+
+**Treatment:**
+- PPI: Omeprazole 20mg BD or Lansoprazole 30mg BD for 4-8 weeks
+- H. pylori eradication if positive:
+  - Triple therapy: PPI + Amoxicillin 1g BD + Clarithromycin 500mg BD for 7 days
+  - Penicillin allergy: PPI + Metronidazole 400mg BD + Clarithromycin 500mg BD
+- Lifestyle: avoid NSAIDs, reduce alcohol, stop smoking
+- Review any causative medications
+
+### Biliary Colic
+**Features:** RUQ pain after fatty meals, lasting 1-5 hours
+**Investigations:** Ultrasound abdomen, LFTs
+**Treatment:**
+- Analgesia: Paracetamol, Diclofenac 75mg
+- Consider elective cholecystectomy
+
+### Acute Cholecystitis
+**Features:** RUQ pain, fever, Murphy's sign positive
+**Investigations:** Ultrasound, FBC, CRP, LFTs
+**Treatment:**
+- Hospital admission
+- IV antibiotics: Co-amoxiclav or Ceftriaxone + Metronidazole
+- Cholecystectomy within 72 hours if possible
+
+### Acute Appendicitis
+**Features:** Central pain migrating to RIF, nausea, fever
+**Investigations:** FBC, CRP, CT abdomen if uncertain
+**Treatment:**
+- Surgical appendicectomy
+- IV antibiotics: Ceftriaxone + Metronidazole
+
+### Diverticulitis
+**Features:** LIF pain, fever, altered bowel habit
+**Investigations:** FBC, CRP, CT abdomen
+**Treatment - Uncomplicated:**
+- Oral antibiotics: Co-amoxiclav 625mg TDS for 5 days
+- Or Ciprofloxacin 500mg BD + Metronidazole 400mg TDS
+- Clear fluids initially, then low residue diet
+
+**Treatment - Complicated:**
+- Hospital admission
+- IV antibiotics
+- Possible surgical intervention
+
+### Irritable Bowel Syndrome (IBS)
+**Diagnosis criteria:** Recurrent abdominal pain at least 1 day/week, associated with defecation, change in stool frequency or form
+**Treatment:**
+- Dietary advice: regular meals, adequate fluids, limit caffeine
+- Low FODMAP diet trial
+- Antispasmodics: Mebeverine 135mg TDS or Hyoscine butylbromide 10mg TDS
+- For constipation: Linaclotide, or Laxatives
+- For diarrhoea: Loperamide PRN
+- Psychological therapies: CBT, hypnotherapy
+- Antidepressants: Low-dose Amitriptyline 10-30mg nocte
+
+### Gastroenteritis
+**Features:** Diarrhoea, vomiting, abdominal cramps
+**Treatment:**
+- Oral rehydration (ORS)
+- Antiemetics: Ondansetron 4mg or Metoclopramide 10mg
+- Antibiotics NOT routinely needed
+- Antibiotics if: Campylobacter (severe) - Azithromycin 500mg daily for 3 days
+
+## Safety Netting
+Advise patients to seek urgent care if:
+- Pain becomes severe or unbearable
+- Vomiting blood or passing blood in stool
+- Unable to keep fluids down for 24 hours
+- Abdominal swelling or distension
+- Fever above 38.5°C
+- Signs of dehydration (dizziness, reduced urine output)
+- Pain spreading or worsening
+- Collapse or feeling very unwell
+
+## Follow-up
+- Review within 48-72 hours if symptoms not improving
+- Urgent 2-week referral if red flag symptoms for malignancy
+- Routine gastroenterology referral for persistent symptoms
