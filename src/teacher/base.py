@@ -62,6 +62,7 @@ class GenerationConfig:
     # RAG settings
     use_rag: bool = True
     rag_top_k: int = 5
+    rag_score_threshold: float = 0.35  # Minimum cosine similarity for RAG results
     
     # Retry settings
     max_retries: int = 3
@@ -265,10 +266,19 @@ class BaseTeacher(ABC):
         response: RetrievalResponse = self.retriever.retrieve(
             expanded_query,
             top_k=top_k,
+            score_threshold=self.config.rag_score_threshold,
         )
         
         # Build context string
         context = response.get_context(max_results=top_k)
+        
+        # If no results passed the threshold, provide informative fallback
+        if not response.results:
+            logger.warning(
+                f"No RAG results above score threshold "
+                f"{self.config.rag_score_threshold} for scenario"
+            )
+            context = "No sufficiently relevant guidelines found for this scenario."
         
         # Create metadata
         rag_meta = RAGMetadata(
@@ -356,19 +366,34 @@ class BaseTeacher(ABC):
                 score = int(re.search(r'\d+', score).group())
             score = max(1, min(10, score))  # Clamp to 1-10
             
-            # Extract factors
-            factors = data.get("factors", data.get("complexity_factors", []))
+            # Extract complexity factors (try multiple key names LLMs might use)
+            factors = data.get("clinical_complexity_factors",
+                        data.get("complexity_factors",
+                        data.get("factors", [])))
             if isinstance(factors, str):
                 factors = [f.strip() for f in factors.split(",")]
             
+            # Extract reasoning steps
+            reasoning = data.get("reasoning_steps",
+                        data.get("steps",
+                        data.get("reasoning_chain", [])))
+            if isinstance(reasoning, str):
+                reasoning = [r.strip() for r in reasoning.split(",")]
+            
             # Extract rationale
             rationale = data.get("rationale", data.get("reasoning", ""))
+            # If rationale is a list (some LLMs do this), join it
+            if isinstance(rationale, list):
+                rationale = " ".join(rationale)
             
-            return DifficultyMetadata.from_score(
+            meta = DifficultyMetadata.from_score(
                 score=score,
                 factors=factors,
                 rationale=rationale,
             )
+            # from_score doesn't set reasoning_steps, so set it explicitly
+            meta.reasoning_steps = reasoning if isinstance(reasoning, list) else []
+            return meta
             
         except (json.JSONDecodeError, ValueError, AttributeError):
             # Fallback: try to extract score from text
@@ -437,11 +462,26 @@ class BaseTeacher(ABC):
         # Clamp score
         score = max(1, min(10, score))
         
-        return DifficultyMetadata.from_score(
+        # Build reasoning steps for transparency
+        reasoning_steps = []
+        if num_turns > 20:
+            reasoning_steps.append(f"Extended dialogue ({num_turns} turns suggests complex consultation)")
+        if hpi_length > 150:
+            reasoning_steps.append(f"Detailed HPI ({hpi_length} words indicates thorough history)")
+        if "multiple_differentials" in factors:
+            reasoning_steps.append("Multiple differential diagnoses require broader clinical reasoning")
+        if "comprehensive_plan" in factors:
+            reasoning_steps.append("Multi-faceted management plan with referrals/monitoring")
+        if "polypharmacy" in factors:
+            reasoning_steps.append("Multiple medications require drug interaction awareness")
+        
+        meta = DifficultyMetadata.from_score(
             score=score,
             factors=factors,
             rationale="Heuristic assessment based on dialogue and summary features",
         )
+        meta.reasoning_steps = reasoning_steps
+        return meta
     
     # =========================================================================
     # Generation Methods
@@ -527,6 +567,11 @@ class BaseTeacher(ABC):
             self._total_generated += 1
             sample = retry_ctx.result
             sample.generation.generation_time_seconds = generation_time
+            
+            # Populate token usage if the LLM backend tracked it
+            if hasattr(self, '_last_usage') and self._last_usage:
+                sample.generation.prompt_tokens = self._last_usage.get("prompt_tokens")
+                sample.generation.completion_tokens = self._last_usage.get("completion_tokens")
             
             # Perform LLM-based difficulty assessment if enabled
             if use_llm_difficulty_assessment and self.config.include_difficulty:
@@ -670,9 +715,15 @@ class BaseTeacher(ABC):
             except ValueError:
                 pass
         
+        # Extract age_group and gender from scenario text
+        age_group = self._extract_age_group(scenario)
+        gender = self._extract_gender(scenario)
+        
         scenario_meta = ScenarioMetadata(
             scenario_text=scenario,
             specialty=specialty,
+            age_group=age_group,
+            gender=gender,
         )
         
         # Create difficulty metadata if present
@@ -870,6 +921,60 @@ class BaseTeacher(ABC):
             A=assessment,
             P=plan,
         )
+    
+    # =========================================================================
+    # Scenario Parsing Helpers
+    # =========================================================================
+    
+    @staticmethod
+    def _extract_age_group(scenario: str) -> Optional[str]:
+        """
+        Extract age group from scenario text like '23-year-old' or '59 year old'
+        
+        Returns AgeGroup enum value string or None
+        """
+        import re
+        
+        age_match = re.search(r'(\d{1,3})\s*[-\s]?\s*year', scenario.lower())
+        if not age_match:
+            return None
+        
+        age = int(age_match.group(1))
+        
+        if age < 1:
+            return "neonate"
+        elif age < 13:
+            return "child"
+        elif age < 18:
+            return "adolescent"
+        elif age < 40:
+            return "young_adult"
+        elif age < 65:
+            return "middle_aged"
+        else:
+            return "elderly"
+    
+    @staticmethod
+    def _extract_gender(scenario: str) -> Optional[str]:
+        """
+        Extract gender from scenario text like 'female presenting' or 'male patient'
+        """
+        scenario_lower = scenario.lower()
+        
+        male_patterns = [r'\bmale\b', r'\bman\b', r'\bboy\b', r'\bhis\b']
+        female_patterns = [r'\bfemale\b', r'\bwoman\b', r'\bgirl\b', r'\bher\b']
+        
+        import re
+        
+        for pattern in female_patterns:
+            if re.search(pattern, scenario_lower):
+                return "female"
+        
+        for pattern in male_patterns:
+            if re.search(pattern, scenario_lower):
+                return "male"
+        
+        return None
     
     # =========================================================================
     # Utility Methods

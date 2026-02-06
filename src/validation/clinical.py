@@ -187,8 +187,11 @@ class SimpleClinicalValidator:
         # Check for red flags and safety netting
         self._validate_safety(dialogue_text, summary, result)
         
-        # Check for potential hallucinations
-        self._check_hallucinations(summary, result)
+        # Check for potential hallucinations (with RAG context if available)
+        rag_context = None
+        if hasattr(sample, 'rag') and sample.rag and sample.rag.rag_enabled:
+            rag_context = getattr(sample.rag, 'context_used', None)
+        self._check_hallucinations(summary, result, rag_context=rag_context)
         
         # Determine overall validity
         result.is_valid = (
@@ -302,8 +305,16 @@ class SimpleClinicalValidator:
         self,
         summary: ClinicalSummary,
         result: ClinicalValidationResult,
+        rag_context: Optional[str] = None,
     ):
-        """Check for potential hallucinations"""
+        """
+        Check for potential hallucinations
+        
+        Args:
+            summary: Clinical summary to check
+            result: Result object to populate
+            rag_context: Retrieved RAG context (if available) for grounding checks
+        """
         
         # Check for obviously incorrect medical statements
         assessment_lower = (summary.assessment or "").lower()
@@ -323,12 +334,57 @@ class SimpleClinicalValidator:
             if re.search(pattern, assessment_lower) or re.search(pattern, plan_lower):
                 result.potential_hallucinations.append(message)
         
-        # Check for internally inconsistent information
-        # (This is a simplified check - could be more sophisticated)
+        # ------------------------------------------------------------------
+        # RAG-grounding check: if RAG context is available, verify that
+        # specific medications and dosages in the plan are grounded in
+        # either the RAG context or mentioned in the dialogue.
+        # This catches the case where the LLM invents treatments not 
+        # supported by the retrieved guidelines.
+        # ------------------------------------------------------------------
+        if rag_context and rag_context.strip():
+            rag_lower = rag_context.lower()
+            
+            # Extract specific medications from plan
+            med_pattern = r'\b([a-z]+(?:mab|nib|zole|pril|sartan|statin|mycin|cillin|olol|dipine|gliptin|flozin|pam|line|lone|amine|pride|phen))\b'
+            plan_meds = set(re.findall(med_pattern, plan_lower))
+            
+            # Also catch common named medications
+            named_meds = {
+                'aspirin', 'paracetamol', 'ibuprofen', 'metformin', 'insulin',
+                'salbutamol', 'prednisolone', 'amoxicillin', 'sertraline',
+                'citalopram', 'omeprazole', 'lansoprazole', 'ramipril',
+                'amlodipine', 'atorvastatin', 'simvastatin', 'warfarin',
+                'bisoprolol', 'furosemide', 'doxycycline', 'flucloxacillin',
+                'naproxen', 'codeine', 'tramadol', 'gabapentin', 'pregabalin',
+                'diazepam', 'lorazepam', 'levothyroxine', 'methotrexate',
+                'hydrocortisone',
+            }
+            for med in named_meds:
+                if med in plan_lower:
+                    plan_meds.add(med)
+            
+            # Check which plan medications are NOT in the RAG context
+            ungrounded = []
+            for med in plan_meds:
+                if med not in rag_lower:
+                    ungrounded.append(med)
+            
+            if ungrounded and len(ungrounded) > 0:
+                # Only flag if the medication is also not a very common
+                # first-line treatment that any GP would reasonably prescribe
+                common_first_line = {
+                    'paracetamol', 'ibuprofen', 'aspirin', 'salbutamol',
+                    'omeprazole', 'lansoprazole', 'amoxicillin',
+                }
+                flagged = [m for m in ungrounded if m not in common_first_line]
+                
+                if flagged:
+                    result.potential_hallucinations.append(
+                        f"Medications not grounded in RAG context: {', '.join(flagged)}. "
+                        f"These may be appropriate but were not supported by retrieved guidelines."
+                    )
         
-        # Check if assessment mentions a condition but plan doesn't address it
-        # NOTE: We're lenient here because differential diagnoses don't all need
-        # to be explicitly addressed - tests/investigations can rule them out
+        # Check for internally inconsistent information
         conditions_mentioned = self._extract_conditions(assessment_lower)
         plan_addresses = self._extract_conditions(plan_lower)
         
@@ -342,7 +398,6 @@ class SimpleClinicalValidator:
         
         for condition in conditions_mentioned:
             if condition not in plan_addresses and len(condition) > 5:
-                # Check if it's at least mentioned in plan OR if plan has investigations
                 if condition not in plan_lower and not plan_has_investigation:
                     result.potential_hallucinations.append(
                         f"Assessment mentions '{condition}' but plan may not address it"

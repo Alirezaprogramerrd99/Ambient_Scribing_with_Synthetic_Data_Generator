@@ -164,6 +164,16 @@ class OpenAITeacher(BaseTeacher):
         
         try:
             response = self._client.chat.completions.create(**params)
+            
+            # Track token usage for GenerationMetadata
+            if hasattr(response, 'usage') and response.usage:
+                self._last_usage = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                }
+            else:
+                self._last_usage = None
+            
             return response.choices[0].message.content
             
         except Exception as e:
@@ -337,6 +347,15 @@ class AnthropicTeacher(BaseTeacher):
                 messages=[{"role": "user", "content": prompt}],
                 temperature=temperature,
             )
+            
+            # Track token usage for GenerationMetadata
+            if hasattr(response, 'usage') and response.usage:
+                self._last_usage = {
+                    "prompt_tokens": response.usage.input_tokens,
+                    "completion_tokens": response.usage.output_tokens,
+                }
+            else:
+                self._last_usage = None
             
             # Extract text from response
             return response.content[0].text

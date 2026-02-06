@@ -328,9 +328,12 @@ class LlamaIndexIndexer:
                 path=str(self.persist_dir / "chroma")
             )
             
-            # Get or create collection
+            # Get or create collection with cosine similarity metric.
+            # Without this, ChromaDB defaults to L2 distance which gives
+            # different score ranges and less meaningful similarity values.
             chroma_collection = chroma_client.get_or_create_collection(
-                name=self.collection_name
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"},
             )
             
             return ChromaVectorStore(chroma_collection=chroma_collection)
@@ -530,6 +533,7 @@ class LlamaIndexRetriever(BaseRetriever):
         self,
         query: str,
         top_k: int = 5,
+        score_threshold: float = 0.0,
         **kwargs,
     ) -> RetrievalResponse:
         """
@@ -538,6 +542,8 @@ class LlamaIndexRetriever(BaseRetriever):
         Args:
             query: Search query
             top_k: Number of results to return
+            score_threshold: Minimum similarity score (0-1). Results below
+                this are filtered out to avoid returning irrelevant content.
             
         Returns:
             RetrievalResponse with results in our standard format
@@ -545,10 +551,13 @@ class LlamaIndexRetriever(BaseRetriever):
         import time
         start_time = time.time()
         
+        # Fetch extra results if we'll be filtering by score
+        fetch_k = max(top_k * 2, 10) if score_threshold > 0 else top_k
+        
         # Update top_k if different from default
-        if top_k != self.similarity_top_k:
+        if fetch_k != self.similarity_top_k:
             self._retriever = self.indexer.get_index().as_retriever(
-                similarity_top_k=top_k
+                similarity_top_k=fetch_k
             )
         
         # Retrieve nodes
@@ -563,16 +572,42 @@ class LlamaIndexRetriever(BaseRetriever):
         # Convert to our RetrievalResult format
         results = []
         for node in nodes:
+            score = node.score if node.score else 0.0
+            
+            # Filter by score threshold
+            if score < score_threshold:
+                logger.debug(
+                    f"Filtered result (score={score:.3f} < threshold={score_threshold})"
+                )
+                continue
+            
+            # LlamaIndex stores filepath as "file_path" in metadata,
+            # but our RetrievalResult.source_file looks for "source_file".
+            node_metadata = dict(node.node.metadata) if node.node.metadata else {}
+            
+            if "source_file" not in node_metadata and "file_path" in node_metadata:
+                node_metadata["source_file"] = node_metadata["file_path"]
+            if "title" not in node_metadata and "file_name" in node_metadata:
+                node_metadata["title"] = Path(node_metadata["file_name"]).stem
+            
+            node_metadata["start_char_idx"] = node.node.start_char_idx
+            node_metadata["end_char_idx"] = node.node.end_char_idx
+            
             results.append(RetrievalResult(
                 text=node.node.text,
-                score=node.score if node.score else 0.0,
+                score=score,
                 chunk_id=node.node.node_id,
-                metadata={
-                    **node.node.metadata,
-                    "start_char_idx": node.node.start_char_idx,
-                    "end_char_idx": node.node.end_char_idx,
-                },
+                metadata=node_metadata,
             ))
+        
+        # Trim to top_k after filtering
+        results = results[:top_k]
+        
+        if not results and score_threshold > 0:
+            logger.warning(
+                f"No results above score threshold {score_threshold} "
+                f"for query: {query[:80]}..."
+            )
         
         elapsed_ms = (time.time() - start_time) * 1000
         
@@ -626,11 +661,17 @@ class LlamaIndexRetriever(BaseRetriever):
         # Convert to our format
         results = []
         for node in nodes:
+            node_metadata = dict(node.node.metadata) if node.node.metadata else {}
+            if "source_file" not in node_metadata and "file_path" in node_metadata:
+                node_metadata["source_file"] = node_metadata["file_path"]
+            if "title" not in node_metadata and "file_name" in node_metadata:
+                node_metadata["title"] = Path(node_metadata["file_name"]).stem
+            
             results.append(RetrievalResult(
                 text=node.node.text,
                 score=node.score if node.score else 0.0,
                 chunk_id=node.node.node_id,
-                metadata=node.node.metadata,
+                metadata=node_metadata,
             ))
         
         elapsed_ms = (time.time() - start_time) * 1000
@@ -680,6 +721,7 @@ class HybridMedicalRetriever(BaseRetriever):
         self,
         query: str,
         top_k: int = 5,
+        score_threshold: float = 0.0,
         **kwargs,
     ) -> RetrievalResponse:
         """
@@ -688,6 +730,7 @@ class HybridMedicalRetriever(BaseRetriever):
         Args:
             query: Search query
             top_k: Number of results
+            score_threshold: Minimum similarity score
             
         Returns:
             RetrievalResponse with results
@@ -702,8 +745,12 @@ class HybridMedicalRetriever(BaseRetriever):
         else:
             expanded_query = query
         
-        # Step 2: Retrieve using LlamaIndex
-        response = self.llama_retriever.retrieve(expanded_query, top_k=top_k * 2)
+        # Step 2: Retrieve using LlamaIndex (pass score_threshold through)
+        response = self.llama_retriever.retrieve(
+            expanded_query,
+            top_k=top_k * 2,
+            score_threshold=score_threshold,
+        )
         
         # Step 3: Post-process for clinical relevance
         if self.use_clinical_filtering:

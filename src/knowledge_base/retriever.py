@@ -34,7 +34,17 @@ class RetrievalResult:
     
     @property
     def source_file(self) -> str:
-        return self.metadata.get("source_file", "Unknown")
+        """Return a meaningful source identifier"""
+        # Prefer title over raw file path, fall back to filename stem
+        title = self.metadata.get("title")
+        if title and title.strip():
+            return title
+        source = self.metadata.get("source_file", "")
+        if source and source.strip():
+            # Return just the filename, not the full path
+            from pathlib import Path
+            return Path(source).stem
+        return "Unknown"
     
     @property
     def section_title(self) -> Optional[str]:
@@ -201,6 +211,7 @@ class ChromaRetriever(BaseRetriever):
         self,
         query: str,
         top_k: int = 5,
+        score_threshold: float = 0.0,
         **kwargs,
     ) -> RetrievalResponse:
         """
@@ -209,6 +220,9 @@ class ChromaRetriever(BaseRetriever):
         Args:
             query: Search query
             top_k: Number of results to return
+            score_threshold: Minimum cosine similarity score (0.0-1.0).
+                Results below this threshold are filtered out to avoid
+                returning irrelevant content. Recommended: 0.35-0.5.
             
         Returns:
             RetrievalResponse with results
@@ -219,10 +233,12 @@ class ChromaRetriever(BaseRetriever):
         # Embed query
         query_embedding = self.embedding_manager.embed_text(query)
         
-        # Search
+        # Search — fetch extra results so we have enough after filtering
+        fetch_k = max(top_k * 2, 10) if score_threshold > 0 else top_k
+        
         results = self._collection.query(
             query_embeddings=[query_embedding],
-            n_results=top_k,
+            n_results=fetch_k,
             include=["documents", "metadatas", "distances"],
         )
         
@@ -238,12 +254,28 @@ class ChromaRetriever(BaseRetriever):
                 # Convert distance to similarity score (cosine distance to similarity)
                 score = 1 - distance
                 
+                # Filter out low-relevance results
+                if score < score_threshold:
+                    logger.debug(
+                        f"Filtered result {i} (score={score:.3f} < threshold={score_threshold})"
+                    )
+                    continue
+                
                 retrieval_results.append(RetrievalResult(
                     text=doc,
                     score=score,
                     chunk_id=metadata.get('chunk_id', f'chunk_{i}'),
                     metadata=metadata,
                 ))
+        
+        # Trim to top_k after filtering
+        retrieval_results = retrieval_results[:top_k]
+        
+        if not retrieval_results and score_threshold > 0:
+            logger.warning(
+                f"No results above score threshold {score_threshold} for query: "
+                f"{query[:80]}..."
+            )
         
         elapsed_ms = (time.time() - start_time) * 1000
         
@@ -380,6 +412,7 @@ class QdrantRetriever(BaseRetriever):
         self,
         query: str,
         top_k: int = 5,
+        score_threshold: float = 0.0,
         **kwargs,
     ) -> RetrievalResponse:
         """
@@ -388,6 +421,7 @@ class QdrantRetriever(BaseRetriever):
         Args:
             query: Search query
             top_k: Number of results
+            score_threshold: Minimum similarity score (0.0-1.0)
             
         Returns:
             RetrievalResponse with results
@@ -398,13 +432,17 @@ class QdrantRetriever(BaseRetriever):
         # Embed query
         query_embedding = self.embedding_manager.embed_text(query)
         
-        # Search
-        results = self._client.search(
-            collection_name=self.collection_name,
-            query_vector=query_embedding,
-            limit=top_k,
-            with_payload=True,
-        )
+        # Search — Qdrant supports native score_threshold
+        search_params = {
+            "collection_name": self.collection_name,
+            "query_vector": query_embedding,
+            "limit": top_k,
+            "with_payload": True,
+        }
+        if score_threshold > 0:
+            search_params["score_threshold"] = score_threshold
+        
+        results = self._client.search(**search_params)
         
         # Parse results
         retrieval_results = []
@@ -593,9 +631,12 @@ class HybridRetriever(BaseRetriever):
         # Add sparse scores (we need to map indices back to chunk_ids)
         # This is a simplified version - in production you'd track this better
         for rank, (doc_idx, _) in enumerate(sparse_scores):
+            # Guard against out-of-bounds index
+            if doc_idx >= len(all_docs):
+                continue
             # Find corresponding dense result by text matching
             for result in dense_results:
-                if result.text == all_docs[doc_idx] if doc_idx < len(all_docs) else False:
+                if result.text == all_docs[doc_idx]:
                     chunk_id = result.chunk_id
                     rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0) + \
                         self.sparse_weight * (1 / (self.rrf_k + rank + 1))
@@ -621,15 +662,24 @@ class HybridRetriever(BaseRetriever):
         self,
         query: str,
         top_k: int = 5,
+        score_threshold: float = 0.0,
         **kwargs,
     ) -> RetrievalResponse:
         """
         Hybrid retrieval combining dense and sparse search
+        
+        Args:
+            query: Search query
+            top_k: Number of results
+            score_threshold: Minimum similarity score — applied to final
+                fused results rather than the dense retriever (since RRF
+                produces different score magnitudes)
         """
         import time
         start_time = time.time()
         
-        # Get dense results (fetch more for fusion)
+        # Get dense results (fetch more for fusion; don't threshold here
+        # because RRF rescores everything)
         dense_response = self.dense_retriever.retrieve(query, top_k=top_k * 2)
         
         if not dense_response.results:
