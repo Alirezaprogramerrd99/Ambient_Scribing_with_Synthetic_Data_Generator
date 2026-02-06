@@ -323,9 +323,23 @@ class SimpleRAGEvaluator:
         details = []
         
         # 1. Check medication overlap
-        med_pattern = r'\b\w+(?:mab|nib|zole|pril|sartan|statin|mycin|cillin|pam|lol|pine|ine|ide|ate|one)\b'
-        summary_meds = set(re.findall(med_pattern, summary_text))
-        context_meds = set(re.findall(med_pattern, context))
+        # Use stricter medical suffixes to avoid false positives from common English words
+        # ending in -ine (determine, examine), -ate (evaluate, moderate), -one (everyone, done)
+        med_pattern = r'\b\w+(?:mab|nib|zole|pril|sartan|statin|mycin|cillin|pam|lol|olol|dipine|gliptin|flozin|lukast|setron|vastatin)\b'
+        # Also match known common medications explicitly
+        known_meds = {
+            'aspirin', 'paracetamol', 'acetaminophen', 'ibuprofen', 'naproxen',
+            'metformin', 'insulin', 'warfarin', 'heparin', 'morphine', 'codeine',
+            'amoxicillin', 'doxycycline', 'flucloxacillin', 'salbutamol',
+            'prednisolone', 'levothyroxine', 'sertraline', 'citalopram',
+            'diazepam', 'lorazepam', 'tramadol', 'gabapentin', 'pregabalin',
+        }
+        summary_meds = set(re.findall(med_pattern, summary_text)) | (
+            {w for w in summary_text.split() if w in known_meds}
+        )
+        context_meds = set(re.findall(med_pattern, context)) | (
+            {w for w in context.split() if w in known_meds}
+        )
         
         if summary_meds:
             med_score = len(summary_meds & context_meds) / len(summary_meds)

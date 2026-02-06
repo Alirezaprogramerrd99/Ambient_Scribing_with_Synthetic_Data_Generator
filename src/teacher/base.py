@@ -703,7 +703,7 @@ class BaseTeacher(ABC):
         return sample
     
     def _extract_json(self, response: str) -> str:
-        """Extract JSON from LLM response"""
+        """Extract JSON from LLM response using bracket-depth parsing"""
         response = response.strip()
         
         # Remove markdown code blocks
@@ -717,14 +717,39 @@ class BaseTeacher(ABC):
         
         response = response.strip()
         
-        # Find JSON object boundaries
-        start_idx = response.find("{")
-        end_idx = response.rfind("}") + 1
+        # Bracket-counting parser: finds the first complete top-level JSON object.
+        # This is more robust than find/rfind when preamble text contains '{'.
+        depth = 0
+        start = None
+        in_string = False
+        escape_next = False
         
-        if start_idx == -1 or end_idx == 0:
-            raise ValueError("No JSON object found in response")
+        for i, c in enumerate(response):
+            if escape_next:
+                escape_next = False
+                continue
+            
+            if c == '\\' and in_string:
+                escape_next = True
+                continue
+            
+            if c == '"' and not escape_next:
+                in_string = not in_string
+                continue
+            
+            if in_string:
+                continue
+            
+            if c == '{':
+                if depth == 0:
+                    start = i
+                depth += 1
+            elif c == '}':
+                depth -= 1
+                if depth == 0 and start is not None:
+                    return response[start:i + 1]
         
-        return response[start_idx:end_idx]
+        raise ValueError("No valid JSON object found in response")
     
     def _parse_dialogue(self, dialogue_data: List[Dict]) -> List[DialogueTurn]:
         """Parse dialogue list into DialogueTurn objects"""

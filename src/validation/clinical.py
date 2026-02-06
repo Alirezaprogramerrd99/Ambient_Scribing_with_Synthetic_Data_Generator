@@ -211,7 +211,7 @@ class SimpleClinicalValidator:
         combined_text = f"{medications_text} {plan_text}".lower()
         
         # Extract medication mentions with dosages
-        # Pattern: medication name followed by number and unit
+        # Pattern: word followed by number and unit
         dosage_pattern = r'(\w+)\s+(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|units?)'
         
         matches = re.findall(dosage_pattern, combined_text)
@@ -219,29 +219,48 @@ class SimpleClinicalValidator:
         for med_name, dosage_str, unit in matches:
             dosage = float(dosage_str)
             
-            # Check if medication is in our database
-            if med_name in self.MEDICATION_DOSAGES:
-                expected = self.MEDICATION_DOSAGES[med_name]
-                
-                # Check unit match
-                if unit != expected["unit"]:
-                    result.dosage_issues.append(
-                        f"{med_name}: unusual unit '{unit}' (expected {expected['unit']})"
-                    )
-                
-                # Check dosage range
-                if dosage < expected["min"] * 0.5:  # Allow some flexibility
-                    result.dosage_issues.append(
-                        f"{med_name} {dosage}{unit}: dosage unusually low "
-                        f"(typical range: {expected['min']}-{expected['max']}{expected['unit']})"
-                    )
-                elif dosage > expected["max"] * 1.5:
-                    result.dosage_issues.append(
-                        f"{med_name} {dosage}{unit}: dosage unusually high "
-                        f"(typical range: {expected['min']}-{expected['max']}{expected['unit']})"
-                    )
+            # Only validate dosages for medications in our database.
+            # The regex captures any preceding word (e.g. "take 500 mg"),
+            # so we skip unknown words to avoid false positives.
+            if med_name not in self.MEDICATION_DOSAGES:
+                # Still record as entity if it looks like a real medication
+                # (check against common non-medication words)
+                skip_words = {
+                    'take', 'give', 'start', 'dose', 'about', 'over', 'every',
+                    'after', 'before', 'with', 'than', 'under', 'from', 'section',
+                    'approximately', 'around', 'level', 'score', 'value', 'total',
+                }
+                if med_name in skip_words:
+                    continue
+                    
+                result.entities_found.append(ClinicalEntity(
+                    text=f"{med_name} {dosage}{unit}",
+                    entity_type=ClinicalEntityType.MEDICATION,
+                    confidence=0.5,  # Lower confidence for unknown medications
+                ))
+                continue
             
-            # Record as entity
+            expected = self.MEDICATION_DOSAGES[med_name]
+            
+            # Check unit match
+            if unit != expected["unit"]:
+                result.dosage_issues.append(
+                    f"{med_name}: unusual unit '{unit}' (expected {expected['unit']})"
+                )
+            
+            # Check dosage range
+            if dosage < expected["min"] * 0.5:  # Allow some flexibility
+                result.dosage_issues.append(
+                    f"{med_name} {dosage}{unit}: dosage unusually low "
+                    f"(typical range: {expected['min']}-{expected['max']}{expected['unit']})"
+                )
+            elif dosage > expected["max"] * 1.5:
+                result.dosage_issues.append(
+                    f"{med_name} {dosage}{unit}: dosage unusually high "
+                    f"(typical range: {expected['min']}-{expected['max']}{expected['unit']})"
+                )
+            
+            # Record known medication as entity
             result.entities_found.append(ClinicalEntity(
                 text=f"{med_name} {dosage}{unit}",
                 entity_type=ClinicalEntityType.MEDICATION,

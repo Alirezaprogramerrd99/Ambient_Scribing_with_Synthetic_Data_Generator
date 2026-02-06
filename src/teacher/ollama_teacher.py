@@ -15,7 +15,7 @@ import httpx
 from .base import BaseTeacher, GenerationConfig, GenerationResult
 from src.knowledge_base import BaseRetriever
 from src.config import ClinicalPrompts
-from src.utils import retry_with_exponential_backoff, RateLimitError, ConnectionError
+from src.utils import RateLimitError, ConnectionError
 
 logger = logging.getLogger(__name__)
 
@@ -287,11 +287,9 @@ class OllamaTeacher(BaseTeacher):
         """Check if Ollama is accessible"""
         return self.client.is_available()
     
-    @retry_with_exponential_backoff(
-        max_attempts=3,
-        min_wait_seconds=1.0,
-        max_wait_seconds=30.0,
-    )
+    # NOTE: No @retry decorator here — retries are handled by
+    # BaseTeacher.generate() via RetryContext to avoid compounding
+    # (decorator retries × context retries = excessive attempts).
     def _call_llm(
         self,
         prompt: str,
@@ -347,6 +345,7 @@ class OllamaTeacher(BaseTeacher):
             GenerationResult
         """
         import time
+        from src.models import RAGMetadata
         start_time = time.time()
         use_rag = use_rag if use_rag is not None else self.config.use_rag
         
@@ -355,7 +354,7 @@ class OllamaTeacher(BaseTeacher):
             guidelines_context, rag_meta = self.retrieve_guidelines(scenario)
         else:
             guidelines_context = "No specific guidelines retrieved."
-            rag_meta = None
+            rag_meta = RAGMetadata(rag_enabled=False)
         
         # Default system prompt
         if system_prompt is None:
@@ -377,41 +376,63 @@ class OllamaTeacher(BaseTeacher):
             {"role": "user", "content": user_prompt},
         ]
         
-        try:
-            # Call chat API
-            raw_response = self.client.chat(
-                model=self.model_name,
-                messages=messages,
-                temperature=self.config.temperature,
-                max_tokens=self.config.max_tokens,
-                format="json" if self.use_json_mode else None,
-            )
-            
-            # Parse response
-            sample = self._parse_response(
-                raw_response=raw_response,
-                scenario=scenario,
-                rag_meta=rag_meta,
-            )
-            
-            generation_time = time.time() - start_time
+        # Generate with retries (matching BaseTeacher.generate() behaviour)
+        from src.utils import RetryContext
+        with RetryContext(
+            max_attempts=self.config.max_retries,
+            min_wait_seconds=self.config.retry_delay,
+        ) as retry_ctx:
+            while retry_ctx.should_retry():
+                try:
+                    raw_response = self.client.chat(
+                        model=self.model_name,
+                        messages=messages,
+                        temperature=self.config.temperature,
+                        max_tokens=self.config.max_tokens,
+                        format="json" if self.use_json_mode else None,
+                    )
+                    
+                    sample = self._parse_response(
+                        raw_response=raw_response,
+                        scenario=scenario,
+                        rag_meta=rag_meta,
+                    )
+                    retry_ctx.success(sample)
+                    
+                except Exception as e:
+                    logger.warning(f"Chat generation attempt failed: {e}")
+                    retry_ctx.failed(e)
+        
+        generation_time = time.time() - start_time
+        
+        if retry_ctx.succeeded:
+            sample = retry_ctx.result
             sample.generation.generation_time_seconds = generation_time
-            
             self._total_generated += 1
+            
+            # Difficulty assessment (matching BaseTeacher.generate() behaviour)
+            if self.config.include_difficulty:
+                try:
+                    sample.difficulty = self.assess_difficulty(sample)
+                except Exception as e:
+                    logger.warning(f"Difficulty assessment failed: {e}")
+                    if sample.difficulty is None:
+                        sample.difficulty = self._heuristic_difficulty_assessment(sample)
             
             return GenerationResult(
                 success=True,
                 sample=sample,
                 raw_response=raw_response,
+                attempts=retry_ctx.attempts,
                 generation_time_seconds=generation_time,
             )
-            
-        except Exception as e:
+        else:
             self._total_failed += 1
             return GenerationResult(
                 success=False,
-                error=str(e),
-                generation_time_seconds=time.time() - start_time,
+                error=str(retry_ctx.last_exception),
+                attempts=retry_ctx.attempts,
+                generation_time_seconds=generation_time,
             )
     
     def warm_up(self, num_tokens: int = 10) -> float:

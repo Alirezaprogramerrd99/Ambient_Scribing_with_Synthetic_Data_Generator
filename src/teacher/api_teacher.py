@@ -16,7 +16,6 @@ from .base import BaseTeacher, GenerationConfig, GenerationResult
 from src.knowledge_base import BaseRetriever
 from src.config import ClinicalPrompts
 from src.utils import (
-    retry_with_exponential_backoff,
     RateLimitError,
     MaxRetriesExceededError,
 )
@@ -117,11 +116,7 @@ class OpenAITeacher(BaseTeacher):
             logger.error(f"OpenAI connection check failed: {e}")
             return False
     
-    @retry_with_exponential_backoff(
-        max_attempts=3,
-        min_wait_seconds=1.0,
-        max_wait_seconds=60.0,
-    )
+    # NOTE: No @retry decorator — retries handled by BaseTeacher.generate() via RetryContext.
     def _call_llm(
         self,
         prompt: str,
@@ -306,11 +301,7 @@ class AnthropicTeacher(BaseTeacher):
             logger.error(f"Anthropic connection check failed: {e}")
             return False
     
-    @retry_with_exponential_backoff(
-        max_attempts=3,
-        min_wait_seconds=1.0,
-        max_wait_seconds=60.0,
-    )
+    # NOTE: No @retry decorator — retries handled by BaseTeacher.generate() via RetryContext.
     def _call_llm(
         self,
         prompt: str,
@@ -481,11 +472,7 @@ class LiteLLMTeacher(BaseTeacher):
             logger.error(f"LiteLLM connection check failed: {e}")
             return False
     
-    @retry_with_exponential_backoff(
-        max_attempts=3,
-        min_wait_seconds=1.0,
-        max_wait_seconds=60.0,
-    )
+    # NOTE: No @retry decorator — retries handled by BaseTeacher.generate() via RetryContext.
     def _call_llm(
         self,
         prompt: str,

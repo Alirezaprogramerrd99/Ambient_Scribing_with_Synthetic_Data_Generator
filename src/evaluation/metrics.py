@@ -159,16 +159,22 @@ class BenchmarkResult:
         if not metrics:
             return 0.0
         
-        # Filter for float values that look like scores (0-1 range)
-        # Exclude things like 'total_samples', 'num_samples', counts, etc.
+        # Keys to exclude entirely (counts, totals, not scores)
         exclude_keys = {'total_samples', 'num_samples', 'total', 'count'}
+        
+        # Keys where lower is better — these get inverted (1 - value)
+        # before averaging so the composite score stays "higher is better"
+        inverted_keys = {'hallucination_rate'}
         
         valid_scores = []
         for key, value in metrics.items():
             if key.lower() in exclude_keys:
                 continue
             if isinstance(value, (int, float)) and 0 <= value <= 1:
-                valid_scores.append(value)
+                if key.lower() in inverted_keys:
+                    valid_scores.append(1.0 - value)
+                else:
+                    valid_scores.append(value)
         
         return sum(valid_scores) / len(valid_scores) if valid_scores else 0.0
     
@@ -759,6 +765,7 @@ def compute_ragas_metrics(
     samples: List[Any],
     llm_provider: str = "openai",
     llm_model: str = "gpt-4o-mini",
+    ground_truths: Optional[List[str]] = None,
 ) -> RAGASResult:
     """
     Compute RAGAS metrics for RAG evaluation
@@ -769,10 +776,18 @@ def compute_ragas_metrics(
     - Context Precision: Are the retrieved contexts relevant?
     - Context Recall: Are all relevant facts retrieved?
     
+    Note on context_recall: Without human-annotated ground truths,
+    this metric uses the generated answer as its own ground truth,
+    which measures self-consistency rather than true recall. Pass
+    the ground_truths parameter for rigorous evaluation.
+    
     Args:
         samples: List of SyntheticSample objects with RAG data
         llm_provider: LLM provider for RAGAS evaluation
         llm_model: Model name for evaluation
+        ground_truths: Optional list of human-annotated ground truths
+            (one per sample). If None, generated answers are used
+            as self-referential ground truth.
         
     Returns:
         RAGASResult with all RAGAS metrics
@@ -799,11 +814,16 @@ def compute_ragas_metrics(
     questions = []
     answers = []
     contexts = []
-    ground_truths = []
+    gt_list = []
+    
+    # Build index for external ground truths if provided
+    _external_gt = ground_truths  # Rename to avoid collision with local list
+    _gt_idx = 0
     
     for sample in samples:
         # Skip if no RAG data
         if not hasattr(sample, 'rag') or not sample.rag or not sample.rag.rag_enabled:
+            _gt_idx += 1
             continue
         
         # Question = scenario text
@@ -814,6 +834,7 @@ def compute_ragas_metrics(
             question = sample.summary.chief_complaint or ""
         
         if not question:
+            _gt_idx += 1
             continue
         
         # Answer = generated summary (HPI + Assessment + Plan)
@@ -829,6 +850,7 @@ def compute_ragas_metrics(
             answer = " ".join(parts)
         
         if not answer:
+            _gt_idx += 1
             continue
         
         # Contexts = retrieved RAG context
@@ -838,16 +860,23 @@ def compute_ragas_metrics(
             context_list = [sample.rag.context_used]
         
         if not context_list:
+            _gt_idx += 1
             continue
         
-        # Ground truth = we use the answer itself for self-consistency check
-        # In a real scenario, you'd have human-annotated ground truths
-        ground_truth = answer
+        # Ground truth: use external ground truths if provided, otherwise
+        # fall back to using the generated answer (self-referential).
+        # When self-referential, context_recall measures self-consistency
+        # rather than true recall — document this as a limitation in thesis.
+        if _external_gt is not None and _gt_idx < len(_external_gt):
+            ground_truth = _external_gt[_gt_idx]
+        else:
+            ground_truth = answer
         
         questions.append(question)
         answers.append(answer)
         contexts.append(context_list)
-        ground_truths.append(ground_truth)
+        gt_list.append(ground_truth)
+        _gt_idx += 1
     
     if not questions:
         logger.warning("No valid samples for RAGAS evaluation")
@@ -858,7 +887,7 @@ def compute_ragas_metrics(
         "question": questions,
         "answer": answers,
         "contexts": contexts,
-        "ground_truth": ground_truths,
+        "ground_truth": gt_list,
     }
     
     dataset = Dataset.from_dict(data)

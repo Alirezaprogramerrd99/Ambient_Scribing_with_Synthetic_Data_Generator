@@ -197,7 +197,7 @@ def compare_backends(num_scenarios: int = 5):
             use_rag=True,
             rag_backend=backend,
             knowledge_base_path=Path("./medical_knowledge/sample"),
-            rag_top_k=5,
+            rag_top_k=8,
             
             teacher_provider="openai",
             teacher_model="gpt-4o-mini",
@@ -269,4 +269,4 @@ if __name__ == "__main__":
         print("Use --help to see available options.\n")
         
         build_llama_index_knowledge_base()
-        run_pipeline_with_llama_index(num_scenarios=100)
+        run_pipeline_with_llama_index(num_scenarios=10)

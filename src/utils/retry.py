@@ -62,9 +62,13 @@ class ModelOverloadedError(RetryableError):
     pass
 
 
-class ConnectionError(RetryableError):
-    """Connection failed - should retry"""
+class LLMConnectionError(RetryableError):
+    """Connection to LLM service failed - should retry"""
     pass
+
+
+# Backwards-compatible alias (deprecated — use LLMConnectionError)
+ConnectionError = LLMConnectionError
 
 
 class InvalidResponseError(Exception):
@@ -84,12 +88,15 @@ class MaxRetriesExceededError(Exception):
 # Retry Configurations
 # =============================================================================
 
+import builtins
+
 # Default retryable exceptions for LLM calls
 DEFAULT_RETRYABLE_EXCEPTIONS: Tuple[Type[Exception], ...] = (
     RetryableError,
     RateLimitError,
     ModelOverloadedError,
-    ConnectionError,
+    LLMConnectionError,
+    builtins.ConnectionError,  # Also catch Python's built-in ConnectionError (raised by httpx etc.)
     TimeoutError,
     # Add common HTTP/network errors
 )
@@ -559,7 +566,7 @@ if __name__ == "__main__":
             try:
                 ctx_attempts += 1
                 if ctx_attempts < 2:
-                    raise ConnectionError("Connection failed")
+                    raise LLMConnectionError("Connection failed")
                 ctx.success("Connected!")
             except Exception as e:
                 ctx.failed(e)
