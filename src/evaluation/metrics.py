@@ -216,27 +216,72 @@ class BenchmarkResult:
 # Text Quality Metrics
 # =============================================================================
 
+# def compute_bleu(
+#     predictions: List[str],
+#     references: List[str],
+# ) -> MetricResult:
+#     """
+#     Compute BLEU score for generated summaries
+    
+#     Args:
+#         predictions: Generated summaries
+#         references: Reference summaries
+        
+#     Returns:
+#         MetricResult with BLEU score
+#     """
+#     try:
+#         from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+#         import nltk
+#         nltk.download('punkt', quiet=True)
+#     except ImportError:
+#         logger.warning("NLTK not available, returning 0 for BLEU")
+#         return MetricResult(name="bleu", value=0.0, details={"error": "NLTK not installed"})
+    
+#     if not predictions or not references:
+#         return MetricResult(name="bleu", value=0.0)
+    
+#     smoother = SmoothingFunction().method1
+#     scores = []
+    
+#     for pred, ref in zip(predictions, references):
+#         pred_tokens = pred.lower().split()
+#         ref_tokens = [ref.lower().split()]
+        
+#         try:
+#             score = sentence_bleu(ref_tokens, pred_tokens, smoothing_function=smoother)
+#             scores.append(score)
+#         except Exception:
+#             scores.append(0.0)
+    
+#     avg_score = sum(scores) / len(scores) if scores else 0.0
+    
+#     return MetricResult(
+#         name="bleu",
+#         value=avg_score,
+#         details={
+#             "num_samples": len(scores),
+#             "min": min(scores) if scores else 0,
+#             "max": max(scores) if scores else 0,
+#         }
+#     )
+
+
+
 def compute_bleu(
     predictions: List[str],
     references: List[str],
 ) -> MetricResult:
     """
-    Compute BLEU score for generated summaries
-    
-    Args:
-        predictions: Generated summaries
-        references: Reference summaries
-        
-    Returns:
-        MetricResult with BLEU score
+    Compute BLEU score with proper NLTK tokenization.
     """
     try:
         from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+        from nltk.tokenize import word_tokenize # Import the real tokenizer
         import nltk
         nltk.download('punkt', quiet=True)
     except ImportError:
-        logger.warning("NLTK not available, returning 0 for BLEU")
-        return MetricResult(name="bleu", value=0.0, details={"error": "NLTK not installed"})
+        return MetricResult(name="bleu", value=0.0)
     
     if not predictions or not references:
         return MetricResult(name="bleu", value=0.0)
@@ -245,8 +290,10 @@ def compute_bleu(
     scores = []
     
     for pred, ref in zip(predictions, references):
-        pred_tokens = pred.lower().split()
-        ref_tokens = [ref.lower().split()]
+        # FIX: Use word_tokenize instead of .split()
+        # This handles "word." vs "word" correctly
+        pred_tokens = word_tokenize(pred.lower())
+        ref_tokens = [word_tokenize(ref.lower())]
         
         try:
             score = sentence_bleu(ref_tokens, pred_tokens, smoothing_function=smoother)
@@ -265,6 +312,7 @@ def compute_bleu(
             "max": max(scores) if scores else 0,
         }
     )
+
 
 
 def compute_rouge(
@@ -401,7 +449,7 @@ def compute_dialogue_coherence(dialogues: List[List[Dict]]) -> MetricResult:
             continue
         
         score = 0.0
-        max_score = 4.0
+        max_score = 3.5
         
         # 1. Turn-taking pattern (alternating speakers)
         alternation_count = 0
@@ -413,7 +461,8 @@ def compute_dialogue_coherence(dialogues: List[List[Dict]]) -> MetricResult:
         score += alternation_ratio  # Max 1.0
         
         # 2. Doctor starts conversation
-        if dialogue[0].get("speaker") in ["Doctor", "Dr"]:
+        doctor_names = {"doctor", "dr"}
+        if dialogue[0].get("speaker", "").lower() in doctor_names:
             score += 0.5
         
         # 3. Minimum dialogue length
@@ -431,8 +480,10 @@ def compute_dialogue_coherence(dialogues: List[List[Dict]]) -> MetricResult:
         qa_patterns = 0
         for i in range(len(dialogue) - 1):
             current_text = dialogue[i].get("text", "").lower()
-            if dialogue[i].get("speaker") == "Doctor" and "?" in current_text:
-                if dialogue[i+1].get("speaker") == "Patient":
+            speaker = dialogue[i].get("speaker", "").lower()
+            next_speaker = dialogue[i+1].get("speaker", "").lower()
+            if speaker in doctor_names and "?" in current_text:
+                if next_speaker == "patient":
                     qa_patterns += 1
         
         qa_ratio = qa_patterns / (len(dialogue) // 2) if len(dialogue) > 2 else 0
@@ -551,9 +602,10 @@ def compute_clinical_accuracy(
     Compute clinical accuracy metrics
     
     Measures:
-    - Validation pass rate
-    - Hallucination rate
-    - Safety concern coverage
+    - Validation pass rate (Status is 'passed' or 'warning')
+    - Clinical Validity (Boolean flag from validator)
+    - Hallucination rate (Presence of hallucination errors)
+    - Safety netting coverage (Presence of safety netting in summary)
     
     Args:
         samples: List of SyntheticSample objects
@@ -565,44 +617,67 @@ def compute_clinical_accuracy(
         return MetricResult(name="clinical_accuracy", value=0.0)
     
     validation_passed = 0
-    clinical_valid = 0
-    has_hallucinations = 0
-    has_safety_netting = 0
+    clinical_valid_count = 0  # Renamed to avoid confusion with flag
+    hallucination_count = 0
+    safety_netting_count = 0
     
     for sample in samples:
-        # Check validation status
-        if hasattr(sample, 'validation') and sample.validation:
-            if sample.validation.status.value in ["passed", "warning"]:
-                validation_passed += 1
-            if sample.validation.clinical_valid:
-                clinical_valid += 1
-            
-            # Check for hallucination errors
-            if sample.validation.errors:
-                hallucination_errors = [
-                    e for e in sample.validation.errors
-                    if "hallucination" in e.error_type.lower()
-                ]
-                if hallucination_errors:
-                    has_hallucinations += 1
+        # 1. Validation Checks
+        # Safely access validation object
+        val_obj = getattr(sample, 'validation', None)
         
-        # Check safety netting
-        if hasattr(sample, 'summary') and sample.summary:
-            if sample.summary.safety_netting:
-                has_safety_netting += 1
+        if val_obj:
+            # Check Status
+            # Assumes val_obj.status is an Enum or object with .value
+            status_val = getattr(val_obj.status, 'value', str(val_obj.status)).lower()
+            if status_val in ["passed", "warning"]:
+                validation_passed += 1
+            
+            # Check Clinical Validity Flag
+            if getattr(val_obj, 'clinical_valid', False):
+                clinical_valid_count += 1
+            
+            # Check for Hallucinations
+            # Robustly handle errors list
+            errors = getattr(val_obj, 'errors', [])
+            is_hallucinated = False
+            
+            for e in errors:
+                # Handle if error is an object with error_type
+                if hasattr(e, 'error_type'):
+                    if "hallucination" in str(e.error_type).lower():
+                        is_hallucinated = True
+                        break
+                # Handle if error is a simple string
+                elif isinstance(e, str):
+                    if "hallucination" in e.lower():
+                        is_hallucinated = True
+                        break
+            
+            if is_hallucinated:
+                hallucination_count += 1
+        
+        # 2. Safety Netting Check
+        summary_obj = getattr(sample, 'summary', None)
+        if summary_obj:
+            # Check if safety_netting is present and not empty/None
+            safety = getattr(summary_obj, 'safety_netting', None)
+            if safety:  # Checks for non-empty string or True
+                safety_netting_count += 1
     
     total = len(samples)
     
     validation_rate = validation_passed / total
-    clinical_rate = clinical_valid / total
-    hallucination_rate = has_hallucinations / total
-    safety_rate = has_safety_netting / total
+    clinical_rate = clinical_valid_count / total
+    hallucination_rate = hallucination_count / total
+    safety_rate = safety_netting_count / total
     
-    # Combined score (higher is better, so invert hallucination rate)
+    # Combined score calculation
+    # Weights: 30% Validation, 30% Validity, 20% No Hallucinations, 20% Safety
     combined_score = (
         validation_rate * 0.3 +
         clinical_rate * 0.3 +
-        (1 - hallucination_rate) * 0.2 +
+        (1.0 - hallucination_rate) * 0.2 +
         safety_rate * 0.2
     )
     
@@ -617,7 +692,6 @@ def compute_clinical_accuracy(
             "total_samples": total,
         }
     )
-
 
 def compute_entity_extraction_f1(
     predicted_entities: List[List[str]],
@@ -931,135 +1005,139 @@ def compute_ragas_metrics(
 
 def _compute_ragas_fallback(samples: List[Any]) -> RAGASResult:
     """
-    Compute approximate RAGAS-like metrics without the RAGAS library
+    Compute approximate RAGAS-like metrics without the RAGAS library.
     
-    Uses simpler heuristics as fallback when RAGAS isn't available.
+    Uses keyword heuristics as a fallback when RAGAS isn't available
+    or when compute_ragas=False to save API costs.
+    
+    Metrics:
+        - Faithfulness: passed through from RAG validation scores
+        - Answer Relevancy: query-answer term overlap (filtered, weighted)
+        - Context Precision: proportion of retrievals above quality threshold
+        - Context Recall: context-answer term overlap (filtered, scaled)
     """
     if not samples:
         return RAGASResult()
     
+    # One list per metric — strictly one entry per valid sample
     faithfulness_scores = []
     relevancy_scores = []
     precision_scores = []
     recall_scores = []
     
+    # Common stop words to filter out of overlap calculations
+    stop_words = {
+        'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and',
+        'in', 'for', 'with', 'has', 'had', 'been', 'will', 'should', 'may',
+        'can', 'also', 'this', 'that', 'from', 'which', 'have', 'does',
+        'did', 'be', 'or', 'if', 'no', 'not', 'any', 'all', 'some', 'more',
+        'most', 'other', 'such', 'but', 'than', 'then', 'so', 'very', 'just',
+        'about', 'into', 'over', 'after', 'before', 'between', 'under',
+        'patient', 'doctor', 'reports', 'states', 'notes', 'presenting',
+        'year', 'old', 'male', 'female', 'history', 'associated',
+    }
+    
+    def extract_terms(text: str, min_length: int = 4) -> set:
+        """Extract meaningful terms from text, filtering stop words and short tokens."""
+        return {
+            w for w in text.lower().split()
+            if len(w) >= min_length and w not in stop_words
+        }
+    
     for sample in samples:
         if not hasattr(sample, 'rag') or not sample.rag or not sample.rag.rag_enabled:
             continue
         
-        # Faithfulness: Use existing RAG faithfulness score
+        # === 1. Faithfulness (pass-through from validation) ===
+        faith = 0.5  # neutral default
         if hasattr(sample, 'validation') and sample.validation:
-            if sample.validation.rag_faithfulness:
-                faithfulness_scores.append(sample.validation.rag_faithfulness)
+            if sample.validation.rag_faithfulness is not None:
+                faith = sample.validation.rag_faithfulness
+        faithfulness_scores.append(faith)
         
-        # Get scenario/query - extract the main clinical complaint
+        # --- Extract text data for remaining metrics ---
         query = ""
         if hasattr(sample, 'scenario') and sample.scenario:
             query = sample.scenario.scenario_text or ""
         if not query and hasattr(sample, 'summary') and sample.summary:
             query = sample.summary.chief_complaint or ""
         
-        # Get answer (full summary) - focus on clinical content
         answer = ""
         if hasattr(sample, 'summary') and sample.summary:
             parts = []
-            if sample.summary.chief_complaint:
-                parts.append(sample.summary.chief_complaint)
-            if sample.summary.history_of_present_illness:
-                parts.append(sample.summary.history_of_present_illness)
-            if sample.summary.assessment:
-                parts.append(sample.summary.assessment)
-            if sample.summary.plan:
-                parts.append(sample.summary.plan)
-            if sample.summary.safety_netting:
-                parts.append(sample.summary.safety_netting)
+            for field in ['chief_complaint', 'history_of_present_illness', 
+                          'assessment', 'plan', 'safety_netting']:
+                val = getattr(sample.summary, field, None)
+                if val:
+                    parts.append(val)
             answer = " ".join(parts)
         
         context = sample.rag.context_used or ""
         
-        # Stop words for all calculations
-        stop_words = {
-            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'to', 'of', 'and', 
-            'in', 'for', 'with', 'presenting', 'year', 'old', 'male', 'female',
-            'history', 'associated', 'severity', 'moderate', 'mild', 'severe',
-            'patient', 'doctor', 'reports', 'states', 'notes', 'has', 'had',
-            'been', 'will', 'should', 'may', 'can', 'also', 'this', 'that',
-            'from', 'which', 'have', 'does', 'did', 'be', 'or', 'if', 'no',
-            'not', 'any', 'all', 'some', 'more', 'most', 'other', 'such'
-        }
-        
-        # Answer Relevancy: Does the answer address the query?
+        # === 2. Answer Relevancy (does the answer address the query?) ===
         if query and answer:
-            query_lower = query.lower()
-            answer_lower = answer.lower()
+            query_terms = extract_terms(query)
+            answer_terms = extract_terms(answer)
             
-            # Extract key clinical terms from query (4+ chars)
-            query_words = {w for w in query_lower.split() if len(w) >= 4 and w not in stop_words}
-            answer_words = {w for w in answer_lower.split() if len(w) >= 4 and w not in stop_words}
+            if query_terms:
+                # What fraction of query terms appear in the answer?
+                # This is recall-oriented: we want the answer to cover the query
+                overlap = len(query_terms & answer_terms)
+                relevancy = overlap / len(query_terms)
+                
+                # Scale: getting 40%+ term overlap is actually good for clinical text
+                # because the answer expands significantly on the query
+                relevancy = min(1.0, relevancy * 2.0)
+            else:
+                relevancy = 0.5
             
-            if query_words:
-                # How many query terms appear in the answer?
-                overlap = len(query_words & answer_words)
-                base_relevancy = overlap / len(query_words)
-                
-                # Bonus for addressing main symptoms
-                symptom_keywords = ['pain', 'ache', 'cough', 'fever', 'breath', 'dizzy', 
-                                   'nausea', 'vomit', 'tired', 'weak', 'swell', 'rash']
-                symptom_bonus = 0
-                for kw in symptom_keywords:
-                    if kw in query_lower and kw in answer_lower:
-                        symptom_bonus += 0.1
-                
-                relevancy = min(1.0, base_relevancy + symptom_bonus)
-                relevancy_scores.append(relevancy)
+            relevancy_scores.append(relevancy)
+        else:
+            relevancy_scores.append(0.0)
         
-        # Context Precision: Are retrieved contexts relevant to query?
-        if sample.rag.retrieval_scores:
-            # Proportion of high-scoring retrievals (threshold 0.4 for cosine similarity)
-            high_scores = sum(1 for s in sample.rag.retrieval_scores if s >= 0.4)
-            precision = high_scores / len(sample.rag.retrieval_scores)
+        # === 3. Context Precision (are retrieved chunks relevant?) ===
+        retrieval_scores = sample.rag.retrieval_scores or []
+        if retrieval_scores:
+            # Proportion of retrievals above a quality threshold
+            # For cosine similarity, 0.5 is a reasonable threshold
+            relevant = sum(1 for s in retrieval_scores if s >= 0.5)
+            precision = relevant / len(retrieval_scores)
             precision_scores.append(precision)
+        else:
+            precision_scores.append(0.0)
         
-        # Context Recall: Does the answer incorporate information from context?
+        # === 4. Context Recall (does the answer use the retrieved context?) ===
         if context and answer:
-            context_lower = context.lower()
-            answer_lower = answer.lower()
+            context_terms = extract_terms(context, min_length=5)
+            answer_terms = extract_terms(answer, min_length=5)
             
-            # Extract meaningful terms from context
-            context_words = {w for w in context_lower.split() if len(w) >= 5 and w not in stop_words}
-            answer_words = {w for w in answer_lower.split() if len(w) >= 5 and w not in stop_words}
-            
-            if context_words:
-                # How many context terms appear in the answer?
-                overlap = len(context_words & answer_words)
-                base_recall = overlap / len(context_words)
+            if context_terms:
+                # What fraction of context terms appear in the answer?
+                overlap = len(context_terms & answer_terms)
+                recall = overlap / len(context_terms)
                 
-                # Scale up (getting 20%+ overlap is actually good)
-                recall = min(1.0, base_recall * 3.0)
-                recall_scores.append(recall)
+                # Scale: even 15-20% raw overlap is good because context chunks
+                # are much broader than what any single summary would use
+                recall = min(1.0, recall * 3.0)
+            else:
+                recall = 0.0
             
-            # Also check for specific clinical matches
-            clinical_patterns = [
-                'paracetamol', 'ibuprofen', 'amoxicillin', 'omeprazole',
-                'blood test', 'x-ray', 'ecg', 'ultrasound', 'ct scan',
-                'refer', 'follow-up', 'review', 'return if'
-            ]
-            pattern_matches = sum(1 for p in clinical_patterns if p in context_lower and p in answer_lower)
-            if pattern_matches > 0:
-                recall_scores.append(min(1.0, pattern_matches * 0.2))
+            recall_scores.append(recall)
+        else:
+            recall_scores.append(0.0)
     
-    # Calculate final scores with fallbacks
-    final_faithfulness = sum(faithfulness_scores) / len(faithfulness_scores) if faithfulness_scores else 0.5
-    final_relevancy = sum(relevancy_scores) / len(relevancy_scores) if relevancy_scores else 0.5
-    final_precision = sum(precision_scores) / len(precision_scores) if precision_scores else 0.5
-    final_recall = sum(recall_scores) / len(recall_scores) if recall_scores else 0.3
+    # Safe averaging
+    def safe_avg(lst):
+        return sum(lst) / len(lst) if lst else 0.0
     
     return RAGASResult(
-        faithfulness=final_faithfulness,
-        answer_relevancy=final_relevancy,
-        context_precision=final_precision,
-        context_recall=final_recall,
-        sample_scores=[{"sample_index": i} for i in range(len(faithfulness_scores))],
+        faithfulness=safe_avg(faithfulness_scores),
+        answer_relevancy=safe_avg(relevancy_scores),
+        context_precision=safe_avg(precision_scores),
+        context_recall=safe_avg(recall_scores),
+        sample_scores=[
+            {"sample_index": i} for i in range(len(faithfulness_scores))
+        ],
     )
 
 

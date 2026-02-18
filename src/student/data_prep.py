@@ -1,0 +1,684 @@
+"""
+Data Preparation for Student Model Fine-Tuning
+
+Loads synthetic data from the teacher pipeline, applies quality filters,
+converts to ChatML instruction format for Phi-3.5-mini, and creates
+stratified train/val/test splits.
+
+Author: Alireza Rashidi
+MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
+"""
+
+import json
+import logging
+import random
+import hashlib
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass, field
+from collections import Counter
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+@dataclass
+class DataPrepConfig:
+    """Configuration for data preparation."""
+    
+    # Input
+    raw_data_dirs: List[str] = field(default_factory=lambda: ["./data/synthetic_output_llama_index"])
+    
+    # Output
+    output_dir: str = "./data/training_data"
+    
+    # Filtering thresholds
+    min_dialogue_turns: int = 8
+    min_doctor_questions: int = 3
+    require_both_speakers: bool = True
+    require_soap_complete: bool = True
+    require_validation_passed: bool = True
+    require_clinical_valid: bool = True
+    
+    # RAG context inclusion
+    rag_context_ratio: float = 0.5  # 50% with RAG, 50% without
+    
+    # Splits
+    train_ratio: float = 0.8
+    val_ratio: float = 0.1
+    test_ratio: float = 0.1
+    
+    # Tokenisation
+    max_seq_length: int = 4096
+    
+    # Reproducibility
+    seed: int = 42
+
+
+# =============================================================================
+# System Prompt
+# =============================================================================
+
+SYSTEM_PROMPT = (
+    "You are a clinical documentation assistant. Given a doctor-patient "
+    "conversation and relevant clinical guidelines, produce a structured "
+    "clinical summary in the specified format. Be accurate and concise. "
+    "Only include information explicitly stated in the conversation. "
+    "Do not fabricate symptoms, medications, or findings."
+)
+
+SUMMARY_INSTRUCTION = (
+    "Produce a structured clinical summary with the following sections:\n"
+    "- Chief Complaint\n"
+    "- History of Present Illness\n"
+    "- Past Medical History\n"
+    "- Medications\n"
+    "- Allergies\n"
+    "- Examination Findings\n"
+    "- Assessment\n"
+    "- Plan\n"
+    "- Safety Netting"
+)
+
+
+# =============================================================================
+# Helper Functions
+# =============================================================================
+
+def _load_samples_from_dir(data_dir: str) -> List[Dict[str, Any]]:
+    """Load all synthetic sample JSON files from a directory."""
+    data_path = Path(data_dir)
+    samples = []
+    
+    # Look for individual sample files and batch files
+    json_files = sorted(data_path.glob("**/*.json"))
+    
+    for jf in json_files:
+        try:
+            with open(jf, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            # Handle both single sample and batch formats
+            if isinstance(data, list):
+                samples.extend(data)
+            elif isinstance(data, dict):
+                if "samples" in data:
+                    samples.extend(data["samples"])
+                elif "dialogue" in data and "summary" in data:
+                    samples.append(data)
+                # Skip benchmark/report files
+        except Exception as e:
+            logger.warning(f"Failed to load {jf}: {e}")
+    
+    return samples
+
+
+def _extract_dialogue_text(sample: Dict) -> str:
+    """Convert dialogue turns to plain text."""
+    dialogue = sample.get("dialogue", [])
+    lines = []
+    for turn in dialogue:
+        speaker = turn.get("speaker", "Unknown")
+        text = turn.get("text", "")
+        lines.append(f"{speaker}: {text}")
+    return "\n".join(lines)
+
+
+def _extract_summary_text(sample: Dict) -> str:
+    """Convert clinical summary dict to structured text output."""
+    summary = sample.get("summary", {})
+    
+    sections = []
+    
+    # Map fields to section headers
+    field_map = [
+        ("chief_complaint", "Chief Complaint"),
+        ("history_of_present_illness", "History of Present Illness"),
+        ("past_medical_history", "Past Medical History"),
+        ("medications", "Medications"),
+        ("allergies", "Allergies"),
+        ("social_history", "Social History"),
+        ("family_history", "Family History"),
+        ("physical_examination", "Examination Findings"),
+        ("assessment", "Assessment"),
+        ("plan", "Plan"),
+        ("safety_netting", "Safety Netting"),
+    ]
+    
+    for field_key, header in field_map:
+        value = summary.get(field_key)
+        if value and str(value).strip() and value != "None":
+            sections.append(f"**{header}:** {value}")
+    
+    # Include SOAP if available
+    soap = summary.get("soap")
+    if soap and isinstance(soap, dict):
+        sections.append("")
+        sections.append("**SOAP Note:**")
+        if soap.get("subjective") or soap.get("S"):
+            sections.append(f"S: {soap.get('subjective') or soap.get('S')}")
+        if soap.get("objective") or soap.get("O"):
+            sections.append(f"O: {soap.get('objective') or soap.get('O')}")
+        if soap.get("assessment") or soap.get("A"):
+            sections.append(f"A: {soap.get('assessment') or soap.get('A')}")
+        if soap.get("plan") or soap.get("P"):
+            sections.append(f"P: {soap.get('plan') or soap.get('P')}")
+    
+    return "\n".join(sections)
+
+
+def _extract_rag_context(sample: Dict) -> Optional[str]:
+    """Extract RAG context from sample metadata."""
+    rag = sample.get("rag", {})
+    if rag.get("rag_enabled") and rag.get("context_used"):
+        return rag["context_used"]
+    return None
+
+
+def _count_doctor_questions(sample: Dict) -> int:
+    """Count the number of questions asked by the doctor."""
+    dialogue = sample.get("dialogue", [])
+    count = 0
+    for turn in dialogue:
+        if turn.get("speaker") == "Doctor" and "?" in turn.get("text", ""):
+            count += 1
+    return count
+
+
+def _has_both_speakers(sample: Dict) -> bool:
+    """Check that both Doctor and Patient are present."""
+    speakers = {turn.get("speaker") for turn in sample.get("dialogue", [])}
+    return "Doctor" in speakers and "Patient" in speakers
+
+
+def _is_soap_complete(sample: Dict) -> bool:
+    """Check that summary has all essential fields."""
+    summary = sample.get("summary", {})
+    required = ["chief_complaint", "history_of_present_illness", "assessment", "plan"]
+    for field_key in required:
+        val = summary.get(field_key)
+        if not val or len(str(val).strip()) < 5:
+            return False
+    return True
+
+
+def _sample_id(sample: Dict) -> str:
+    """Get or generate a unique ID for the sample."""
+    if "id" in sample:
+        return sample["id"]
+    # Generate deterministic hash from dialogue content
+    content = json.dumps(sample.get("dialogue", []), sort_keys=True)
+    return hashlib.md5(content.encode()).hexdigest()[:12]
+
+
+# =============================================================================
+# Main Data Preparator
+# =============================================================================
+
+class TrainingDataPreparator:
+    """
+    Prepares synthetic clinical data for SLM fine-tuning.
+    
+    Pipeline:
+        1. Load raw synthetic samples from teacher pipeline output
+        2. Apply quality filters (validation, clinical, structural)
+        3. Format as ChatML instruction-tuning examples
+        4. Create stratified train/val/test splits
+        5. Export as HuggingFace-compatible dataset
+    
+    Example:
+        config = DataPrepConfig(raw_data_dirs=["./data/batch_1", "./data/batch_2"])
+        prep = TrainingDataPreparator(config)
+        stats = prep.run()
+        print(f"Training samples: {stats['train_count']}")
+    """
+    
+    def __init__(self, config: DataPrepConfig):
+        self.config = config
+        self.raw_samples: List[Dict] = []
+        self.filtered_samples: List[Dict] = []
+        self.formatted_examples: List[Dict] = []
+        self.splits: Dict[str, List[Dict]] = {}
+    
+    def run(self) -> Dict[str, Any]:
+        """
+        Execute the full data preparation pipeline.
+        
+        Returns:
+            Dictionary with statistics about the preparation process.
+        """
+        logger.info("=" * 60)
+        logger.info("Starting Data Preparation Pipeline")
+        logger.info("=" * 60)
+        
+        # Step 1: Load
+        self.raw_samples = self.load_raw_data()
+        logger.info(f"Loaded {len(self.raw_samples)} raw samples")
+        
+        # Step 2: Filter
+        self.filtered_samples = self.filter_samples(self.raw_samples)
+        logger.info(f"After filtering: {len(self.filtered_samples)} samples")
+        
+        # Step 3: Format
+        self.formatted_examples = self.format_all(self.filtered_samples)
+        logger.info(f"Formatted {len(self.formatted_examples)} training examples")
+        
+        # Step 4: Split
+        self.splits = self.create_splits(self.formatted_examples)
+        for split_name, split_data in self.splits.items():
+            logger.info(f"  {split_name}: {len(split_data)} examples")
+        
+        # Step 5: Export
+        output_dir = Path(self.config.output_dir)
+        self.export_splits(self.splits, output_dir)
+        
+        # Step 6: Statistics
+        stats = self.compute_statistics()
+        self._save_statistics(stats, output_dir)
+        
+        logger.info("Data preparation complete!")
+        return stats
+    
+    # -------------------------------------------------------------------------
+    # Step 1: Load
+    # -------------------------------------------------------------------------
+    
+    def load_raw_data(self) -> List[Dict]:
+        """Load synthetic samples from all configured directories."""
+        all_samples = []
+        for data_dir in self.config.raw_data_dirs:
+            dir_samples = _load_samples_from_dir(data_dir)
+            logger.info(f"  Loaded {len(dir_samples)} samples from {data_dir}")
+            all_samples.extend(dir_samples)
+        
+        # Deduplicate by ID
+        seen_ids = set()
+        unique = []
+        for s in all_samples:
+            sid = _sample_id(s)
+            if sid not in seen_ids:
+                seen_ids.add(sid)
+                unique.append(s)
+        
+        if len(unique) < len(all_samples):
+            logger.info(f"  Removed {len(all_samples) - len(unique)} duplicates")
+        
+        return unique
+    
+    # -------------------------------------------------------------------------
+    # Step 2: Filter
+    # -------------------------------------------------------------------------
+    
+    def filter_samples(self, samples: List[Dict]) -> List[Dict]:
+        """Apply multi-stage quality filtering."""
+        filter_stats = Counter()
+        passed = []
+        
+        for sample in samples:
+            filter_stats["total"] += 1
+            
+            # Filter 1: Validation status
+            if self.config.require_validation_passed:
+                validation = sample.get("validation", {})
+                status = validation.get("status", "passed")
+                if status == "failed":
+                    filter_stats["failed_validation"] += 1
+                    continue
+            
+            # Filter 2: Clinical validity
+            if self.config.require_clinical_valid:
+                validation = sample.get("validation", {})
+                if validation.get("clinical_valid") is False:
+                    filter_stats["failed_clinical"] += 1
+                    continue
+            
+            # Filter 3: Hallucination check (via validation errors)
+            validation = sample.get("validation", {})
+            errors = validation.get("errors", [])
+            has_hallucination = any(
+                "hallucination" in e.get("error_type", "").lower()
+                for e in errors
+            )
+            if has_hallucination:
+                # Check severity - only reject major/critical
+                halluc_errors = [
+                    e for e in errors 
+                    if "hallucination" in e.get("error_type", "").lower()
+                ]
+                severe = any(
+                    e.get("severity", "") in ("major", "critical")
+                    for e in halluc_errors
+                )
+                if severe:
+                    filter_stats["failed_hallucination"] += 1
+                    continue
+            
+            # Filter 4: Dialogue quality
+            dialogue = sample.get("dialogue", [])
+            if len(dialogue) < self.config.min_dialogue_turns:
+                filter_stats["failed_min_turns"] += 1
+                continue
+            
+            if self.config.require_both_speakers and not _has_both_speakers(sample):
+                filter_stats["failed_speakers"] += 1
+                continue
+            
+            if _count_doctor_questions(sample) < self.config.min_doctor_questions:
+                filter_stats["failed_doctor_questions"] += 1
+                continue
+            
+            # Filter 5: Summary completeness
+            if self.config.require_soap_complete and not _is_soap_complete(sample):
+                filter_stats["failed_soap_complete"] += 1
+                continue
+            
+            filter_stats["passed"] += 1
+            passed.append(sample)
+        
+        # Log filter breakdown
+        logger.info("  Filter results:")
+        for key, count in sorted(filter_stats.items()):
+            logger.info(f"    {key}: {count}")
+        
+        return passed
+    
+    # -------------------------------------------------------------------------
+    # Step 3: Format
+    # -------------------------------------------------------------------------
+    
+    def format_all(self, samples: List[Dict]) -> List[Dict]:
+        """
+        Format all samples as ChatML instruction-tuning examples.
+        
+        Uses config.rag_context_ratio to decide which samples include 
+        RAG context in the user message.
+        """
+        random.seed(self.config.seed)
+        
+        # Determine which samples get RAG context
+        indices_with_rag_context = set()
+        samples_with_rag = [
+            i for i, s in enumerate(samples) 
+            if _extract_rag_context(s) is not None
+        ]
+        
+        if samples_with_rag:
+            n_with_rag = int(len(samples) * self.config.rag_context_ratio)
+            n_with_rag = min(n_with_rag, len(samples_with_rag))
+            indices_with_rag_context = set(
+                random.sample(samples_with_rag, n_with_rag)
+            )
+        
+        formatted = []
+        for i, sample in enumerate(samples):
+            include_rag = i in indices_with_rag_context
+            example = self.format_single(sample, include_rag_context=include_rag)
+            if example:
+                formatted.append(example)
+        
+        return formatted
+    
+    def format_single(
+        self, 
+        sample: Dict, 
+        include_rag_context: bool = False
+    ) -> Optional[Dict]:
+        """
+        Format a single sample as a ChatML instruction-tuning example.
+        
+        Args:
+            sample: Raw synthetic sample dict.
+            include_rag_context: Whether to include RAG context in the user message.
+        
+        Returns:
+            Dictionary with 'text' (full ChatML string) and metadata fields,
+            or None if the sample cannot be formatted.
+        """
+        dialogue_text = _extract_dialogue_text(sample)
+        summary_text = _extract_summary_text(sample)
+        
+        if not dialogue_text or not summary_text:
+            return None
+        
+        # Build user message
+        user_parts = []
+        
+        if include_rag_context:
+            rag_context = _extract_rag_context(sample)
+            if rag_context:
+                user_parts.append(
+                    f"Relevant clinical guidelines:\n{rag_context}\n"
+                )
+        
+        user_parts.append(
+            f"Summarise the following clinical consultation:\n\n{dialogue_text}"
+        )
+        user_parts.append(f"\n\n{SUMMARY_INSTRUCTION}")
+        
+        user_message = "\n".join(user_parts)
+        
+        # Build ChatML formatted text (Phi-3.5 format)
+        chatml_text = (
+            f"<|system|>\n{SYSTEM_PROMPT}<|end|>\n"
+            f"<|user|>\n{user_message}<|end|>\n"
+            f"<|assistant|>\n{summary_text}<|end|>"
+        )
+        
+        # Extract metadata
+        scenario = sample.get("scenario", {})
+        difficulty = sample.get("difficulty", {})
+        
+        return {
+            "id": _sample_id(sample),
+            "text": chatml_text,
+            "specialty": scenario.get("specialty", "General Practice"),
+            "difficulty": difficulty.get("difficulty_score", 5) if difficulty else 5,
+            "difficulty_level": difficulty.get("difficulty_level", "medium") if difficulty else "medium",
+            "has_rag_context": include_rag_context,
+            "num_turns": len(sample.get("dialogue", [])),
+            "urgency": scenario.get("urgency", "routine"),
+        }
+    
+    # -------------------------------------------------------------------------
+    # Step 4: Split
+    # -------------------------------------------------------------------------
+    
+    def create_splits(
+        self, 
+        examples: List[Dict]
+    ) -> Dict[str, List[Dict]]:
+        """
+        Create stratified train/val/test splits.
+        
+        Stratifies by specialty to ensure balanced representation.
+        """
+        random.seed(self.config.seed)
+        
+        # Group by specialty
+        by_specialty: Dict[str, List[Dict]] = {}
+        for ex in examples:
+            spec = ex.get("specialty", "General Practice")
+            by_specialty.setdefault(spec, []).append(ex)
+        
+        train, val, test = [], [], []
+        
+        for spec, spec_examples in by_specialty.items():
+            random.shuffle(spec_examples)
+            n = len(spec_examples)
+            n_val = max(1, int(n * self.config.val_ratio))
+            n_test = max(1, int(n * self.config.test_ratio))
+            n_train = n - n_val - n_test
+            
+            if n_train < 1:
+                # Too few samples for this specialty, put all in train
+                train.extend(spec_examples)
+                continue
+            
+            train.extend(spec_examples[:n_train])
+            val.extend(spec_examples[n_train:n_train + n_val])
+            test.extend(spec_examples[n_train + n_val:])
+        
+        # Shuffle each split
+        random.shuffle(train)
+        random.shuffle(val)
+        random.shuffle(test)
+        
+        return {"train": train, "val": val, "test": test}
+    
+    # -------------------------------------------------------------------------
+    # Step 5: Export
+    # -------------------------------------------------------------------------
+    
+    def export_splits(
+        self, 
+        splits: Dict[str, List[Dict]], 
+        output_dir: Path
+    ):
+        """Export splits as JSONL files (HuggingFace compatible)."""
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        for split_name, split_data in splits.items():
+            filepath = output_dir / f"{split_name}.jsonl"
+            with open(filepath, "w", encoding="utf-8") as f:
+                for example in split_data:
+                    f.write(json.dumps(example, ensure_ascii=False) + "\n")
+            logger.info(f"  Exported {len(split_data)} examples to {filepath}")
+        
+        # Also export as a single JSON for convenience
+        metadata = {
+            "created_at": datetime.now().isoformat(),
+            "config": {
+                "rag_context_ratio": self.config.rag_context_ratio,
+                "max_seq_length": self.config.max_seq_length,
+                "seed": self.config.seed,
+            },
+            "splits": {name: len(data) for name, data in splits.items()},
+            "total": sum(len(data) for data in splits.values()),
+        }
+        with open(output_dir / "dataset_info.json", "w") as f:
+            json.dump(metadata, f, indent=2)
+    
+    def export_to_huggingface_dataset(self):
+        """
+        Export splits as a HuggingFace Dataset object.
+        
+        Returns:
+            DatasetDict with train/val/test splits.
+        """
+        try:
+            from datasets import Dataset, DatasetDict
+        except ImportError:
+            raise ImportError("Install datasets: pip install datasets")
+        
+        hf_splits = {}
+        for split_name, split_data in self.splits.items():
+            hf_splits[split_name] = Dataset.from_list(split_data)
+        
+        return DatasetDict(hf_splits)
+    
+    # -------------------------------------------------------------------------
+    # Step 6: Statistics
+    # -------------------------------------------------------------------------
+    
+    def compute_statistics(self) -> Dict[str, Any]:
+        """Compute comprehensive dataset statistics."""
+        stats = {
+            "raw_count": len(self.raw_samples),
+            "filtered_count": len(self.filtered_samples),
+            "formatted_count": len(self.formatted_examples),
+            "filter_rate": (
+                1 - len(self.filtered_samples) / len(self.raw_samples)
+                if self.raw_samples else 0
+            ),
+        }
+        
+        # Split counts
+        for split_name, split_data in self.splits.items():
+            stats[f"{split_name}_count"] = len(split_data)
+        
+        # Specialty distribution
+        specialty_counts = Counter(
+            ex.get("specialty", "Unknown") 
+            for ex in self.formatted_examples
+        )
+        stats["specialty_distribution"] = dict(specialty_counts)
+        
+        # Difficulty distribution
+        difficulty_counts = Counter(
+            ex.get("difficulty_level", "unknown") 
+            for ex in self.formatted_examples
+        )
+        stats["difficulty_distribution"] = dict(difficulty_counts)
+        
+        # RAG context ratio (actual)
+        with_rag = sum(1 for ex in self.formatted_examples if ex.get("has_rag_context"))
+        stats["actual_rag_ratio"] = with_rag / len(self.formatted_examples) if self.formatted_examples else 0
+        
+        # Token length estimates (rough: 1 token ≈ 4 chars)
+        lengths = [len(ex["text"]) / 4 for ex in self.formatted_examples]
+        if lengths:
+            stats["token_stats"] = {
+                "mean": sum(lengths) / len(lengths),
+                "min": min(lengths),
+                "max": max(lengths),
+                "over_max_seq": sum(1 for l in lengths if l > self.config.max_seq_length),
+            }
+        
+        return stats
+    
+    def _save_statistics(self, stats: Dict, output_dir: Path):
+        """Save statistics to a JSON file."""
+        with open(output_dir / "preparation_stats.json", "w") as f:
+            json.dump(stats, f, indent=2, default=str)
+        
+        # Print summary
+        logger.info("\n" + "=" * 60)
+        logger.info("Dataset Statistics")
+        logger.info("=" * 60)
+        logger.info(f"  Raw samples loaded:   {stats['raw_count']}")
+        logger.info(f"  After filtering:      {stats['filtered_count']}")
+        logger.info(f"  Filter rejection rate: {stats['filter_rate']:.1%}")
+        logger.info(f"  Training examples:    {stats.get('train_count', 0)}")
+        logger.info(f"  Validation examples:  {stats.get('val_count', 0)}")
+        logger.info(f"  Test examples:        {stats.get('test_count', 0)}")
+        if "token_stats" in stats:
+            ts = stats["token_stats"]
+            logger.info(f"  Avg token length:     {ts['mean']:.0f}")
+            logger.info(f"  Over max_seq_length:  {ts['over_max_seq']}")
+
+
+# =============================================================================
+# CLI Entry Point
+# =============================================================================
+
+if __name__ == "__main__":
+    import argparse
+    
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+    
+    parser = argparse.ArgumentParser(description="Prepare training data for student model")
+    parser.add_argument("--data-dirs", nargs="+", required=True, help="Directories with synthetic data")
+    parser.add_argument("--output-dir", default="./data/training_data", help="Output directory")
+    parser.add_argument("--rag-ratio", type=float, default=0.5, help="Fraction of examples with RAG context")
+    parser.add_argument("--min-turns", type=int, default=8, help="Minimum dialogue turns")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
+    args = parser.parse_args()
+    
+    config = DataPrepConfig(
+        raw_data_dirs=args.data_dirs,
+        output_dir=args.output_dir,
+        rag_context_ratio=args.rag_ratio,
+        min_dialogue_turns=args.min_turns,
+        seed=args.seed,
+    )
+    
+    prep = TrainingDataPreparator(config)
+    stats = prep.run()
+    
+    print(f"\n✓ Data preparation complete. Output: {args.output_dir}")
+    print(f"  Train: {stats['train_count']}, Val: {stats['val_count']}, Test: {stats['test_count']}")

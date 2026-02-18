@@ -61,7 +61,7 @@ def build_llama_index_knowledge_base(
         embedding_model="BAAI/bge-base-en-v1.5",
         chunk_size=512,
         chunk_overlap=50,
-        similarity_top_k=5,
+        similarity_top_k=8,
     )
     
     factory = RAGFactory(config)
@@ -92,6 +92,8 @@ def run_pipeline_with_llama_index(
     num_scenarios: int = 5,
     knowledge_base_path: str = "./medical_knowledge/sample",
     persist_dir: str = "./data/llama_index_chroma_db",
+    output_dir: str = "./data/synthetic_output_llama_index",
+    scenario_seed : int = 42,
 ):
     """
     Run the synthetic data pipeline with LlamaIndex RAG
@@ -107,16 +109,16 @@ def run_pipeline_with_llama_index(
     
     config = PipelineConfig(
         # Output settings
-        output_dir=Path("./data/synthetic_output_llama_index"),
+        output_dir=Path(output_dir),
         experiment_name="llama_index_rag_test",
         num_scenarios=num_scenarios,
-        scenario_seed=42,
+        scenario_seed=scenario_seed,
         
         # RAG settings - LlamaIndex
         use_rag=True,
         rag_backend=RAGBackend.LLAMA_INDEX,
         knowledge_base_path=Path(knowledge_base_path),
-        rag_top_k=5,
+        rag_top_k=8,
         
         # Teacher settings
         teacher_provider="openai",
@@ -138,10 +140,10 @@ def run_pipeline_with_llama_index(
         
         # Processing
         batch_size=5,
-        max_retries=3,
+        max_retries=4,
         
         # Tracking
-        use_mlflow=False,
+        use_mlflow=True,
         use_wandb=False,
     )
     
@@ -269,4 +271,5 @@ if __name__ == "__main__":
         print("Use --help to see available options.\n")
         
         build_llama_index_knowledge_base()
-        run_pipeline_with_llama_index(num_scenarios=10)
+        # Use a different seed for the main run to ensure variability
+        run_pipeline_with_llama_index(num_scenarios=250, output_dir="./data/batch_8", scenario_seed=49)
