@@ -90,29 +90,109 @@ SUMMARY_INSTRUCTION = (
 # =============================================================================
 
 def _load_samples_from_dir(data_dir: str) -> List[Dict[str, Any]]:
-    """Load all synthetic sample JSON files from a directory."""
+    """
+    Load all synthetic sample files from a directory.
+    
+    Handles the actual pipeline output structure:
+        batch_N/
+        ├── synthetic_data_*.jsonl    ← primary: final combined output
+        ├── intermediate_*.jsonl      ← fallback: checkpoint files  
+        ├── benchmark_*.json          ← skip (not sample data)
+        ├── summary_*.json            ← skip (not sample data)
+        ├── scenarios.jsonl           ← skip (not sample data)
+        └── benchmark_report_*.md     ← skip
+    
+    Priority: loads synthetic_data_*.jsonl first (the complete output).
+    Falls back to intermediate_*.jsonl only if no synthetic_data files exist.
+    """
     data_path = Path(data_dir)
     samples = []
     
-    # Look for individual sample files and batch files
-    json_files = sorted(data_path.glob("**/*.json"))
+    # --- Strategy 1: Look for final synthetic_data JSONL files ---
+    synthetic_files = sorted(data_path.glob("**/synthetic_data_*.jsonl"))
     
+    if synthetic_files:
+        for sf in synthetic_files:
+            count = _load_jsonl_samples(sf, samples)
+            logger.debug(f"    Loaded {count} samples from {sf.name}")
+        
+        if samples:
+            return samples
+    
+    # --- Strategy 2: Fall back to intermediate checkpoint files ---
+    intermediate_files = sorted(data_path.glob("**/intermediate_*.jsonl"))
+    
+    if intermediate_files:
+        # Use only the latest (highest number) intermediate file
+        # as it contains all previous samples plus new ones
+        latest = intermediate_files[-1]
+        count = _load_jsonl_samples(latest, samples)
+        logger.debug(f"    Loaded {count} samples from latest intermediate: {latest.name}")
+        
+        if samples:
+            return samples
+    
+    # --- Strategy 3: Try any .jsonl file that contains sample data ---
+    jsonl_files = sorted(data_path.glob("**/*.jsonl"))
+    for jf in jsonl_files:
+        # Skip known non-sample files
+        if any(skip in jf.name for skip in ["scenario", "benchmark"]):
+            continue
+        _load_jsonl_samples(jf, samples)
+    
+    if samples:
+        return samples
+    
+    # --- Strategy 4: Try .json files (legacy format support) ---
+    json_files = sorted(data_path.glob("**/*.json"))
     for jf in json_files:
+        # Skip benchmark, summary, and report files
+        if any(skip in jf.name for skip in ["benchmark", "summary", "report"]):
+            continue
         try:
             with open(jf, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            # Handle both single sample and batch formats
             if isinstance(data, list):
-                samples.extend(data)
+                valid = [d for d in data if isinstance(d, dict) and "dialogue" in d]
+                samples.extend(valid)
             elif isinstance(data, dict):
                 if "samples" in data:
-                    samples.extend(data["samples"])
+                    valid = [d for d in data["samples"] if "dialogue" in d]
+                    samples.extend(valid)
                 elif "dialogue" in data and "summary" in data:
                     samples.append(data)
-                # Skip benchmark/report files
         except Exception as e:
             logger.warning(f"Failed to load {jf}: {e}")
+    
+    return samples
+
+
+def _load_jsonl_samples(filepath: Path, samples_list: List[Dict]) -> int:
+    """
+    Load samples from a JSONL file, filtering to only valid synthetic samples.
+    
+    Returns:
+        Number of valid samples loaded.
+    """
+    count = 0
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    # Only accept entries that look like synthetic samples
+                    if isinstance(data, dict) and "dialogue" in data and "summary" in data:
+                        samples_list.append(data)
+                        count += 1
+                except json.JSONDecodeError:
+                    logger.warning(f"Invalid JSON at line {line_num} in {filepath.name}")
+    except Exception as e:
+        logger.warning(f"Failed to read {filepath}: {e}")
+    return count
     
     return samples
 
@@ -291,9 +371,27 @@ class TrainingDataPreparator:
         """Load synthetic samples from all configured directories."""
         all_samples = []
         for data_dir in self.config.raw_data_dirs:
-            dir_samples = _load_samples_from_dir(data_dir)
-            logger.info(f"  Loaded {len(dir_samples)} samples from {data_dir}")
-            all_samples.extend(dir_samples)
+            data_path = Path(data_dir)
+            
+            if not data_path.exists():
+                logger.warning(f"  Directory not found: {data_dir}")
+                continue
+            
+            # Check if this is a parent directory containing batch_N subdirectories
+            batch_dirs = sorted(data_path.glob("batch_*"))
+            
+            if batch_dirs:
+                # Parent directory with batch subdirectories
+                logger.info(f"  Found {len(batch_dirs)} batch directories in {data_dir}")
+                for batch_dir in batch_dirs:
+                    dir_samples = _load_samples_from_dir(str(batch_dir))
+                    logger.info(f"    {batch_dir.name}: {len(dir_samples)} samples")
+                    all_samples.extend(dir_samples)
+            else:
+                # Direct data directory (single batch or flat structure)
+                dir_samples = _load_samples_from_dir(data_dir)
+                logger.info(f"  Loaded {len(dir_samples)} samples from {data_dir}")
+                all_samples.extend(dir_samples)
         
         # Deduplicate by ID
         seen_ids = set()
