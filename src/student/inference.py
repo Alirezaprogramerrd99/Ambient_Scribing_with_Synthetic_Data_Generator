@@ -191,7 +191,7 @@ class ClinicalScribeInference:
                 chunk_size=512,
                 chunk_overlap=50,
                 similarity_top_k=self.config.rag_top_k,
-                score_threshold=self.config.rag_score_threshold,
+                # score_threshold=self.config.rag_score_threshold,
             )
             
             factory = RAGFactory(rag_config)

@@ -4,6 +4,10 @@
 # MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 # =============================================================================
 
+
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+
 # -----------------------------------------------------------------------------
 # Core Framework
 # -----------------------------------------------------------------------------
@@ -18,9 +22,9 @@ llama-index>=0.10.0
 llama-index-llms-ollama>=0.1.0
 llama-index-llms-openai>=0.1.0
 llama-index-llms-anthropic>=0.1.0
-llama-index-embeddings-huggingface>=0.1.0
+llama-index-embeddings-huggingface>=0.6.1
 llama-index-vector-stores-qdrant>=0.1.0
-llama-index-vector-stores-chroma>=0.1.0
+llama-index-vector-stores-chroma>=0.4.0
 langchain>=0.1.0
 langchain-community>=0.0.20
 litellm>=1.0.0
@@ -31,7 +35,7 @@ openai>=1.0.0
 # -----------------------------------------------------------------------------
 # Note: Install unsloth via: pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
 trl>=0.8.0
-transformers>=4.40.0
+transformers==4.40.0
 datasets>=2.18.0
 peft>=0.10.0
 accelerate>=0.28.0
@@ -60,8 +64,14 @@ beautifulsoup4>=4.12.0
 # -----------------------------------------------------------------------------
 # Embeddings & Compute
 # -----------------------------------------------------------------------------
-sentence-transformers>=2.2.0
-torch>=2.2.0
+sentence-transformers==2.2.2
+# Modified for CUDA 12.1 support (RTX 3070)
+
+numpy>=2.0.0
+ 
+torch==2.4.1+cu121
+torchvision==0.17.0+cu121
+torchaudio==2.2.0+cu121
 
 # -----------------------------------------------------------------------------
 # Evaluation Metrics

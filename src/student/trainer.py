@@ -182,7 +182,22 @@ class StudentTrainer:
     def _load_model(self):
         """Load base model with Unsloth and add LoRA adapters."""
         try:
+            import os
+            os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"  # Bypass unstable Windows Triton compiler import
+            os.environ["TORCH_COMPILE_DISABLE"] = "1"    # Bypass PyTorch's internal compiler
+            os.environ["TORCHDYNAMO_DISABLE"] = "1"      # Force PyTorch into safe 'eager' mode
+            import torch
+            import torch._inductor.config                # Pre-load the missing PyTorch module
+
+            # # --- PYTORCH 2.4 COMPATIBILITY PATCH ---
+            # # torchao expects PyTorch 2.6+ which has int1-int7.
+            # # We mock them to prevent the import crash.
+            # for i in range (1, 8):
+            #     if not hasattr(torch, f"int{i}"):
+            #         setattr(torch, f"int{i}", torch.int8)
+
             from unsloth import FastLanguageModel
+
         except ImportError:
             raise ImportError(
                 "Unsloth is not installed. Install with:\n"
