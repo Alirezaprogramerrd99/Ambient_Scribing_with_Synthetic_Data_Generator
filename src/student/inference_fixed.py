@@ -10,6 +10,7 @@ Fixes applied:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import patch_torch
 
 import os
 # ---------------------------------------------------------
