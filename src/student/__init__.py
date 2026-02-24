@@ -17,7 +17,7 @@ import patch_torch
 from .data_prep import TrainingDataPreparator, DataPrepConfig
 from .trainer import StudentTrainer, TrainingConfig
 from .exporter import ModelExporter, ExportConfig
-from .inference import ClinicalScribeInference, InferenceConfig
+from .inference_fixed import ClinicalScribeInference, InferenceConfig
 from .evaluator import StudentEvaluator, EvaluationConfig, LLMJudge
 
 

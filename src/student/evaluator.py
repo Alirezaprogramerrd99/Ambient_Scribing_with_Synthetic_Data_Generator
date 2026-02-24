@@ -11,6 +11,7 @@ Comprehensive evaluation framework for the fine-tuned student model:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import patch_torch  # Must be first — patches torch.int1-int7 for Windows
 
 import json
 import logging
@@ -20,6 +21,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import defaultdict
+import os
+from dotenv import load_dotenv
+load_dotenv()  # Load OPENAI_API_KEY from .env file
 
 logger = logging.getLogger(__name__)
 
@@ -133,11 +137,20 @@ class LLMJudge:
         self,
         model: str = "gpt-4o-mini",
         provider: str = "openai",
+        api_key: Optional[str] = None,
         temperature: float = 0.1,  # Low temp for consistent scoring
         max_retries: int = 2,
     ):
         self.model = model
         self.provider = provider
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+
+        if not self.api_key:
+            raise ValueError(
+                "API key for LLM A Judge is required. Set OPENAI_API_KEY environment " \
+                "variable or pass api_key parameter."
+            )
+
         self.temperature = temperature
         self.max_retries = max_retries
         self._client = None
@@ -148,7 +161,7 @@ class LLMJudge:
         if self.provider == "openai":
             try:
                 import openai
-                self._client = openai.OpenAI()
+                self._client = openai.OpenAI(api_key=self.api_key)
             except ImportError:
                 raise ImportError("Install openai: pip install openai")
         elif self.provider == "anthropic":
@@ -472,26 +485,34 @@ class StudentEvaluator:
             4. ft_rag:      Fine-tuned Phi-3.5 + RAG  (expected best)
             5. teacher:     GPT-4o-mini + RAG          (upper bound)
         """
-        from .inference import ClinicalScribeInference, InferenceConfig
+        from .inference_fixed import ClinicalScribeInference, InferenceConfig
+        
+        # Paths for the two model variants
+        # Fine-tuned model: the merged checkpoint
+        ft_model_path = "./checkpoints/phi35_clinical_scribe/hf_merged"
+        # Base model: original Phi-3.5-mini (unmodified, downloaded from HF)
+        # If you haven't downloaded it separately, use the same path but 
+        # load from HuggingFace cache via the model name
+        base_model_path = "microsoft/Phi-3.5-mini-instruct"
         
         configurations = {
             "baseline": {
-                "model_name": self.config.base_model,
+                "model_path": base_model_path,
                 "use_rag": False,
                 "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
             },
             "rag_only": {
-                "model_name": self.config.base_model,
+                "model_path": base_model_path,
                 "use_rag": True,
                 "description": "Base Phi-3.5-mini + RAG",
             },
             "ft_only": {
-                "model_name": self.config.student_model,
+                "model_path": ft_model_path,
                 "use_rag": False,
                 "description": "Fine-tuned Phi-3.5-mini (no RAG)",
             },
             "ft_rag": {
-                "model_name": self.config.student_model,
+                "model_path": ft_model_path,
                 "use_rag": True,
                 "description": "Fine-tuned Phi-3.5-mini + RAG",
             },
@@ -503,18 +524,12 @@ class StudentEvaluator:
             logger.info(f"\nEvaluating: {cfg['description']}")
             
             inf_config = InferenceConfig(
-                model_name=cfg["model_name"],
+                model_path=cfg["model_path"],
                 use_rag=cfg["use_rag"],
-                ollama_base_url=self.config.ollama_base_url,
             )
             
             try:
                 scribe = ClinicalScribeInference(inf_config)
-                
-                if not scribe.is_model_available():
-                    logger.warning(f"  Model '{cfg['model_name']}' not available in Ollama. Skipping.")
-                    all_results[config_name] = {"error": "Model not available"}
-                    continue
                 
                 # Generate summaries
                 outputs = scribe.batch_inference(dialogues, use_rag=cfg["use_rag"])
@@ -568,7 +583,7 @@ class StudentEvaluator:
                 logger.warning("Teacher evaluation only supports OpenAI provider currently")
                 return None
             
-            from .inference import SYSTEM_PROMPT, SUMMARY_INSTRUCTION
+            from .inference_fixed import SYSTEM_PROMPT, SUMMARY_INSTRUCTION
             
             candidates = []
             gen_times = []
@@ -633,7 +648,7 @@ class StudentEvaluator:
         references: List[str],
     ) -> Dict[str, Dict]:
         """Compare RAG backends with the fine-tuned model."""
-        from .inference import ClinicalScribeInference, InferenceConfig
+        from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
@@ -641,19 +656,13 @@ class StudentEvaluator:
             logger.info(f"\nEvaluating RAG backend: {backend}")
             
             inf_config = InferenceConfig(
-                model_name=self.config.student_model,
+                model_path="./checkpoints/phi35_clinical_scribe/hf_merged",
                 use_rag=True,
                 rag_backend=backend,
-                ollama_base_url=self.config.ollama_base_url,
             )
             
             try:
                 scribe = ClinicalScribeInference(inf_config)
-                
-                if not scribe.is_model_available():
-                    logger.warning(f"  Student model not available. Skipping.")
-                    all_results[backend] = {"error": "Model not available"}
-                    continue
                 
                 outputs = scribe.batch_inference(dialogues, use_rag=True)
                 candidates = [o.get("raw_output", "") for o in outputs]
