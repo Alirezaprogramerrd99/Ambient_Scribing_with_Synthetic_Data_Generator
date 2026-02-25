@@ -178,31 +178,31 @@ class ClinicalScribeInference:
 
         logger.info(f"Loading model from: {config.model_path}")
 
-        # Verify path exists
+        # Determine if this is a local path or a HuggingFace model ID
         model_path = Path(config.model_path)
-        if not model_path.exists():
-            raise FileNotFoundError(
-                f"Model not found at: {model_path}\n"
-                f"Did you run the exporter? The merged model should be at:\n"
-                f"  ./checkpoints/phi35_clinical_scribe/hf_merged"
+        is_local = model_path.exists()
+        
+        if is_local:
+            # Verify local model directory
+            # Check we're loading the merged model, not just adapters
+            has_adapter_config = (model_path / "adapter_config.json").exists()
+            has_model_safetensors = (
+                (model_path / "model.safetensors").exists()
+                or (model_path / "model.safetensors.index.json").exists()
             )
 
-        # Check we're loading the merged model, not just adapters
-        has_adapter_config = (model_path / "adapter_config.json").exists()
-        has_model_safetensors = (
-            (model_path / "model.safetensors").exists()
-            or (model_path / "model.safetensors.index.json").exists()
-        )
-
-        if has_adapter_config and not has_model_safetensors:
-            logger.warning(
-                "=" * 60 + "\n"
-                "WARNING: This looks like a LoRA adapter directory, not a merged model!\n"
-                "The model may run WITHOUT fine-tuning applied.\n"
-                "Use the merged model path instead:\n"
-                "  ./checkpoints/phi35_clinical_scribe/hf_merged\n"
-                + "=" * 60
-            )
+            if has_adapter_config and not has_model_safetensors:
+                logger.warning(
+                    "=" * 60 + "\n"
+                    "WARNING: This looks like a LoRA adapter directory, not a merged model!\n"
+                    "The model may run WITHOUT fine-tuning applied.\n"
+                    "Use the merged model path instead:\n"
+                    "  ./checkpoints/phi35_clinical_scribe/hf_merged\n"
+                    + "=" * 60
+                )
+        else:
+            # Treat as HuggingFace model ID (e.g. "unsloth/Phi-3.5-mini-instruct")
+            logger.info(f"  Path not found locally, treating as HuggingFace model ID: {config.model_path}")
 
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=str(config.model_path),

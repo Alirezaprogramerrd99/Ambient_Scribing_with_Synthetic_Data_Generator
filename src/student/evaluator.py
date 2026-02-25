@@ -490,10 +490,9 @@ class StudentEvaluator:
         # Paths for the two model variants
         # Fine-tuned model: the merged checkpoint
         ft_model_path = "./checkpoints/phi35_clinical_scribe/hf_merged"
-        # Base model: original Phi-3.5-mini (unmodified, downloaded from HF)
-        # If you haven't downloaded it separately, use the same path but 
-        # load from HuggingFace cache via the model name
-        base_model_path = "microsoft/Phi-3.5-mini-instruct"
+        # Base model: original Phi-3.5-mini (unmodified)
+        # Uses HuggingFace model ID — inference_fixed will download if not cached
+        base_model_path = "unsloth/Phi-3.5-mini-instruct"
         
         configurations = {
             "baseline": {
@@ -560,6 +559,15 @@ class StudentEvaluator:
             except Exception as e:
                 logger.error(f"  Failed: {e}")
                 all_results[config_name] = {"error": str(e)}
+            finally:
+                # Free GPU memory before loading the next model
+                if 'scribe' in dir():
+                    del scribe
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                import gc
+                gc.collect()
         
         # Teacher evaluation (via API, not Ollama)
         logger.info(f"\nEvaluating: Teacher model ({self.config.teacher_model})")
@@ -695,8 +703,15 @@ class StudentEvaluator:
             except Exception as e:
                 logger.error(f"  Failed: {e}")
                 all_results[backend] = {"error": str(e)}
-        
-        return all_results
+            finally:
+                # Free GPU memory before loading the next backend
+                if 'scribe' in dir():
+                    del scribe
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                import gc
+                gc.collect()
     
     # -------------------------------------------------------------------------
     # Metrics Computation
@@ -937,16 +952,17 @@ class StudentEvaluator:
                     rag_score = m.get("avg_rag_score", "N/A")
                     gen_time = m.get("avg_generation_time", "N/A")
                     
-                    row = (
-                        f"| {b} | "
-                        f"{rouge:.3f if isinstance(rouge, float) else rouge} | "
-                        f"{rag_score:.3f if isinstance(rag_score, float) else rag_score} | "
-                        f"{gen_time:.1f if isinstance(gen_time, float) else gen_time} |"
-                    )
+                    rouge_str = f"{rouge:.3f}" if isinstance(rouge, float) else str(rouge)
+                    rag_str = f"{rag_score:.3f}" if isinstance(rag_score, float) else str(rag_score)
+                    time_str = f"{gen_time:.1f}" if isinstance(gen_time, float) else str(gen_time)
+                    
+                    row = f"| {b} | {rouge_str} | {rag_str} | {time_str} |"
                     
                     judge = m.get("llm_judge", {})
                     if judge and "avg_overall" in judge:
-                        row += f" {judge['avg_overall']:.2f} |"
+                        overall = judge['avg_overall']
+                        overall_str = f"{overall:.2f}" if isinstance(overall, float) else str(overall)
+                        row += f" {overall_str} |"
                     
                     lines.append(row)
                 
