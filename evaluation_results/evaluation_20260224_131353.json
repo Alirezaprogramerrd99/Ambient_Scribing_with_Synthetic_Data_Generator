@@ -1,0 +1,3162 @@
+{
+  "timestamp": "2026-02-24T12:16:58.706660",
+  "num_test_samples": 50,
+  "config": {
+    "student_model": "phi35-clinical-scribe",
+    "base_model": "phi3.5:3.8b-mini-instruct-q4_K_M",
+    "teacher_model": "gpt-4o-mini",
+    "judge_model": "gpt-4o-mini"
+  },
+  "comparative": {
+    "baseline": {
+      "error": "Model not found at: microsoft\\Phi-3.5-mini-instruct\nDid you run the exporter? The merged model should be at:\n  ./checkpoints/phi35_clinical_scribe/hf_merged"
+    },
+    "rag_only": {
+      "error": "Model not found at: microsoft\\Phi-3.5-mini-instruct\nDid you run the exporter? The merged model should be at:\n  ./checkpoints/phi35_clinical_scribe/hf_merged"
+    },
+    "ft_only": {
+      "description": "Fine-tuned Phi-3.5-mini (no RAG)",
+      "metrics": {
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge_l": 0.4476475551769262,
+        "rouge_details": {
+          "rouge1": 0.5791089851809309,
+          "rouge2": 0.3526310313184204,
+          "rougeL": 0.4476475551769262,
+          "num_samples": 50
+        },
+        "clinical_structure": {
+          "required_section_coverage": 0.8900000000000001,
+          "optional_section_coverage": 0.876,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 0.78,
+            "plan": 0.78,
+            "medications": 0.88,
+            "allergies": 0.96,
+            "examination": 0.82,
+            "safety netting": 0.76,
+            "past medical history": 0.96
+          }
+        },
+        "avg_generation_time": 24.652378754615782,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.28,
+          "min_clinical_accuracy": 2,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 3.88,
+          "min_completeness": 3,
+          "max_completeness": 5,
+          "avg_hallucination": 2.26,
+          "min_hallucination": 2,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 3.92,
+          "min_clinical_safety": 3,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.1,
+          "min_coherence": 3,
+          "max_coherence": 5,
+          "avg_conciseness": 3.58,
+          "min_conciseness": 3,
+          "max_conciseness": 4,
+          "avg_overall": 3.5452000000000017,
+          "min_overall": 2.67,
+          "max_overall": 4.5,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 40,
+          "samples_with_critical_errors": 24
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear plan and safety netting."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient as a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Differential diagnosis includes sebaceous adenoma, which was not discussed in the dialogue.",
+              "Follow-up timeframe is inconsistent with the original dialogue (2-4 weeks vs. 4 weeks)."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age of patient (55 instead of 80)",
+              "Incorrect occupation (builder instead of unspecified)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes relevant assessment and plan"
+            ],
+            "weaknesses": [
+              "Inaccurate patient demographics",
+              "Some hallucinated details in social history",
+              "Safety netting includes potentially misleading symptoms"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (21 instead of 42)",
+              "Incorrect duration for safety netting (48 days instead of 48 hours)",
+              "Incorrect treatment duration (7 days instead of 3 days)"
+            ],
+            "strengths": [
+              "Well-structured and readable",
+              "Includes relevant clinical findings and assessments"
+            ],
+            "weaknesses": [
+              "Contains factual inaccuracies regarding patient age and treatment plan",
+              "Safety netting details are incorrect and could lead to patient harm"
+            ]
+          },
+          {
+            "clinical_accuracy": 2,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 3,
+            "conciseness": 3,
+            "overall": 2.67,
+            "critical_errors": [
+              "Incorrect age of patient (91 instead of 79)",
+              "Incorrect occupation (builder instead of unspecified)"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness",
+              "Includes past medical history and medications"
+            ],
+            "weaknesses": [
+              "Contains factual inaccuracies regarding patient age and occupation",
+              "Incomplete examination findings",
+              "Lacks detailed assessment and plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Well-structured and readable."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient.",
+              "Missing details on past medical history, medications, and allergies.",
+              "Some hallucinated information present."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female instead of 93-year-old male)."
+            ],
+            "strengths": [
+              "Captures the chief complaint and severity well.",
+              "Includes relevant past medical history and medications.",
+              "Safety netting advice is present."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Some details in the examination findings are fabricated (vital signs not mentioned in dialogue).",
+              "Plan includes unnecessary tests not discussed in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [
+              "Prescribing Calcipotriol (Vitamin D) which is not indicated for eczema."
+            ],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurately captures the chief complaint and history of present illness."
+            ],
+            "weaknesses": [
+              "Inaccurate age of the patient.",
+              "Inclusion of unnecessary medication (Calcipotriol) for eczema."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect medication dosage (Amlodipine 500mg instead of 5mg)"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness well",
+              "Includes examination findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender)",
+              "Inclusion of unnecessary occupational history",
+              "Some safety netting items are vague or irrelevant"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the patient's symptoms and examination findings.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 51 instead of 82.",
+              "Includes unnecessary details about the patient's occupation.",
+              "Differential diagnoses include anxiety, which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Includes past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female builder instead of 77-year-old.",
+              "Incomplete social history section.",
+              "Lacks detailed assessment and plan sections."
+            ]
+          },
+          {
+            "clinical_accuracy": 2,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 2.83,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female builder instead of 53-year-old male)."
+            ],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Includes vital signs and examination findings."
+            ],
+            "weaknesses": [
+              "Significant inaccuracies in patient demographics.",
+              "Missing details in social and family history.",
+              "Safety netting includes irrelevant symptoms and timeframes."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [
+              "Consider IV antibiotics if infection is suspected (not indicated based on the dialogue)"
+            ],
+            "strengths": [
+              "Well-structured and coherent summary",
+              "Accurate chief complaint and history of present illness",
+              "Includes safety netting"
+            ],
+            "weaknesses": [
+              "Inclusion of a specific age and occupation not mentioned in the dialogue",
+              "Potentially unnecessary mention of IV antibiotics",
+              "Lack of detail in social and family history"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and logically organized.",
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Introduces a specific age and occupation for the patient that were not mentioned in the dialogue.",
+              "Differential diagnoses include prostatitis or malignancy, which were not discussed in the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (55-year-old male instead of 45-year-old female)"
+            ],
+            "strengths": [
+              "Captures chief complaint and history of present illness well",
+              "Includes relevant past medical history and medications",
+              "Safety netting is present"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Social history includes unverified information about alcohol use",
+              "Assessment lacks specificity compared to the reference"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures chief complaint and associated symptoms.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear plan for further investigation."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 91-year-old female instead of a 72-year-old male.",
+              "Social history details are not relevant to the clinical context.",
+              "Follow-up period of 2 weeks is longer than the recommended 1 week."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 21 instead of 22.",
+              "Includes unnecessary repetition of social history and occupation.",
+              "The summary is cut off and incomplete."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect gender of the patient (female instead of male)",
+              "Safety netting advice is inappropriate and could lead to patient harm (return if pain lasts more than 6 months)"
+            ],
+            "strengths": [
+              "Well-structured and readable summary",
+              "Includes relevant clinical findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient gender",
+              "Inaccurate safety netting advice",
+              "Lacks some details on family and social history"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of patient (55 instead of 44)",
+              "Incorrect follow-up timeframe (48 days instead of 48 hours)",
+              "Prescribing Nitrofurantoin without confirming UTI"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes chief complaint and history of present illness",
+              "Accurate past medical history and medications"
+            ],
+            "weaknesses": [
+              "Age of patient is incorrect",
+              "Safety netting advice contains errors",
+              "Potentially dangerous to prescribe antibiotics without confirmation of infection"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 84)",
+              "Inaccurate safety netting advice regarding severe abdominal pain lasting more than 6 months"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness",
+              "Includes past medical history and medications accurately",
+              "Well-structured and organized"
+            ],
+            "weaknesses": [
+              "Contains hallucinations regarding the patient's age and occupation",
+              "Safety netting advice is overly specific and includes irrelevant symptoms",
+              "Some verbosity in the plan section"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of patient (59 instead of 18)",
+              "Inclusion of unnecessary occupation details"
+            ],
+            "strengths": [
+              "Accurate description of symptoms and severity",
+              "Includes safety netting advice"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Redundant social history information",
+              "Potentially misleading differential diagnosis (GORD-related pain)"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Mention of a 5-mg Beta-blocker which is not relevant to the case."
+            ],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrect age and occupation of the patient.",
+              "Inclusion of irrelevant details in the safety netting section."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (59-year-old male instead of 84-year-old female)"
+            ],
+            "strengths": [
+              "Well-structured and logically organized",
+              "Includes key clinical elements like assessment and plan",
+              "Safety netting is clear"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Lacks detail in past medical history",
+              "Assessment is less specific compared to the reference"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (55 instead of 47).",
+              "States 'better with rest' which was not mentioned in the dialogue.",
+              "Incomplete social history and family history.",
+              "Medication dosage is incorrect (200mcg instead of unspecified)."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Lacks details on examination findings and assessment.",
+              "Incomplete social history section."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [],
+            "strengths": [
+              "Includes key symptoms and treatment plan.",
+              "Well-structured and organized."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 21-year-old female nurse instead of male.",
+              "Plan duration for Sertraline is inaccurately stated as 6 weeks instead of at least 6 months."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of patient (91 instead of 81)",
+              "Incorrect past medical history (heart failure instead of history of heart problems)",
+              "Inaccurate safety netting details (lobar haemoptysis and inability to weight-bear not mentioned in dialogue)"
+            ],
+            "strengths": [
+              "Well-structured and readable",
+              "Includes most relevant clinical elements",
+              "Concise in presenting information"
+            ],
+            "weaknesses": [
+              "Contains factual inaccuracies regarding patient age and medical history",
+              "Some hallucinated details in safety netting",
+              "Missing some social and family history details"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear plan and safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 25-year-old female nurse instead of the correct age and gender.",
+              "Lacks some details in the examination findings.",
+              "Safety netting includes unnecessary symptoms not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [],
+            "strengths": [
+              "Includes chief complaint and relevant history.",
+              "Assessment and plan are clear and actionable."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (91 instead of 86).",
+              "Describes the patient as a builder, which is not mentioned in the dialogue.",
+              "Intermittent pain is inaccurately stated; the patient described it as constant."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (21-year-old female builder)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes relevant examination findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Some hallucinated details in safety netting (loose stool, loin pain, fever with locks)"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear assessment and plan."
+            ],
+            "weaknesses": [
+              "Introduces unnecessary details about the patient's occupation and age.",
+              "The assessment uses 'working diagnosis' instead of a definitive diagnosis.",
+              "Safety netting includes some additional points not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the patient's mood and symptoms.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a teacher instead of a nurse.",
+              "Plan suggests treatment duration of 6 weeks instead of the recommended 6 months.",
+              "Lacks detail on the patient's social history and family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and gender of the patient; inappropriate medication (Calcipotriol instead of topical steroids)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes safety netting and follow-up instructions"
+            ],
+            "weaknesses": [
+              "Inaccurate patient demographics",
+              "Inclusion of unnecessary occupation details",
+              "Incorrect medication recommendation"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Includes assessment and plan for asthma management."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age and occupation.",
+              "Safety netting instructions include unnecessary details not mentioned in the dialogue.",
+              "Lacks mention of the patient's non-smoking status and family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate medication information",
+              "Includes chief complaint and history of present illness"
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (91 instead of 55)",
+              "Incomplete social history section",
+              "Lacks detailed assessment and plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate assessment and plan for treatment."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Misses some social and family history details present in the reference summary."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 5,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements.",
+              "Accurately captures the patient's symptoms and history."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 59 instead of 64.",
+              "The term 'working diagnosis' is less precise than the reference summary."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and symptoms.",
+              "Includes safety netting advice.",
+              "Well-structured and organized."
+            ],
+            "weaknesses": [
+              "Inclusion of the patient's age and occupation, which were not mentioned in the dialogue.",
+              "Differential diagnoses introduced without clear basis from the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrectly states the patient is a 35-year-old male builder, which is not mentioned in the dialogue. Incorrectly states moderate alcohol use, while the dialogue indicates no alcohol use."
+            ],
+            "strengths": [
+              "Captures the chief complaint and severity accurately.",
+              "Includes assessment and plan for treatment."
+            ],
+            "weaknesses": [
+              "Contains hallucinations regarding the patient's occupation and alcohol use.",
+              "Lacks detail in the past medical history section, stating 'no significant past medical history' instead of including hyperlipidemia.",
+              "The structure could be improved for better readability."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is 91 years old instead of 81.",
+              "Social history is incomplete and cut off.",
+              "Denies cough when the patient did not mention it in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect gender of the patient (female instead of male)",
+              "Occupation mentioned without relevance to the clinical context"
+            ],
+            "strengths": [
+              "Captures the chief complaint and associated symptoms well",
+              "Includes examination findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender)",
+              "Unnecessary repetition of social history and occupation",
+              "Safety netting details are less specific than in the reference"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Safety netting advice is present."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 59-year-old male instead of a 62-year-old female.",
+              "Social history is incomplete and cut off.",
+              "Lacks detailed examination findings."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and readable summary.",
+              "Captures chief complaint and severity."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age and occupation.",
+              "Incomplete details on past medical history, medications, and safety netting.",
+              "Lacks mention of vital signs and examination findings."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness",
+              "Includes past medical history and medications"
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient",
+              "Incomplete social history",
+              "Missing family history and examination findings",
+              "Lacks detailed assessment and plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (55-year-old female instead of unspecified male)."
+            ],
+            "strengths": [
+              "Captures chief complaint and HPI well.",
+              "Includes safety netting advice.",
+              "Well-structured and coherent."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Slightly unclear on medication adjustment (increase citalopram to 20mg instead of considering an increase)."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and associated symptoms.",
+              "Includes a clear plan for investigation and safety netting."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 21 instead of 27.",
+              "Includes unnecessary details about the patient's occupation.",
+              "Mentions anemia in the differential diagnosis without supporting evidence."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 3,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures chief complaint and symptoms accurately",
+              "Includes assessment and plan"
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient",
+              "Occupation mentioned but not discussed in dialogue",
+              "Incomplete plan section",
+              "Repetition in social history section"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect patient demographics (age and gender)",
+              "Inappropriate medication (IV antibiotics mentioned without indication)"
+            ],
+            "strengths": [
+              "Well-structured and organized",
+              "Includes relevant clinical findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient age and gender",
+              "Hallucinated details in safety netting",
+              "Inaccurate medication plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (21 instead of 34)",
+              "Inclusion of 'builder' as occupation without basis in dialogue",
+              "Mention of 'economic history' which was not discussed"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness",
+              "Includes vital signs and examination findings",
+              "Provides a safety netting plan"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Unnecessary repetition of occupation",
+              "Inaccurate details regarding symptom improvement",
+              "Lacks social and family history"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 77)",
+              "Incorrect past medical history (hyperlipidemia instead of high blood pressure)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes safety netting and follow-up instructions"
+            ],
+            "weaknesses": [
+              "Contains hallucinations regarding patient's age and medical history",
+              "Some verbosity in the HPI section"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Includes chief complaint and history of present illness.",
+              "Accurately lists medications and allergies.",
+              "Provides a follow-up plan and safety netting."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (59 instead of 86).",
+              "Includes unnecessary repetition of social history and occupation.",
+              "Differential diagnoses are not supported by the dialogue."
+            ]
+          }
+        ]
+      },
+      "num_samples": 50
+    },
+    "ft_rag": {
+      "description": "Fine-tuned Phi-3.5-mini + RAG",
+      "metrics": {
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge_l": 0.4513762753929034,
+        "rouge_details": {
+          "rouge1": 0.5878964342938732,
+          "rouge2": 0.3614367684363903,
+          "rougeL": 0.4513762753929034,
+          "num_samples": 50
+        },
+        "clinical_structure": {
+          "required_section_coverage": 0.8999999999999999,
+          "optional_section_coverage": 0.8720000000000001,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 0.8,
+            "plan": 0.8,
+            "medications": 0.8,
+            "allergies": 1.0,
+            "examination": 0.84,
+            "safety netting": 0.72,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 13.862538604736327,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.26,
+          "min_clinical_accuracy": 2,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 3.96,
+          "min_completeness": 3,
+          "max_completeness": 4,
+          "avg_hallucination": 2.24,
+          "min_hallucination": 2,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.08,
+          "min_clinical_safety": 3,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.06,
+          "min_coherence": 3,
+          "max_coherence": 5,
+          "avg_conciseness": 3.64,
+          "min_conciseness": 3,
+          "max_conciseness": 4,
+          "avg_overall": 3.6029999999999998,
+          "min_overall": 3.33,
+          "max_overall": 4.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 37,
+          "samples_with_critical_errors": 25
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 3.83,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of past medical history and medications.",
+              "Includes safety netting and follow-up plan."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient as a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Differential diagnosis includes sebaceous adenoma, which is not supported by the dialogue.",
+              "Follow-up timeframe is inconsistent with the reference summary."
+            ]
+          },
+          {
+            "clinical_accuracy": 2,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 3,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female instead of 80-year-old male)"
+            ],
+            "strengths": [
+              "Captures chief complaint and history of present illness",
+              "Includes information about weight loss and difficulty eating",
+              "Mentions antacids as a relief measure"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender)",
+              "Incomplete social history",
+              "Lacks examination findings and detailed assessment and plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and logically organized.",
+              "Includes relevant clinical details such as medications and examination findings."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (21 instead of 42).",
+              "Inaccurate social history (occupation mentioned without relevance).",
+              "Safety netting includes unnecessary details not discussed in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 79)",
+              "Incorrect profession (nurse mentioned without basis)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes key elements like assessment and plan"
+            ],
+            "weaknesses": [
+              "Inaccurate patient age and profession",
+              "Some unnecessary verbosity in the social history section"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history, medications, and allergies."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 55 instead of 69.",
+              "Social history is incomplete and cut off."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and severity of symptoms.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female instead of a 93-year-old male.",
+              "Missing details on examination findings and safety netting advice.",
+              "Social history is not aligned with the patient's profile."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 3,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female builder instead of 69-year-old male)."
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness adequately.",
+              "Includes relevant examination findings."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Some sections are poorly formatted and incomplete.",
+              "Lacks specific follow-up instructions and safety netting details."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age and gender.",
+              "Social history is unnecessary and adds redundancy.",
+              "Plan lacks clarity and completeness in safety netting."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures chief complaint and history of present illness well.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age and occupation.",
+              "Includes unnecessary details in social history.",
+              "Assessment includes hallucinated differential diagnoses not mentioned in the dialogue.",
+              "Plan suggests lifestyle modifications and CBT, which were not discussed in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures chief complaint and symptoms well",
+              "Includes relevant past medical history and medications"
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient",
+              "Incomplete social history",
+              "Lacks detailed assessment and plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 2,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not accurate based on the dialogue."
+            ],
+            "strengths": [
+              "Includes chief complaint, HPI, medications, allergies, examination findings, assessment, and plan."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender), some unnecessary details in the social history, and vague safety netting instructions."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Captures chief complaint and history of present illness.",
+              "Includes examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient as a 35-year-old male nurse.",
+              "Includes unnecessary details about social history.",
+              "Suggests a bland diet which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and severity of symptoms.",
+              "Includes relevant examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Inaccurate social history regarding alcohol use.",
+              "Lacks specific safety netting details.",
+              "Incomplete plan section."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [
+              "Incorrect age of the patient (35 instead of 45)",
+              "Inaccurate social history (builder and moderate alcohol use not mentioned in dialogue)"
+            ],
+            "strengths": [
+              "Accurate capture of chief complaint and HPI",
+              "Includes relevant past medical history and medications",
+              "Well-structured and organized summary"
+            ],
+            "weaknesses": [
+              "Presence of hallucinated details (age, occupation, alcohol use)",
+              "Lack of detailed safety netting compared to reference"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female instead of 72-year-old male)"
+            ],
+            "strengths": [
+              "Captures chief complaint and associated symptoms well",
+              "Includes relevant examination findings",
+              "Provides a clear plan for further investigation"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender)",
+              "Missing details on social history and family history",
+              "Follow-up period is longer than recommended"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Includes a clear assessment and plan.",
+              "Safety netting is well articulated."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient as a 21-year-old builder, which is not mentioned in the dialogue.",
+              "Uses 'moderate severity' instead of 'severe' for the pain rating.",
+              "Lacks details on social and family history that were not provided in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect gender of the patient (female instead of male)",
+              "Inaccurate safety netting advice (return if pain lasts more than 6 months)"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness",
+              "Includes examination findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as female",
+              "Includes unnecessary details about occupation",
+              "Safety netting advice is misleading"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (55-year-old female instead of 44-year-old male). Prescribing Nitrofurantoin without confirming a UTI from the urine dipstick test."
+            ],
+            "strengths": [
+              "Captures chief complaint and symptoms well.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and coherent."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Contains hallucinations regarding the patient's profession.",
+              "Prescribing antibiotics without confirmation of infection."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 84)",
+              "Safety netting includes inappropriate time frame (6 months instead of immediate concerns)"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness well",
+              "Includes relevant past medical history and medications",
+              "Assessment and plan are appropriate"
+            ],
+            "weaknesses": [
+              "Inaccurate patient age",
+              "Hallucinated details in social history",
+              "Safety netting contains excessive and irrelevant information"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age of the patient (59 instead of 18)",
+              "Inclusion of GTN in the plan without prior mention in the dialogue"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Accurate description of symptoms and examination findings",
+              "Includes safety netting advice"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Inclusion of unnecessary details like 'builder' in social history",
+              "Hallucination of GTN in the plan"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured assessment and plan."
+            ],
+            "weaknesses": [
+              "Introduces unnecessary details about the patient's occupation and age.",
+              "Lacks some details in safety netting advice.",
+              "Uses 'moderate' instead of 'persistent' to describe cough severity."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient; the patient is described as a 59-year-old male instead of an 84-year-old female."
+            ],
+            "strengths": [
+              "Accurately captures the severity of symptoms and their improvement with antacids.",
+              "Includes vital signs and normal examination findings."
+            ],
+            "weaknesses": [
+              "Incorrect demographic details (age and gender).",
+              "Assessment of 'fever of unknown origin' is less specific than 'possible infection'.",
+              "Safety netting includes new weakness or numbness, which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect patient gender and age (female, 55 instead of male, 47)"
+            ],
+            "strengths": [
+              "Captures chief complaint and associated symptoms well",
+              "Includes relevant past medical history and medications",
+              "Well-structured and coherent"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender)",
+              "Missing details in the assessment and plan compared to reference",
+              "Includes unnecessary differential diagnoses not mentioned in the dialogue"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age and occupation of the patient (91-year-old female builder) which is not mentioned in the dialogue."
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness well.",
+              "Includes vital signs and examination findings."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and occupation).",
+              "Plan includes incorrect dosages for salbutamol and prednisolone.",
+              "Safety netting includes incorrect symptoms (e.g., stridor, coughing up blood) not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Includes vital signs and examination findings."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 21-year-old female nurse instead of male.",
+              "Lacks specific treatment plan details and safety netting information."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age (91 instead of 81)",
+              "Heart failure instead of history of heart problems",
+              "Inaccurate safety netting (locks and inability to weight-bear are not mentioned in the dialogue)"
+            ],
+            "strengths": [
+              "Well-structured and readable",
+              "Includes vital signs and examination findings",
+              "Addresses hydration and follow-up plan"
+            ],
+            "weaknesses": [
+              "Contains factual inaccuracies regarding age and medical history",
+              "Hallucinated details in safety netting",
+              "Missing some details from the original dialogue"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (21-year-old female nurse instead of 48-year-old male)."
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness well.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear plan and safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Some details in the assessment are less precise compared to the reference."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 3,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 86)",
+              "Incorrect occupation (builder) not mentioned in the dialogue"
+            ],
+            "strengths": [
+              "Captures chief complaint and severity",
+              "Includes associated symptoms of stiffness and instability"
+            ],
+            "weaknesses": [
+              "Incorrect age and occupation",
+              "Missing detailed examination findings",
+              "Lacks a clear plan and safety netting"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect patient demographics (age and gender)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes relevant examination findings",
+              "Addresses safety netting"
+            ],
+            "weaknesses": [
+              "Inaccurate patient demographics",
+              "Some hallucinated details in social history",
+              "Assessment lacks specificity compared to reference"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and logically organized.",
+              "Accurate representation of the patient's symptoms and treatment plan.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Lacks specific details in the safety netting section compared to the reference."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes appropriate assessment and plan for treatment.",
+              "Safety netting advice is clear and comprehensive."
+            ],
+            "weaknesses": [
+              "Inclusion of the patient's age is unnecessary and not present in the original dialogue.",
+              "Repetition of 'Social History' section is redundant.",
+              "Could be more concise in some areas."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 3,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 72)",
+              "Incorrect medication (topical vitamin D analogues instead of topical steroids)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes chief complaint and history of present illness"
+            ],
+            "weaknesses": [
+              "Inaccurate patient age",
+              "Inaccurate treatment plan",
+              "Some unnecessary details in social history"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (21 instead of 50)",
+              "Occupation mentioned without relevance to the clinical context"
+            ],
+            "strengths": [
+              "Captures the chief complaint and HPI well",
+              "Includes allergy information",
+              "Assessment and plan are mostly accurate"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Unnecessary details about occupation",
+              "Some safety netting points are overly specific and not mentioned in the dialogue"
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate medication information",
+              "Includes chief complaint and history of present illness"
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (91 instead of 55)",
+              "Missing details in social history",
+              "Incomplete safety netting information"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not mentioned in the dialogue.",
+              "Lacks details on follow-up and safety netting.",
+              "Some redundancy in the history of present illness section."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female builder instead of 64-year-old male)"
+            ],
+            "strengths": [
+              "Captures chief complaint and history of present illness",
+              "Includes medications and allergies",
+              "Well-structured plan and safety netting"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Lacks detail in social history",
+              "Assessment could be more specific regarding contributing factors"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurately captures the severity and characteristics of the headache.",
+              "Includes safety netting and appropriate follow-up actions."
+            ],
+            "weaknesses": [
+              "Incorrectly specifies the patient's age and occupation, which were not provided in the dialogue.",
+              "Includes a specific medication dosage that was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.5,
+            "critical_errors": [
+              "Moderate alcohol use mentioned without basis in dialogue."
+            ],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Correct assessment and plan."
+            ],
+            "weaknesses": [
+              "Inclusion of the patient's occupation and age is unnecessary.",
+              "Moderate alcohol use is fabricated."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and history of present illness.",
+              "Includes past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is 91 years old instead of 81.",
+              "Social history is incomplete.",
+              "Lacks detailed examination findings and assessment/plan."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Includes most key symptoms and findings.",
+              "Well-structured and organized."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 21-year-old female builder.",
+              "Includes unnecessary repetition of occupation.",
+              "Safety netting details are overly specific and not aligned with the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Correct medications and allergies noted.",
+              "Safety netting included."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (91 instead of 62).",
+              "Social history includes irrelevant information (self-employed).",
+              "Incomplete safety netting section."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (91-year-old female builder instead of 65-year-old male factory worker)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes relevant clinical findings and assessment"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Some details are vague or incomplete in the plan and safety netting"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and symptoms.",
+              "Includes relevant past medical history and medications."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 59 instead of 42.",
+              "Social history is incomplete and cut off."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrectly states the patient is a 91-year-old female builder, which is not mentioned in the dialogue."
+            ],
+            "strengths": [
+              "Captures the chief complaint and severity rating accurately.",
+              "Includes relevant past medical history and medications.",
+              "Safety netting advice is present."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient's age and gender.",
+              "States the severity as moderate instead of severe.",
+              "Confusing phrasing in the plan regarding increasing citalopram dosage."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and associated symptoms.",
+              "Includes relevant examination findings and assessment.",
+              "Provides a clear plan and safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 21 instead of 27.",
+              "Includes unnecessary repetition of the patient's occupation.",
+              "Mentions anemia in the differential diagnosis without supporting evidence."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and associated symptoms.",
+              "Includes relevant examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 21 instead of 32.",
+              "Includes unnecessary repetition of occupation in social history.",
+              "Safety netting includes symptoms not mentioned in the dialogue (headache with fever, confusion, or visual disturbance)."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and medications.",
+              "Well-structured and mostly coherent."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (59 instead of 75).",
+              "Missing details in social history.",
+              "Some minor inaccuracies in symptom description (e.g., 'moderate fever' instead of 'around 101\u00b0F')."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (21 instead of 34)",
+              "Occupation mentioned (builder) is not in the original dialogue"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness",
+              "Includes vital signs and examination findings",
+              "Provides a reasonable assessment and plan"
+            ],
+            "weaknesses": [
+              "Incorrect patient age and occupation",
+              "Includes unnecessary repetition of social history and occupation",
+              "Differential diagnosis includes Atrial Fibrillation which was not mentioned in the dialogue"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of vital signs and examination findings.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (59 instead of 77).",
+              "Unnecessary detail in social history.",
+              "Differential diagnoses introduced without basis in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrect age of the patient (91 instead of 86)",
+              "Incorrect occupation (builder) not mentioned in the dialogue"
+            ],
+            "strengths": [
+              "Captures the chief complaint and history of present illness well",
+              "Includes medications and allergies accurately",
+              "Assessment and plan are mostly accurate"
+            ],
+            "weaknesses": [
+              "Contains hallucinations regarding the patient's age and occupation",
+              "Differential diagnoses are unnecessary and not mentioned in the dialogue",
+              "Some verbosity in the examination findings section"
+            ]
+          }
+        ]
+      },
+      "num_samples": 50
+    },
+    "teacher": {
+      "description": "Teacher (gpt-4o-mini + RAG)",
+      "metrics": {
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge_l": 0.4298726194358706,
+        "rouge_details": {
+          "rouge1": 0.5872081684614197,
+          "rouge2": 0.31385616264142163,
+          "rougeL": 0.4298726194358706,
+          "num_samples": 50
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.776388778686523,
+        "llm_judge": {
+          "avg_clinical_accuracy": 5.0,
+          "min_clinical_accuracy": 5,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.66,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.74,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.9002,
+          "min_overall": 4.67,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Detailed examination findings are well captured.",
+              "Clear assessment and plan with appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Missing social and family history which could provide additional context."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment.",
+              "Provides a clear plan and safety netting advice."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and symptoms.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks details on past medical history and social/family history.",
+              "Does not specify the antibiotic treatment plan in detail."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear assessment and plan with appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Lacks specific details about the patient's age and social/family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Assessment and plan are clearly stated and align with the dialogue."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear assessment and plan with appropriate recommendations.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks mention of social and family history.",
+              "Could be more concise in the plan section."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as assessment and plan.",
+              "No hallucinations present; all information is derived from the dialogue."
+            ],
+            "weaknesses": [
+              "Slightly verbose in the plan section, could be more concise."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, plan, and safety netting.",
+              "No hallucinations present; all information is derived from the dialogue.",
+              "Well-structured and logically organized.",
+              "Concise without unnecessary verbosity."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "All relevant clinical elements are included.",
+              "No hallucinations present.",
+              "Safety netting is appropriately addressed."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and logically organized.",
+              "Safety netting is clearly outlined."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, and plan.",
+              "No hallucinations or inaccuracies present.",
+              "Well-structured and logically organized summary."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks details on differential diagnosis and specific assessment findings."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Safety netting is clearly articulated."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, plan, and safety netting.",
+              "No hallucinations or inaccuracies present.",
+              "Well-structured and easy to read."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, plan, and safety netting.",
+              "No hallucinations or inaccuracies present.",
+              "Well-structured and logically organized.",
+              "Concise without unnecessary verbosity."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Comprehensive assessment and plan that aligns with the dialogue.",
+              "Clear and logical structure."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and symptoms.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and logically organized.",
+              "Provides a clear assessment and plan."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history, medications, and allergies.",
+              "Assessment and plan are clearly stated and appropriate."
+            ],
+            "weaknesses": [
+              "Lacks details on vital signs and specific examination findings.",
+              "Does not mention social or family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and family history.",
+              "Well-structured and logically organized.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks specific mention of safety netting details.",
+              "Could be more concise in the assessment and plan sections."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Clear safety netting advice provided."
+            ],
+            "weaknesses": [
+              "Lacks details on social and family history.",
+              "Does not include vital signs in the examination findings."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of symptoms and clinical findings.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized summary.",
+              "Safety netting information is clearly stated."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and history.",
+              "Well-structured and coherent summary.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks specific medication dosages and follow-up details.",
+              "Safety netting could be more detailed."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes all necessary clinical elements such as assessment and plan."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and clinical findings.",
+              "Well-structured and easy to read.",
+              "Includes appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Missing details on social and family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and history of present illness.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks details on social and family history.",
+              "Assessment could include more differential diagnoses."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of the chief complaint and history of present illness.",
+              "Well-structured and logically organized.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks detailed past medical history and social/family history.",
+              "Plan could specify dosage for ibuprofen."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and clinical findings.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of chief complaint and symptoms.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks detailed safety netting information compared to the reference.",
+              "Does not mention increasing fluid intake in the plan."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, and safety netting.",
+              "Well-structured and logically organized summary."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes all necessary clinical elements."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and symptoms.",
+              "Well-structured and organized summary.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Lacks detailed social and family history.",
+              "Does not explicitly mention the absence of known drug allergies."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, and assessment.",
+              "Well-structured and logically organized.",
+              "No hallucinations or dangerous errors present."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured assessment and plan.",
+              "Provides appropriate safety netting advice."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Well-structured and logically organized.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks details on social and family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, plan, and safety netting.",
+              "Well-structured and logically organized.",
+              "No hallucinations or inaccuracies present."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of chief complaint and history of present illness.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks detailed social and family history.",
+              "Safety netting could be more explicit regarding symptoms to watch for."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and associated symptoms.",
+              "Comprehensive assessment and plan that aligns with the dialogue.",
+              "Clear and logical structure."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and symptoms.",
+              "Detailed examination findings included.",
+              "Clear assessment and plan outlined.",
+              "Safety netting effectively communicated."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment.",
+              "Well-structured and logically organized.",
+              "Safety netting is clearly outlined."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and symptoms.",
+              "Includes all relevant clinical elements such as past medical history, medications, and examination findings.",
+              "Well-structured and logically organized.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Slightly verbose in the assessment and plan sections."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and current medications.",
+              "Clearly outlines examination findings, assessment, and plan.",
+              "Safety netting advice is appropriately included."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of chief complaint and symptoms.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements such as assessment and plan."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "All relevant clinical elements are included.",
+              "No hallucinations present.",
+              "Safety netting advice is clearly stated."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of symptoms and history.",
+              "Well-structured and coherent summary.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks details on social and family history.",
+              "Does not mention lifestyle modifications or follow-up appointment in the plan."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the patient's symptoms and history.",
+              "Well-structured and organized summary.",
+              "Includes all relevant clinical elements such as assessment and plan."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized summary.",
+              "Safety netting is clearly outlined."
+            ],
+            "weaknesses": []
+          }
+        ]
+      },
+      "num_samples": 50
+    }
+  },
+  "rag_backends": {
+    "llama_index": {
+      "metrics": {
+        "error": "No valid output pairs",
+        "empty_outputs": 50,
+        "avg_generation_time": 0.0,
+        "avg_rag_score": 0.0,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 3.54,
+          "min_completeness": 3,
+          "max_completeness": 4,
+          "avg_hallucination": 4.78,
+          "min_hallucination": 4,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.82,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.0,
+          "min_coherence": 4,
+          "max_coherence": 4,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.166200000000003,
+          "min_overall": 3.83,
+          "max_overall": 4.33,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        }
+      },
+      "num_samples": 50
+    },
+    "manual": {
+      "error": "CUDA error: an illegal memory access was encountered\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    },
+    "hybrid": {
+      "error": "CUDA error: an illegal memory access was encountered\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+    }
+  }
+}

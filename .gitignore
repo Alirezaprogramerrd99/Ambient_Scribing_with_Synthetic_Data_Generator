@@ -19,4 +19,6 @@ src/evaluation/__pycache__/
 mlflow.db
 
 data
+unsloth_compiled_cache
+unsloth_compiled_cache/
 

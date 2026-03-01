@@ -439,30 +439,43 @@ class StudentEvaluator:
         
         # ---- Experiment 1: Five-way comparison ----
         logger.info("\n--- Experiment 1: Five-Way Comparison ---")
-        results["comparative"] = self._run_comparative_experiment(
-            dialogues, references
-        )
+        try:
+            results["comparative"] = self._run_comparative_experiment(
+                dialogues, references
+            )
+        except Exception as e:
+            logger.error(f"Experiment 1 (comparative) failed: {e}")
+            results["comparative"] = {"error": str(e)}
         
         # ---- Experiment 2: RAG backend comparison ----
         logger.info("\n--- Experiment 2: RAG Backend Comparison ---")
-        results["rag_backends"] = self._run_rag_backend_comparison(
-            dialogues, references
-        )
+        try:
+            results["rag_backends"] = self._run_rag_backend_comparison(
+                dialogues, references
+            )
+        except Exception as e:
+            logger.error(f"Experiment 2 (RAG backends) failed: {e}")
+            results["rag_backends"] = {"error": str(e)}
         
-        # Save results
+        # Save results — ALWAYS, even if experiments partially failed
         output_dir = Path(self.config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         
         results_path = output_dir / f"evaluation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(results_path, "w") as f:
-            json.dump(results, f, indent=2, default=str)
+        try:
+            with open(results_path, "w") as f:
+                json.dump(results, f, indent=2, default=str)
+            logger.info(f"\nResults saved to {results_path}")
+        except Exception as e:
+            logger.error(f"Failed to save results JSON: {e}")
         
         # Generate report
-        report_path = self._generate_report(results, output_dir)
-        results["report_path"] = str(report_path)
-        
-        logger.info(f"\nResults saved to {results_path}")
-        logger.info(f"Report saved to {report_path}")
+        try:
+            report_path = self._generate_report(results, output_dir)
+            results["report_path"] = str(report_path)
+            logger.info(f"Report saved to {report_path}")
+        except Exception as e:
+            logger.error(f"Report generation failed: {e}")
         
         return results
     
@@ -487,87 +500,164 @@ class StudentEvaluator:
         """
         from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
-        # Paths for the two model variants
-        # Fine-tuned model: the merged checkpoint
-        ft_model_path = "./checkpoints/phi35_clinical_scribe/hf_merged"
-        # Base model: original Phi-3.5-mini (unmodified)
-        # Uses HuggingFace model ID — inference_fixed will download if not cached
-        base_model_path = "unsloth/Phi-3.5-mini-instruct"
-        
-        configurations = {
-            "baseline": {
-                "model_path": base_model_path,
-                "use_rag": False,
-                "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
-            },
-            "rag_only": {
-                "model_path": base_model_path,
-                "use_rag": True,
-                "description": "Base Phi-3.5-mini + RAG",
-            },
-            "ft_only": {
-                "model_path": ft_model_path,
-                "use_rag": False,
-                "description": "Fine-tuned Phi-3.5-mini (no RAG)",
-            },
-            "ft_rag": {
-                "model_path": ft_model_path,
-                "use_rag": True,
-                "description": "Fine-tuned Phi-3.5-mini + RAG",
-            },
-        }
-        
         all_results = {}
         
-        for config_name, cfg in configurations.items():
-            logger.info(f"\nEvaluating: {cfg['description']}")
+        # ---- Step 1: Load fine-tuned model ONCE ----
+        # We load the model once and reuse it for ft_only and ft_rag.
+        # This avoids CUDA memory corruption from repeated load/unload cycles.
+        logger.info("\nLoading fine-tuned model (used for ft_only and ft_rag)...")
+        ft_model_path = "./checkpoints/phi35_clinical_scribe/hf_merged"
+        
+        try:
+            ft_config_no_rag = InferenceConfig(
+                model_path=ft_model_path,
+                use_rag=False,
+            )
+            scribe = ClinicalScribeInference(ft_config_no_rag)
+        except Exception as e:
+            logger.error(f"Failed to load fine-tuned model: {e}")
+            return {"error": f"Cannot load fine-tuned model: {e}"}
+        
+        # ---- Step 2: FT-only (no RAG) ----
+        logger.info("\nEvaluating: Fine-tuned Phi-3.5-mini (no RAG)")
+        try:
+            outputs = scribe.batch_inference(dialogues, use_rag=False)
+            candidates = [o.get("raw_output", "") for o in outputs]
+            gen_times = [o.get("generation_time", 0) for o in outputs]
             
-            inf_config = InferenceConfig(
-                model_path=cfg["model_path"],
-                use_rag=cfg["use_rag"],
+            metrics = self._compute_metrics(references, candidates)
+            metrics["avg_generation_time"] = (
+                sum(gen_times) / len(gen_times) if gen_times else 0
             )
             
-            try:
-                scribe = ClinicalScribeInference(inf_config)
-                
-                # Generate summaries
-                outputs = scribe.batch_inference(dialogues, use_rag=cfg["use_rag"])
-                candidates = [o.get("raw_output", "") for o in outputs]
-                gen_times = [o.get("generation_time", 0) for o in outputs]
-                
-                # Compute metrics
-                metrics = self._compute_metrics(references, candidates)
-                metrics["avg_generation_time"] = (
-                    sum(gen_times) / len(gen_times) if gen_times else 0
+            if self.judge:
+                logger.info("  Running LLM judge on ft_only...")
+                judge_scores = self.judge.evaluate_batch(
+                    dialogues, references, candidates
                 )
-                
-                # LLM judge
-                if self.judge:
-                    logger.info(f"  Running LLM judge on {config_name}...")
-                    judge_scores = self.judge.evaluate_batch(
-                        dialogues, references, candidates
-                    )
-                    metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
-                    metrics["llm_judge_per_sample"] = judge_scores
-                
-                all_results[config_name] = {
-                    "description": cfg["description"],
-                    "metrics": metrics,
-                    "num_samples": len(candidates),
-                }
-                
-            except Exception as e:
-                logger.error(f"  Failed: {e}")
-                all_results[config_name] = {"error": str(e)}
-            finally:
-                # Free GPU memory before loading the next model
-                if 'scribe' in dir():
-                    del scribe
-                import torch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                import gc
-                gc.collect()
+                metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                metrics["llm_judge_per_sample"] = judge_scores
+            
+            all_results["ft_only"] = {
+                "description": "Fine-tuned Phi-3.5-mini (no RAG)",
+                "metrics": metrics,
+                "num_samples": len(candidates),
+            }
+        except Exception as e:
+            logger.error(f"  ft_only failed: {e}")
+            all_results["ft_only"] = {"error": str(e)}
+        
+        # ---- Step 3: FT+RAG (add RAG to the same model) ----
+        logger.info("\nEvaluating: Fine-tuned Phi-3.5-mini + RAG")
+        try:
+            # Initialise RAG on the existing model instance
+            scribe.config.use_rag = True
+            scribe.config.rag_backend = "llama_index"
+            scribe._init_rag()
+            
+            outputs = scribe.batch_inference(dialogues, use_rag=True)
+            candidates = [o.get("raw_output", "") for o in outputs]
+            gen_times = [o.get("generation_time", 0) for o in outputs]
+            
+            metrics = self._compute_metrics(references, candidates)
+            metrics["avg_generation_time"] = (
+                sum(gen_times) / len(gen_times) if gen_times else 0
+            )
+            
+            if self.judge:
+                logger.info("  Running LLM judge on ft_rag...")
+                judge_scores = self.judge.evaluate_batch(
+                    dialogues, references, candidates
+                )
+                metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                metrics["llm_judge_per_sample"] = judge_scores
+            
+            all_results["ft_rag"] = {
+                "description": "Fine-tuned Phi-3.5-mini + RAG",
+                "metrics": metrics,
+                "num_samples": len(candidates),
+            }
+        except Exception as e:
+            logger.error(f"  ft_rag failed: {e}")
+            all_results["ft_rag"] = {"error": str(e)}
+        
+        # ---- Step 4: Free the fine-tuned model ----
+        del scribe
+        import torch, gc
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+        
+        # ---- Step 5: Baseline (un-fine-tuned, no RAG) ----
+        logger.info("\nEvaluating: Base Phi-3.5-mini (no fine-tuning, no RAG)")
+        try:
+            base_config = InferenceConfig(
+                model_path="unsloth/Phi-3.5-mini-instruct",
+                use_rag=False,
+            )
+            base_scribe = ClinicalScribeInference(base_config)
+            
+            outputs = base_scribe.batch_inference(dialogues, use_rag=False)
+            candidates = [o.get("raw_output", "") for o in outputs]
+            gen_times = [o.get("generation_time", 0) for o in outputs]
+            
+            metrics = self._compute_metrics(references, candidates)
+            metrics["avg_generation_time"] = (
+                sum(gen_times) / len(gen_times) if gen_times else 0
+            )
+            
+            if self.judge:
+                logger.info("  Running LLM judge on baseline...")
+                judge_scores = self.judge.evaluate_batch(
+                    dialogues, references, candidates
+                )
+                metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                metrics["llm_judge_per_sample"] = judge_scores
+            
+            all_results["baseline"] = {
+                "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
+                "metrics": metrics,
+                "num_samples": len(candidates),
+            }
+            
+            # ---- Step 6: RAG-only (same base model + RAG) ----
+            logger.info("\nEvaluating: Base Phi-3.5-mini + RAG (no fine-tuning)")
+            base_scribe.config.use_rag = True
+            base_scribe.config.rag_backend = "llama_index"
+            base_scribe._init_rag()
+            
+            outputs = base_scribe.batch_inference(dialogues, use_rag=True)
+            candidates = [o.get("raw_output", "") for o in outputs]
+            gen_times = [o.get("generation_time", 0) for o in outputs]
+            
+            metrics = self._compute_metrics(references, candidates)
+            metrics["avg_generation_time"] = (
+                sum(gen_times) / len(gen_times) if gen_times else 0
+            )
+            
+            if self.judge:
+                logger.info("  Running LLM judge on rag_only...")
+                judge_scores = self.judge.evaluate_batch(
+                    dialogues, references, candidates
+                )
+                metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                metrics["llm_judge_per_sample"] = judge_scores
+            
+            all_results["rag_only"] = {
+                "description": "Base Phi-3.5-mini + RAG (no fine-tuning)",
+                "metrics": metrics,
+                "num_samples": len(candidates),
+            }
+            
+            del base_scribe
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            gc.collect()
+            
+        except Exception as e:
+            logger.error(f"  Baseline evaluation failed: {e}")
+            all_results["baseline"] = {"error": str(e)}
+            all_results["rag_only"] = {"error": str(e)}
         
         # Teacher evaluation (via API, not Ollama)
         logger.info(f"\nEvaluating: Teacher model ({self.config.teacher_model})")
@@ -655,22 +745,38 @@ class StudentEvaluator:
         dialogues: List[str],
         references: List[str],
     ) -> Dict[str, Dict]:
-        """Compare RAG backends with the fine-tuned model."""
+        """
+        Compare RAG backends with the fine-tuned model.
+        
+        CRITICAL: We load the model ONCE and swap only the RAG retriever 
+        for each backend. Reloading the model causes CUDA memory corruption 
+        on Windows (illegal memory access after the first unload/reload cycle).
+        """
         from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
+        # Load model once with RAG disabled — we'll init RAG manually per backend
+        logger.info("\nLoading model for RAG backend comparison...")
+        try:
+            inf_config = InferenceConfig(
+                model_path="./checkpoints/phi35_clinical_scribe/hf_merged",
+                use_rag=False,  # We'll init RAG manually below
+            )
+            scribe = ClinicalScribeInference(inf_config)
+        except Exception as e:
+            logger.error(f"Failed to load model for RAG comparison: {e}")
+            return {b: {"error": str(e)} for b in self.config.rag_backends}
+        
         for backend in self.config.rag_backends:
             logger.info(f"\nEvaluating RAG backend: {backend}")
             
-            inf_config = InferenceConfig(
-                model_path="./checkpoints/phi35_clinical_scribe/hf_merged",
-                use_rag=True,
-                rag_backend=backend,
-            )
-            
             try:
-                scribe = ClinicalScribeInference(inf_config)
+                # Swap the retriever without reloading the model
+                scribe.config.use_rag = True
+                scribe.config.rag_backend = backend
+                scribe._retriever = None  # Clear old retriever
+                scribe._init_rag()
                 
                 outputs = scribe.batch_inference(dialogues, use_rag=True)
                 candidates = [o.get("raw_output", "") for o in outputs]
@@ -690,6 +796,7 @@ class StudentEvaluator:
                 )
                 
                 if self.judge:
+                    logger.info(f"  Running LLM judge on {backend}...")
                     judge_scores = self.judge.evaluate_batch(
                         dialogues, references, candidates
                     )
@@ -703,15 +810,18 @@ class StudentEvaluator:
             except Exception as e:
                 logger.error(f"  Failed: {e}")
                 all_results[backend] = {"error": str(e)}
-            finally:
-                # Free GPU memory before loading the next backend
-                if 'scribe' in dir():
-                    del scribe
-                import torch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                import gc
-                gc.collect()
+        
+        # Clean up after all backends are done
+        try:
+            del scribe
+            import torch, gc
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            gc.collect()
+        except Exception:
+            pass  # CUDA may already be in a bad state; don't crash on cleanup
+        
+        return all_results
     
     # -------------------------------------------------------------------------
     # Metrics Computation
@@ -770,7 +880,10 @@ class StudentEvaluator:
         if self.config.compute_bertscore:
             try:
                 from bert_score import score as bert_score
-                P, R, F1 = bert_score(cands, refs, lang="en", verbose=False)
+                # P, R, F1 = bert_score(cands, refs, lang="en", verbose=False)
+                
+                P, R, F1 = bert_score(cands, refs, model_type="microsoft/deberta-xlarge-mnli", verbose=False)
+                
                 metrics["bertscore_f1"] = F1.mean().item()
                 metrics["bertscore_precision"] = P.mean().item()
                 metrics["bertscore_recall"] = R.mean().item()
@@ -960,7 +1073,7 @@ class StudentEvaluator:
                     
                     judge = m.get("llm_judge", {})
                     if judge and "avg_overall" in judge:
-                        overall = judge['avg_overall']
+                        overall = judge["avg_overall"]
                         overall_str = f"{overall:.2f}" if isinstance(overall, float) else str(overall)
                         row += f" {overall_str} |"
                     
