@@ -3,9 +3,14 @@ REM ============================================================================
 REM Environment Setup for Ambient Clinical Scribe
 REM Windows 11 + RTX 3090 + CUDA 12.1 + Python 3.11
 REM
-REM PROVEN WORKING STACK (February 2026):
+REM PROVEN WORKING STACK (February-March 2026):
 REM   torch 2.5.1+cu121, transformers 4.57.6, unsloth 2026.2.1
 REM   peft 0.18.1, trl 0.24.0, bitsandbytes 0.49.2
+REM
+REM v3 UPDATE (March 2026):
+REM   - Unsloth now installed from PyPI (NOT git) to avoid sanitize_logprob error
+REM   - Added triton-windows, sentencepiece, protobuf as explicit dependencies
+REM   - Added lock file restore as first option
 REM
 REM Prerequisites:
 REM   - Anaconda/Miniconda installed
@@ -14,7 +19,7 @@ REM   - Visual Studio C++ Build Tools installed
 REM
 REM Usage:
 REM   1. Place patch_torch.py and verify_env.py in project root
-REM   2. Open Anaconda PowerShell Prompt
+REM   2. Open Anaconda PowerShell Prompt (or cmd)
 REM   3. cd D:\ambient-scribe
 REM   4. .\setup_env.bat
 REM
@@ -28,7 +33,33 @@ echo ============================================================
 echo.
 
 REM -----------------------------------------------------------------
-REM STEP 0: Create fresh conda environment
+REM STEP 0: Check for lock file (fast recovery path)
+REM -----------------------------------------------------------------
+if exist requirements_lock_working.txt (
+    echo [INFO] Found requirements_lock_working.txt
+    echo [INFO] Attempting fast recovery from lock file...
+    echo.
+    set /p FAST_RESTORE="Use lock file for fast restore? [Y/N]: "
+    if /i "%FAST_RESTORE%"=="Y" (
+        echo [STEP 0] Installing PyTorch CUDA first...
+        pip install torch==2.5.1+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+        echo [STEP 0] Restoring from lock file...
+        pip install -r requirements_lock_working.txt --no-deps
+        echo [STEP 0] Verifying...
+        python verify_env.py
+        if not errorlevel 1 (
+            echo.
+            echo [OK] Fast recovery successful!
+            pause
+            exit /b 0
+        )
+        echo [WARN] Fast recovery failed. Continuing with full setup...
+        echo.
+    )
+)
+
+REM -----------------------------------------------------------------
+REM STEP 0b: Check Python version
 REM -----------------------------------------------------------------
 echo [STEP 0] Checking Python...
 
@@ -48,8 +79,6 @@ REM -----------------------------------------------------------------
 REM STEP 1: Install PyTorch with CUDA 12.1
 REM
 REM CRITICAL: This MUST be the first pip install.
-REM The cu121 index only has torch up to 2.5.1.
-REM Unsloth will accept torch 2.5.1 via its cu121-torch240 extra.
 REM -----------------------------------------------------------------
 echo ============================================================
 echo  STEP 1/7: PyTorch + CUDA 12.1
@@ -73,31 +102,37 @@ if errorlevel 1 (
 echo.
 
 REM -----------------------------------------------------------------
-REM STEP 2: Install Unsloth (controls the ML stack versions)
+REM STEP 2: Install Unsloth + ML stack
 REM
-REM Unsloth MUST be installed before individual ML packages.
-REM It will pull in the correct versions of:
-REM   transformers, peft, trl, bitsandbytes, datasets, accelerate
+REM CRITICAL (March 2026): Install from PyPI, NOT from git.
+REM The git main branch changes daily and breaks against released
+REM versions of trl/transformers (e.g. sanitize_logprob error).
 REM
-REM IMPORTANT: After Unsloth installs, verify torch is still CUDA.
-REM Some Unsloth extras can replace CUDA torch with CPU torch.
+REM We use --no-deps on unsloth/trl to prevent pip from pulling
+REM incompatible transitive dependencies, then install deps
+REM explicitly with pinned versions.
 REM -----------------------------------------------------------------
 echo ============================================================
-echo  STEP 2/7: Unsloth (+ ML stack)
+echo  STEP 2/7: Unsloth + ML Stack (PyPI pinned versions)
 echo ============================================================
 
-pip install "unsloth[cu121-ampere-torch240] @ git+https://github.com/unslothai/unsloth.git"
+echo   Installing trl (pinned, no-deps)...
+pip install trl==0.24.0 --no-deps
 
-if errorlevel 1 (
-    echo [WARN] Git install failed. Trying pip install unsloth...
-    pip install unsloth
-)
+echo   Installing unsloth + unsloth-zoo (pinned, no-deps)...
+pip install unsloth==2026.2.1 unsloth-zoo==2026.2.1 --no-deps
+
+echo   Installing ML stack dependencies...
+pip install transformers==4.57.6 huggingface_hub accelerate==1.12.0 peft==0.18.1 datasets==4.3.0 bitsandbytes==0.49.2
+
+echo   Installing unsloth system dependencies...
+pip install triton-windows sentencepiece protobuf
 
 REM Verify torch is still CUDA
-python -c "import torch; assert torch.cuda.is_available(), 'CUDA lost after Unsloth'; assert 'cu12' in torch.__version__, 'Wrong torch version'; print('[OK] torch', torch.__version__, 'still CUDA')"
+python -c "import torch; assert torch.cuda.is_available(), 'CUDA lost'; assert 'cu12' in torch.__version__, 'Wrong torch'; print('[OK] torch', torch.__version__, 'still CUDA')"
 
 if errorlevel 1 (
-    echo [WARN] Reinstalling CUDA torch (Unsloth may have overwritten it)...
+    echo [WARN] Reinstalling CUDA torch (may have been overwritten)...
     pip install torch==2.5.1+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 )
 echo.
@@ -109,11 +144,11 @@ echo ============================================================
 echo  STEP 3/7: Sentence-Transformers
 echo ============================================================
 
-pip install "sentence-transformers>=4.0.0"
+pip install sentence-transformers==5.2.3
 echo.
 
 REM -----------------------------------------------------------------
-REM STEP 4: Install RAG stack (one at a time to avoid resolution-too-deep)
+REM STEP 4: Install RAG stack (one at a time)
 REM -----------------------------------------------------------------
 echo ============================================================
 echo  STEP 4/7: RAG Stack (LlamaIndex + ChromaDB)
@@ -178,6 +213,7 @@ REM Lock the environment
 echo Locking environment...
 pip freeze > requirements_lock_working.txt
 echo [OK] Locked to requirements_lock_working.txt
+echo [IMPORTANT] Commit this file to git: git add requirements_lock_working.txt
 
 echo.
 echo ============================================================
@@ -188,7 +224,8 @@ echo  IMPORTANT NOTES:
 echo    1. patch_torch.py must be imported FIRST in all scripts
 echo    2. requirements_lock_working.txt is your insurance policy
 echo    3. Never use --force-reinstall without --no-deps
-echo    4. Never run bare 'pip install unsloth' after setup
+echo    4. NEVER install unsloth from git - always use PyPI pinned version
+echo    5. Commit requirements_lock_working.txt to git NOW
 echo.
 echo  To use the project:
 echo    conda activate ambient_311
