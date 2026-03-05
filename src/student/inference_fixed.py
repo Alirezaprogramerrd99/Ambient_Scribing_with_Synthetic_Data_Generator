@@ -51,7 +51,7 @@ class InferenceConfig:
 
     # Generation
     temperature: float = 0.3
-    max_tokens: int = 1024  # Reduced from 2048; summaries rarely exceed 600 tokens
+    max_tokens: int = 2048 
     top_p: float = 0.9
     repeat_penalty: float = 1.1
     num_ctx: int = 4096
@@ -146,6 +146,8 @@ def _clean_output(text: str) -> str:
         "<|system|>",
         "<|end|>",
         "<|endoftext|>",
+        "<|im_start|>",          # Qwen2.5 tokens
+        "<|im_end|>",            # Qwen2.5 tokens
         "Relevant clinical guidelines:",  # RAG context leaking into output
         "\nDoctor:",  # New dialogue starting = model is hallucinating
     ]
@@ -224,7 +226,12 @@ class ClinicalScribeInference:
 
     def _get_stop_token_ids(self) -> List[int]:
         """Get all token IDs that should trigger generation stop."""
-        stop_tokens = ["<|end|>", "<|endoftext|>", "<|user|>"]
+        # Phi-3.5 uses: <|end|>, <|endoftext|>, <|user|>
+        # Qwen2.5 uses: <|im_end|>, <|endoftext|>, <|im_start|>
+        stop_tokens = [
+            "<|end|>", "<|endoftext|>", "<|user|>",        # Phi-3.5
+            "<|im_end|>", "<|im_start|>",                   # Qwen2.5
+        ]
         stop_ids = []
 
         for token_str in stop_tokens:

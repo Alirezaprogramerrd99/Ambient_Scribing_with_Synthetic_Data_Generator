@@ -136,12 +136,28 @@ class StudentTrainer:
         logger.info("Starting training...")
         train_result = self.trainer.train()
         
-        # Step 5: Save final model
+        # Step 5: Save LoRA adapters
         final_dir = Path(self.config.output_dir) / "final"
         final_dir.mkdir(parents=True, exist_ok=True)
         self.model.save_pretrained(str(final_dir))
         self.tokenizer.save_pretrained(str(final_dir))
-        logger.info(f"Final model saved to {final_dir}")
+        logger.info(f"LoRA adapters saved to {final_dir}")
+        
+        # Step 5b: Merge adapters into base model for direct inference
+        # This produces a standalone model that inference_fixed.py can load
+        # without needing to download the base model from HuggingFace.
+        merged_dir = Path(self.config.output_dir) / "hf_merged"
+        logger.info(f"Merging LoRA adapters into base model → {merged_dir}")
+        try:
+            self.model.save_pretrained_merged(
+                str(merged_dir),
+                self.tokenizer,
+                save_method="merged_16bit",
+            )
+            logger.info(f"Merged model saved to {merged_dir}")
+        except Exception as e:
+            logger.error(f"Merge failed: {e}")
+            logger.error("You can merge manually later. The LoRA adapters in /final are intact.")
         
         # Step 6: Save training results
         elapsed = time.time() - self._training_start

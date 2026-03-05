@@ -22,3 +22,5 @@ data
 unsloth_compiled_cache
 unsloth_compiled_cache/
 
+demographics_patterns.py
+
