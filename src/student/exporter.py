@@ -14,6 +14,7 @@ Prerequisites:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import patch_torch
 
 import json
 import logging
@@ -257,7 +258,43 @@ class ModelExporter:
     
     def _create_modelfile(self, gguf_path: Path) -> Path:
         """Create an Ollama Modelfile for the exported model."""
-        modelfile_content = f"""# Clinical Scribe - Fine-tuned Phi-3.5-mini
+        
+        # Detect model family from base_model name for correct template
+        base_lower = self.config.base_model.lower()
+        is_qwen = "qwen" in base_lower
+        
+        if is_qwen:
+            # Qwen2.5 uses <|im_start|>/<|im_end|> ChatML format
+            stop_params = (
+                'PARAMETER stop <|im_end|>\n'
+                'PARAMETER stop <|endoftext|>\n'
+                'PARAMETER stop <|im_start|>'
+            )
+            template_block = (
+                'TEMPLATE """<|im_start|>system\n'
+                '{{ .System }}<|im_end|>\n'
+                '<|im_start|>user\n'
+                '{{ .Prompt }}<|im_end|>\n'
+                '<|im_start|>assistant\n'
+                '"""'
+            )
+        else:
+            # Phi-3.5 uses <|system|>/<|end|> format
+            stop_params = (
+                'PARAMETER stop <|end|>\n'
+                'PARAMETER stop <|endoftext|>\n'
+                'PARAMETER stop <|user|>'
+            )
+            template_block = (
+                'TEMPLATE """<|system|>\n'
+                '{{ .System }}<|end|>\n'
+                '<|user|>\n'
+                '{{ .Prompt }}<|end|>\n'
+                '<|assistant|>\n'
+                '"""'
+            )
+        
+        modelfile_content = f"""# Clinical Scribe - Fine-tuned {'Qwen2.5-3B' if is_qwen else 'Phi-3.5-mini'}
 # MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 # Author: Alireza Rashidi
 
@@ -268,20 +305,13 @@ PARAMETER temperature {self.config.default_temperature}
 PARAMETER num_ctx {self.config.default_num_ctx}
 PARAMETER top_p {self.config.default_top_p}
 PARAMETER repeat_penalty {self.config.default_repeat_penalty}
-PARAMETER stop <|end|>
-PARAMETER stop <|endoftext|>
-PARAMETER stop <|user|>
+{stop_params}
 
 # System prompt
 SYSTEM \"\"\"{SYSTEM_PROMPT}\"\"\"
 
-# Template (Phi-3.5 ChatML format)
-TEMPLATE \"\"\"<|system|>
-{{{{ .System }}}}<|end|>
-<|user|>
-{{{{ .Prompt }}}}<|end|>
-<|assistant|>
-\"\"\"
+# Template ({('Qwen2.5' if is_qwen else 'Phi-3.5')} ChatML format)
+{template_block}
 """
         
         modelfile_path = Path(self.config.gguf_dir) / "Modelfile"

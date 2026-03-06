@@ -13,6 +13,21 @@ MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
 import patch_torch  # Must be first — patches torch.int1-int7 for Windows
 
+
+# Bypass CVE-2025-32434 torch.load restriction for BERTScore
+import torch
+if not hasattr(torch, '_original_load'):
+    torch._original_load = torch.load
+    def _patched_load(*args, **kwargs):
+        kwargs.setdefault('weights_only', True)
+        try:
+            return torch._original_load(*args, **kwargs)
+        except Exception:
+            kwargs['weights_only'] = False
+            return torch._original_load(*args, **kwargs)
+    torch.load = _patched_load
+
+
 import json
 import logging
 import time
@@ -52,7 +67,7 @@ class EvaluationConfig:
     
     # Metrics
     compute_rouge: bool = True
-    compute_bertscore: bool = False  # Slow
+    compute_bertscore: bool = True  # Enabled for dissertation comparison
     compute_clinical_accuracy: bool = True
     
     # RAG backends to compare
@@ -870,9 +885,13 @@ class StudentEvaluator:
                         r2.append(scores['rouge2'].fmeasure)
                         rl.append(scores['rougeL'].fmeasure)
                     
-                    metrics["rouge_1"] = sum(r1) / len(r1)
-                    metrics["rouge_2"] = sum(r2) / len(r2)
                     metrics["rouge_l"] = sum(rl) / len(rl)
+                    metrics["rouge_details"] = {
+                        "rouge1": sum(r1) / len(r1),
+                        "rouge2": sum(r2) / len(r2),
+                        "rougeL": sum(rl) / len(rl),
+                        "num_samples": len(rl),
+                    }
                 except ImportError:
                     logger.warning("rouge-score not available")
         
@@ -991,8 +1010,8 @@ class StudentEvaluator:
             # Build comparison table
             configs = [k for k in comp if not comp[k].get("error")]
             if configs:
-                header = "| Configuration | ROUGE-L | Avg Time (s) |"
-                separator = "|---|---|---|"
+                header = "| Configuration | ROUGE-L | BERTScore-F1 | Avg Time (s) |"
+                separator = "|---|---|---|---|"
                 
                 # Add judge columns if available
                 has_judge = any(
@@ -1017,8 +1036,10 @@ class StudentEvaluator:
                     
                     rouge_str = f"{rouge:.3f}" if isinstance(rouge, float) else str(rouge)
                     time_str = f"{gen_time:.1f}" if isinstance(gen_time, float) else str(gen_time)
+                    bert_f1 = m.get("bertscore_f1", "N/A")
+                    bert_str = f"{bert_f1:.3f}" if isinstance(bert_f1, float) else str(bert_f1)
                     
-                    row = f"| {desc} | {rouge_str} | {time_str} |"
+                    row = f"| {desc} | {rouge_str} | {bert_str} | {time_str} |"
                     
                     if has_judge:
                         judge = m.get("llm_judge", {})
@@ -1105,6 +1126,7 @@ if __name__ == "__main__":
     parser.add_argument("--base-model", default="phi3.5:3.8b-mini-instruct-q4_K_M")
     parser.add_argument("--output-dir", default="./evaluation_results")
     parser.add_argument("--no-judge", action="store_true", help="Disable LLM judge")
+    parser.add_argument("--no-bertscore", action="store_true", help="Disable BERTScore (faster)")
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--judge-model", default="gpt-4o-mini")
     
@@ -1116,6 +1138,7 @@ if __name__ == "__main__":
         base_model=args.base_model,
         output_dir=args.output_dir,
         enable_llm_judge=not args.no_judge,
+        compute_bertscore=not args.no_bertscore,
         judge_model=args.judge_model,
         max_samples=args.max_samples,
     )

@@ -1,0 +1,949 @@
+{
+  "timestamp": "2026-03-05T15:43:30.030197",
+  "num_test_samples": 5,
+  "config": {
+    "student_model": "clinical-scribe",
+    "base_model": "phi3.5:3.8b-mini-instruct-q4_K_M",
+    "teacher_model": "gpt-4o-mini",
+    "judge_model": "gpt-4o-mini"
+  },
+  "comparative": {
+    "ft_only": {
+      "description": "Fine-tuned Phi-3.5-mini (no RAG)",
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.6596949218669688,
+        "rouge_details": {
+          "rouge1": 0.7528757127435006,
+          "rouge2": 0.52641654928475,
+          "rougeL": 0.6596949218669688,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 14.407454586029052,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.8,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.4,
+          "min_hallucination": 3,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.8,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.8,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.206,
+          "min_overall": 3.83,
+          "max_overall": 4.67,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient as a 79-year-old female when age and gender were not specified.",
+              "Social history states 'no alcohol use reported' which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.83,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Includes key elements such as chief complaint, assessment, and plan."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 59-year-old female instead of an 80-year-old male.",
+              "Vital signs slightly differ from the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of chief complaint and symptoms.",
+              "Includes appropriate examination findings and assessment."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (21 instead of 42).",
+              "Plan includes two antibiotic options without clear justification.",
+              "Social history states 'no alcohol use reported' which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate assessment and plan.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (71 instead of 79).",
+              "Some details about the lesion's characteristics are less precise."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 5,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized summary."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient is a 69-year-old female instead of male.",
+              "Minor discrepancy in the location of the lesion (left forearm instead of right forearm)."
+            ]
+          }
+        ]
+      },
+      "num_samples": 5
+    },
+    "ft_rag": {
+      "description": "Fine-tuned Phi-3.5-mini + RAG",
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.6105423283038669,
+        "rouge_details": {
+          "rouge1": 0.724764281516441,
+          "rouge2": 0.5015209219301544,
+          "rougeL": 0.6105423283038669,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 14.244504117965699,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.8,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.8,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.338,
+          "min_overall": 3.83,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the patient's symptoms and history.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly specifies the patient as a 79-year-old female when age and gender were not provided.",
+              "Social history states 'no alcohol use reported' which is not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 3.83,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Includes relevant clinical elements such as assessment and plan."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Slight discrepancies in vital signs.",
+              "Missing some details in the safety netting section."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (22 instead of 42).",
+              "Differential diagnoses include overactive bladder, which was not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (71 instead of 79).",
+              "Lacks specific medication dosage for gliclazide.",
+              "Includes unnecessary vital signs that were not mentioned in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Safety netting advice is clear and appropriate."
+            ],
+            "weaknesses": []
+          }
+        ]
+      },
+      "num_samples": 5
+    },
+    "baseline": {
+      "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.37119078715682124,
+        "rouge_details": {
+          "rouge1": 0.5455532759516741,
+          "rouge2": 0.26377991811683166,
+          "rougeL": 0.37119078715682124,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 8.56838412284851,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.8,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.4,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.4,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.768,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear and logical structure.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks detailed social and family history.",
+              "Could be more concise in some sections."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, plan, and safety netting.",
+              "Well-structured and logically organized summary."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Lacks details on past medical history and social/family history.",
+              "Does not specify the antibiotic to be used if indicated."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear assessment and plan for referral to a dermatologist.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks specific details on the patient's age and social/family history.",
+              "Does not mention the exact dosage of gliclazide."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Clear safety netting advice provided."
+            ],
+            "weaknesses": []
+          }
+        ]
+      },
+      "num_samples": 5
+    },
+    "rag_only": {
+      "description": "Base Phi-3.5-mini + RAG (no fine-tuning)",
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.3414760355157095,
+        "rouge_details": {
+          "rouge1": 0.5112407324263346,
+          "rouge2": 0.24929775358868517,
+          "rougeL": 0.3414760355157095,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 20.813482904434203,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.2,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.4,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.8,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.4,
+          "min_coherence": 3,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 3,
+          "max_conciseness": 5,
+          "avg_overall": 4.332,
+          "min_overall": 3.33,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes examination findings and assessment.",
+              "Well-structured and logically organized."
+            ],
+            "weaknesses": [
+              "Lacks details on social and family history.",
+              "Does not explicitly mention differential diagnoses."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Accurate representation of the patient's symptoms and examination findings",
+              "Includes safety netting and follow-up instructions"
+            ],
+            "weaknesses": [
+              "Lacks specific age and gender of the patient",
+              "Could improve on detailing the patient's social and family history"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and symptoms.",
+              "Includes vital signs and examination findings.",
+              "Provides a clear assessment and plan."
+            ],
+            "weaknesses": [
+              "Lacks specific details on the treatment plan (e.g., antibiotic specifics).",
+              "Does not mention the patient's age or social/family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 3,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Provides a clear assessment and plan for referral."
+            ],
+            "weaknesses": [
+              "Lacks specific dosage for gliclazide.",
+              "Contains repeated and nonsensical text at the end, affecting coherence.",
+              "Safety netting could be more concise and focused."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Provides clear safety netting instructions."
+            ],
+            "weaknesses": []
+          }
+        ]
+      },
+      "num_samples": 5
+    },
+    "teacher": {
+      "description": "Teacher (gpt-4o-mini + RAG)",
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.40682668330801,
+        "rouge_details": {
+          "rouge1": 0.5864194285232756,
+          "rouge2": 0.31423103143393993,
+          "rougeL": 0.40682668330801,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 7.287155866622925,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.8,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.6,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.6,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.8340000000000005,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and HPI",
+              "Comprehensive assessment and plan",
+              "Clear safety netting advice"
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "All relevant clinical elements are included.",
+              "No hallucinations present.",
+              "Well-structured and coherent summary.",
+              "Concise without unnecessary details."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures chief complaint and history of present illness.",
+              "Well-structured and logically organized.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks specific details on past medical history and social/family history.",
+              "Assessment could be more definitive regarding the diagnosis."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Clear assessment and plan for further evaluation.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks specific details on the patient's age and social/family history."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Safety netting is clearly outlined."
+            ],
+            "weaknesses": []
+          }
+        ]
+      },
+      "num_samples": 5
+    }
+  },
+  "rag_backends": {
+    "llama_index": {
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.6105423283038669,
+        "rouge_details": {
+          "rouge1": 0.724764281516441,
+          "rouge2": 0.5015209219301544,
+          "rougeL": 0.6105423283038669,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 13.837950181961059,
+        "avg_rag_score": 0.7086518339194134,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.6,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.6,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.272,
+          "min_overall": 3.83,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        }
+      },
+      "num_samples": 5
+    },
+    "manual": {
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.6596949218669688,
+        "rouge_details": {
+          "rouge1": 0.7528757127435006,
+          "rouge2": 0.52641654928475,
+          "rougeL": 0.6596949218669688,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 13.082854413986206,
+        "avg_rag_score": 0.0,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.6,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.6,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.8,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.231999999999999,
+          "min_overall": 3.83,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        }
+      },
+      "num_samples": 5
+    },
+    "hybrid": {
+      "metrics": {
+        "valid_outputs": 5,
+        "empty_outputs": 0,
+        "rouge_l": 0.6105423283038669,
+        "rouge_details": {
+          "rouge1": 0.724764281516441,
+          "rouge2": 0.5015209219301544,
+          "rougeL": 0.6105423283038669,
+          "num_samples": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 17.9374183177948,
+        "avg_rag_score": 0.7086518339194134,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.6,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.6,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.8,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.24,
+          "min_overall": 3.67,
+          "max_overall": 5.0,
+          "num_evaluated": 5,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        }
+      },
+      "num_samples": 5
+    }
+  }
+}
