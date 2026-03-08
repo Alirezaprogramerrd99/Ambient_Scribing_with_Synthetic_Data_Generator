@@ -14,7 +14,6 @@ Prerequisites:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
-import patch_torch
 
 import json
 import logging
@@ -262,9 +261,25 @@ class ModelExporter:
         # Detect model family from base_model name for correct template
         base_lower = self.config.base_model.lower()
         is_qwen = "qwen" in base_lower
+        is_llama = "llama" in base_lower
         
-        if is_qwen:
-            # Qwen2.5 uses <|im_start|>/<|im_end|> ChatML format
+        if is_llama:
+            model_label = "Llama-3.2"
+            stop_params = (
+                'PARAMETER stop <|eot_id|>\n'
+                'PARAMETER stop <|end_of_text|>\n'
+                'PARAMETER stop <|start_header_id|>'
+            )
+            template_block = (
+                'TEMPLATE """<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n'
+                '{{ .System }}<|eot_id|>'
+                '<|start_header_id|>user<|end_header_id|>\n\n'
+                '{{ .Prompt }}<|eot_id|>'
+                '<|start_header_id|>assistant<|end_header_id|>\n\n'
+                '"""'
+            )
+        elif is_qwen:
+            model_label = "Qwen2.5-3B"
             stop_params = (
                 'PARAMETER stop <|im_end|>\n'
                 'PARAMETER stop <|endoftext|>\n'
@@ -279,7 +294,7 @@ class ModelExporter:
                 '"""'
             )
         else:
-            # Phi-3.5 uses <|system|>/<|end|> format
+            model_label = "Phi-3.5-mini"
             stop_params = (
                 'PARAMETER stop <|end|>\n'
                 'PARAMETER stop <|endoftext|>\n'
@@ -294,7 +309,7 @@ class ModelExporter:
                 '"""'
             )
         
-        modelfile_content = f"""# Clinical Scribe - Fine-tuned {'Qwen2.5-3B' if is_qwen else 'Phi-3.5-mini'}
+        modelfile_content = f"""# Clinical Scribe - Fine-tuned {model_label}
 # MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 # Author: Alireza Rashidi
 
@@ -310,7 +325,7 @@ PARAMETER repeat_penalty {self.config.default_repeat_penalty}
 # System prompt
 SYSTEM \"\"\"{SYSTEM_PROMPT}\"\"\"
 
-# Template ({('Qwen2.5' if is_qwen else 'Phi-3.5')} ChatML format)
+# Template ({model_label} ChatML format)
 {template_block}
 """
         

@@ -13,14 +13,12 @@ Supported models:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 
-Changes (on March 2026):
+Changes (March 2026):
     - Added model_type parameter for multi-SLM comparison
     - Template auto-detection from model name
     - Qwen2.5 <|im_start|>/<|im_end|> template support
     - Generic apply_chat_template fallback
 """
-
-import patch_torch
 
 import json
 import logging
@@ -39,7 +37,6 @@ logger = logging.getLogger(__name__)
 # Chat Template Registry
 # =============================================================================
 
-# REMEMBER:
 # Phi-3.5 uses: <|system|>\n{content}<|end|>\n<|user|>\n{content}<|end|>\n<|assistant|>\n{content}<|end|>
 # Qwen2.5 uses: <|im_start|>system\n{content}<|im_end|>\n<|im_start|>user\n{content}<|im_end|>\n<|im_start|>assistant\n{content}<|im_end|>
 
@@ -60,6 +57,14 @@ CHAT_TEMPLATES = {
         "assistant_prefix": "<|im_start|>assistant\n",
         "assistant_suffix": "<|im_end|>",
     },
+    "llama3": {
+        "system_prefix": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n",
+        "system_suffix": "<|eot_id|>",
+        "user_prefix": "<|start_header_id|>user<|end_header_id|>\n\n",
+        "user_suffix": "<|eot_id|>",
+        "assistant_prefix": "<|start_header_id|>assistant<|end_header_id|>\n\n",
+        "assistant_suffix": "<|eot_id|>",
+    },
 }
 
 # Map model names to template keys
@@ -75,6 +80,14 @@ MODEL_TEMPLATE_MAP = {
     "qwen": "qwen2",
     "unsloth/Qwen2.5-3B-Instruct": "qwen2",
     "Qwen/Qwen2.5-3B-Instruct": "qwen2",
+    "llama-3": "llama3",
+    "llama3": "llama3",
+    "llama-3.2": "llama3",
+    "llama3.2": "llama3",
+    "unsloth/Llama-3.2-3B-Instruct": "llama3",
+    "unsloth/Llama-3.2-1B-Instruct": "llama3",
+    "meta-llama/Llama-3.2-3B-Instruct": "llama3",
+    "meta-llama/Llama-3.2-1B-Instruct": "llama3",
 }
 
 
@@ -122,7 +135,7 @@ def format_chat_template(
         system_msg: System prompt text.
         user_msg: User message text.
         assistant_msg: Assistant response text.
-        template_key: One of 'phi3', 'qwen2'.
+        template_key: One of 'phi3', 'qwen2', 'llama3'.
     
     Returns:
         Formatted string ready for tokenization and training.

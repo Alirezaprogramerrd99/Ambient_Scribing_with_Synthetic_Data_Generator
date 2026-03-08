@@ -1,8 +1,8 @@
 """
 Student Model Trainer - QLoRA Fine-Tuning with Unsloth
 
-Fine-tunes Phi-3.5-mini-instruct using QLoRA (4-bit) via Unsloth
-for clinical scribing tasks. Supports curriculum learning using
+Fine-tunes SLMs (Phi-3.5, Qwen2.5, Llama-3.2, etc.) using QLoRA (4-bit)
+via Unsloth for clinical scribing tasks. Supports curriculum learning using
 difficulty metadata from the teacher pipeline.
 
 Prerequisites:
@@ -91,12 +91,13 @@ class TrainingConfig:
 
 class StudentTrainer:
     """
-    Fine-tunes Phi-3.5-mini for clinical scribing using Unsloth + QLoRA.
+    Fine-tunes an SLM for clinical scribing using Unsloth + QLoRA.
     
     Example:
         config = TrainingConfig(
-            training_data_dir="./data/training_data",
-            output_dir="./checkpoints/phi35_scribe",
+            base_model="unsloth/Qwen2.5-3B-Instruct",
+            training_data_dir="./data/training_data_qwen",
+            output_dir="./checkpoints/qwen25_clinical_scribe",
             num_epochs=3,
         )
         trainer = StudentTrainer(config)
@@ -318,8 +319,12 @@ class StudentTrainer:
         """Configure the SFTTrainer."""
         from trl import SFTTrainer, SFTConfig
         
+        # Derive short model name for run naming (e.g. "phi35", "qwen25", "llama32")
+        _model_short = Path(self.config.base_model).name.lower()
+        _model_short = _model_short.replace("-instruct", "").replace("-", "").replace(".", "")[:10]
+        
         run_name = self.config.run_name or (
-            f"phi35-clinical-r{self.config.lora_r}-"
+            f"{_model_short}-clinical-r{self.config.lora_r}-"
             f"lr{self.config.learning_rate}-"
             f"e{self.config.num_epochs}"
         )
@@ -402,7 +407,7 @@ if __name__ == "__main__":
     
     logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
     
-    parser = argparse.ArgumentParser(description="Fine-tune Phi-3.5-mini for clinical scribing")
+    parser = argparse.ArgumentParser(description="Fine-tune an SLM for clinical scribing")
     parser.add_argument("--data-dir", default="./data/training_data", help="Training data directory")
     parser.add_argument("--output-dir", default="./checkpoints/phi35_clinical_scribe", help="Checkpoint output")
     parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")

@@ -171,7 +171,7 @@ def _clean_output(text: str) -> str:
 
 class ClinicalScribeInference:
     """
-    Native PyTorch inference with the fine-tuned (merged) Phi-3.5-mini model.
+    Native PyTorch inference with a fine-tuned (merged) clinical scribe model.
     
     IMPORTANT: model_path must point to the MERGED model directory
     (hf_merged), not the LoRA adapter directory (final).
@@ -201,8 +201,7 @@ class ClinicalScribeInference:
                     "=" * 60 + "\n"
                     "WARNING: This looks like a LoRA adapter directory, not a merged model!\n"
                     "The model may run WITHOUT fine-tuning applied.\n"
-                    "Use the merged model path instead:\n"
-                    "  ./checkpoints/phi35_clinical_scribe/hf_merged\n"
+                    "Use the hf_merged path instead (e.g. ./checkpoints/<model>/hf_merged)\n"
                     + "=" * 60
                 )
         else:

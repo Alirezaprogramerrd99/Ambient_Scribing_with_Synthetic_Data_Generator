@@ -13,21 +13,6 @@ MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
 import patch_torch  # Must be first — patches torch.int1-int7 for Windows
 
-
-# Bypass CVE-2025-32434 torch.load restriction for BERTScore
-import torch
-if not hasattr(torch, '_original_load'):
-    torch._original_load = torch.load
-    def _patched_load(*args, **kwargs):
-        kwargs.setdefault('weights_only', True)
-        try:
-            return torch._original_load(*args, **kwargs)
-        except Exception:
-            kwargs['weights_only'] = False
-            return torch._original_load(*args, **kwargs)
-    torch.load = _patched_load
-
-
 import json
 import logging
 import time
@@ -59,6 +44,10 @@ class EvaluationConfig:
     base_model: str = "phi3.5:3.8b-mini-instruct-q4_K_M"  # Unmodified Phi-3.5 in Ollama
     teacher_model: str = "gpt-4o-mini"
     teacher_provider: str = "openai"
+    
+    # Model paths for native PyTorch inference (used by inference_fixed.py)
+    ft_model_path: str = "./checkpoints/phi35_clinical_scribe/hf_merged"
+    base_model_hf: str = "unsloth/Phi-3.5-mini-instruct"  # HuggingFace ID for base model
     
     # LLM-as-a-Judge
     judge_model: str = "gpt-4o-mini"
@@ -447,6 +436,8 @@ class StudentEvaluator:
             "config": {
                 "student_model": self.config.student_model,
                 "base_model": self.config.base_model,
+                "ft_model_path": self.config.ft_model_path,
+                "base_model_hf": self.config.base_model_hf,
                 "teacher_model": self.config.teacher_model,
                 "judge_model": self.config.judge_model,
             },
@@ -507,21 +498,23 @@ class StudentEvaluator:
         Run all 5 configurations and compare.
         
         Configurations:
-            1. baseline:    Base Phi-3.5 (no fine-tuning, no RAG)
-            2. rag_only:    Base Phi-3.5 + RAG
-            3. ft_only:     Fine-tuned Phi-3.5 (no RAG)
-            4. ft_rag:      Fine-tuned Phi-3.5 + RAG  (expected best)
-            5. teacher:     GPT-4o-mini + RAG          (upper bound)
+            1. baseline:    Base model (no fine-tuning, no RAG)
+            2. rag_only:    Base model + RAG
+            3. ft_only:     Fine-tuned model (no RAG)
+            4. ft_rag:      Fine-tuned model + RAG  (expected best)
+            5. teacher:     GPT-4o-mini + RAG       (upper bound)
         """
         from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
+        # Derive a short model name for descriptions and logs
+        _model_name = Path(self.config.base_model_hf).name  # e.g. "Phi-3.5-mini-instruct"
+        _short_name = _model_name.replace("-instruct", "").replace("-Instruct", "")
+        
         # ---- Step 1: Load fine-tuned model ONCE ----
-        # We load the model once and reuse it for ft_only and ft_rag.
-        # This avoids CUDA memory corruption from repeated load/unload cycles.
-        logger.info("\nLoading fine-tuned model (used for ft_only and ft_rag)...")
-        ft_model_path = "./checkpoints/phi35_clinical_scribe/hf_merged"
+        logger.info(f"\nLoading fine-tuned model: {self.config.ft_model_path}")
+        ft_model_path = self.config.ft_model_path
         
         try:
             ft_config_no_rag = InferenceConfig(
@@ -534,7 +527,7 @@ class StudentEvaluator:
             return {"error": f"Cannot load fine-tuned model: {e}"}
         
         # ---- Step 2: FT-only (no RAG) ----
-        logger.info("\nEvaluating: Fine-tuned Phi-3.5-mini (no RAG)")
+        logger.info(f"\nEvaluating: Fine-tuned {_short_name} (no RAG)")
         try:
             outputs = scribe.batch_inference(dialogues, use_rag=False)
             candidates = [o.get("raw_output", "") for o in outputs]
@@ -554,7 +547,7 @@ class StudentEvaluator:
                 metrics["llm_judge_per_sample"] = judge_scores
             
             all_results["ft_only"] = {
-                "description": "Fine-tuned Phi-3.5-mini (no RAG)",
+                "description": f"Fine-tuned {_short_name} (no RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
             }
@@ -563,7 +556,7 @@ class StudentEvaluator:
             all_results["ft_only"] = {"error": str(e)}
         
         # ---- Step 3: FT+RAG (add RAG to the same model) ----
-        logger.info("\nEvaluating: Fine-tuned Phi-3.5-mini + RAG")
+        logger.info(f"\nEvaluating: Fine-tuned {_short_name} + RAG")
         try:
             # Initialise RAG on the existing model instance
             scribe.config.use_rag = True
@@ -588,7 +581,7 @@ class StudentEvaluator:
                 metrics["llm_judge_per_sample"] = judge_scores
             
             all_results["ft_rag"] = {
-                "description": "Fine-tuned Phi-3.5-mini + RAG",
+                "description": f"Fine-tuned {_short_name} + RAG",
                 "metrics": metrics,
                 "num_samples": len(candidates),
             }
@@ -604,10 +597,10 @@ class StudentEvaluator:
         gc.collect()
         
         # ---- Step 5: Baseline (un-fine-tuned, no RAG) ----
-        logger.info("\nEvaluating: Base Phi-3.5-mini (no fine-tuning, no RAG)")
+        logger.info(f"\nEvaluating: Base model (no fine-tuning, no RAG)")
         try:
             base_config = InferenceConfig(
-                model_path="unsloth/Phi-3.5-mini-instruct",
+                model_path=self.config.base_model_hf,
                 use_rag=False,
             )
             base_scribe = ClinicalScribeInference(base_config)
@@ -630,13 +623,13 @@ class StudentEvaluator:
                 metrics["llm_judge_per_sample"] = judge_scores
             
             all_results["baseline"] = {
-                "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
+                "description": f"Base {_short_name} (no fine-tuning, no RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
             }
             
             # ---- Step 6: RAG-only (same base model + RAG) ----
-            logger.info("\nEvaluating: Base Phi-3.5-mini + RAG (no fine-tuning)")
+            logger.info(f"\nEvaluating: Base {_short_name} + RAG (no fine-tuning)")
             base_scribe.config.use_rag = True
             base_scribe.config.rag_backend = "llama_index"
             base_scribe._init_rag()
@@ -659,7 +652,7 @@ class StudentEvaluator:
                 metrics["llm_judge_per_sample"] = judge_scores
             
             all_results["rag_only"] = {
-                "description": "Base Phi-3.5-mini + RAG (no fine-tuning)",
+                "description": f"Base {_short_name} + RAG (no fine-tuning)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
             }
@@ -775,7 +768,7 @@ class StudentEvaluator:
         logger.info("\nLoading model for RAG backend comparison...")
         try:
             inf_config = InferenceConfig(
-                model_path="./checkpoints/phi35_clinical_scribe/hf_merged",
+                model_path=self.config.ft_model_path,
                 use_rag=False,  # We'll init RAG manually below
             )
             scribe = ClinicalScribeInference(inf_config)
@@ -1124,6 +1117,10 @@ if __name__ == "__main__":
     parser.add_argument("--test-data", default="./data/training_data/test.jsonl")
     parser.add_argument("--student-model", default="clinical-scribe")
     parser.add_argument("--base-model", default="phi3.5:3.8b-mini-instruct-q4_K_M")
+    parser.add_argument("--ft-model-path", default="./checkpoints/phi35_clinical_scribe/hf_merged",
+                        help="Path to fine-tuned merged model directory")
+    parser.add_argument("--base-model-hf", default="unsloth/Phi-3.5-mini-instruct",
+                        help="HuggingFace model ID for the un-fine-tuned base model")
     parser.add_argument("--output-dir", default="./evaluation_results")
     parser.add_argument("--no-judge", action="store_true", help="Disable LLM judge")
     parser.add_argument("--no-bertscore", action="store_true", help="Disable BERTScore (faster)")
@@ -1136,6 +1133,8 @@ if __name__ == "__main__":
         test_data_path=args.test_data,
         student_model=args.student_model,
         base_model=args.base_model,
+        ft_model_path=args.ft_model_path,
+        base_model_hf=args.base_model_hf,
         output_dir=args.output_dir,
         enable_llm_judge=not args.no_judge,
         compute_bertscore=not args.no_bertscore,
