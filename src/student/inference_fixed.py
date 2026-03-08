@@ -148,6 +148,9 @@ def _clean_output(text: str) -> str:
         "<|endoftext|>",
         "<|im_start|>",          # Qwen2.5 tokens
         "<|im_end|>",            # Qwen2.5 tokens
+        "<|eot_id|>",            # Llama 3 tokens
+        "<|start_header_id|>",   # Llama 3 tokens
+        "<|end_of_text|>",       # Llama 3 tokens
         "Relevant clinical guidelines:",  # RAG context leaking into output
         "\nDoctor:",  # New dialogue starting = model is hallucinating
     ]
@@ -228,9 +231,12 @@ class ClinicalScribeInference:
         """Get all token IDs that should trigger generation stop."""
         # Phi-3.5 uses: <|end|>, <|endoftext|>, <|user|>
         # Qwen2.5 uses: <|im_end|>, <|endoftext|>, <|im_start|>
+        # Llama 3 uses: <|eot_id|>, <|end_of_text|>, <|start_header_id|>
         stop_tokens = [
             "<|end|>", "<|endoftext|>", "<|user|>",        # Phi-3.5
             "<|im_end|>", "<|im_start|>",                   # Qwen2.5
+            "<|eot_id|>", "<|end_of_text|>",                # Llama 3
+            "<|start_header_id|>",                           # Llama 3
         ]
         stop_ids = []
 
