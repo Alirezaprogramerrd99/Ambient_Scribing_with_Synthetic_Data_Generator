@@ -41,7 +41,7 @@ class TrainingConfig:
     # LoRA
     lora_r: int = 32
     lora_alpha: int = 64
-    lora_dropout: float = 0.05
+    lora_dropout: float = 0.0     # 0.05
     target_modules: List[str] = field(default_factory=lambda: [
         "q_proj", "k_proj", "v_proj", "o_proj",
         "gate_proj", "up_proj", "down_proj",
@@ -335,6 +335,9 @@ class StudentTrainer:
             # Training hyperparameters
             num_train_epochs=self.config.num_epochs,
             per_device_train_batch_size=self.config.per_device_train_batch_size,
+            
+            per_device_eval_batch_size=2,
+ 
             gradient_accumulation_steps=self.config.gradient_accumulation_steps,
             learning_rate=self.config.learning_rate,
             lr_scheduler_type=self.config.lr_scheduler_type,

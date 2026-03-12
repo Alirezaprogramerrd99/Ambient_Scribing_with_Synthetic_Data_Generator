@@ -1,0 +1,1851 @@
+{
+  "timestamp": "2026-03-12T12:29:34.260584",
+  "labels": [
+    "Phi-3.5 (3.8B)",
+    "Llama-3.2 (3B)",
+    "Llama-3.2 (1B)"
+  ],
+  "eval_files": [
+    "evaluation_results_phi_main/evaluation_20260311_202532.json",
+    "evaluation_results_llama3b_main/evaluation_20260311_171108.json",
+    "evaluation_results_llama1b_main/evaluation_20260311_151438.json"
+  ],
+  "models": {
+    "Phi-3.5 (3.8B)": {
+      "baseline": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.74,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.56,
+          "min_completeness": 3,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.96,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.88,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.34,
+          "min_conciseness": 3,
+          "max_conciseness": 5,
+          "avg_overall": 4.747000000000001,
+          "min_overall": 4.0,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.094210538864136,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.5243525496747371,
+          "rouge2": 0.26173783630662384,
+          "rougeL": 0.3727976177502853,
+          "rougeLsum": 0.4983752063985991,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.3727976177502853,
+        "bleu": {
+          "avg_bleu1": 0.3304592799151031,
+          "avg_bleu2": 0.2279637482472836,
+          "avg_bleu3": 0.1616724564920447,
+          "avg_bleu4": 0.11518149872525364,
+          "corpus_bleu4": 0.11518149872525364,
+          "precisions": [
+            0.6186730822614972,
+            0.2944129404108952,
+            0.15223685439432147,
+            0.07797691658065121
+          ],
+          "brevity_penalty": 0.5341420038950822,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8208400325165028,
+          "recall": 0.7057327949827951,
+          "f1": 0.7456683499274832,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "rag_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.32,
+          "min_completeness": 3,
+          "max_completeness": 5,
+          "avg_hallucination": 4.02,
+          "min_hallucination": 1,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.74,
+          "min_clinical_safety": 2,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.12,
+          "min_coherence": 1,
+          "max_coherence": 5,
+          "avg_conciseness": 3.86,
+          "min_conciseness": 2,
+          "max_conciseness": 5,
+          "avg_overall": 4.303000000000002,
+          "min_overall": 2.0,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 2,
+          "samples_with_critical_errors": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 0.984,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 0.92,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 29.6159330034256,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.4590635315051063,
+          "rouge2": 0.22410506390122648,
+          "rougeL": 0.32065580662393145,
+          "rougeLsum": 0.43978130055829845,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.32065580662393145,
+        "bleu": {
+          "avg_bleu1": 0.36129924639893163,
+          "avg_bleu2": 0.23602557849963812,
+          "avg_bleu3": 0.16312974597788782,
+          "avg_bleu4": 0.11470175772766368,
+          "corpus_bleu4": 0.11470175772766368,
+          "precisions": [
+            0.36129924639893163,
+            0.15418818129661502,
+            0.07792581232627241,
+            0.03987317448116833
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.7996641201935318,
+          "recall": 0.7445644633144631,
+          "f1": 0.7592936969166945,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.08,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.2,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.02,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.8,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.94,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.32,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.395399999999999,
+          "min_overall": 3.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 4,
+          "samples_with_critical_errors": 4
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 13.046280336380004,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.7299138781364366,
+          "rouge2": 0.5012005886238655,
+          "rougeL": 0.630806160234759,
+          "rougeLsum": 0.6991534266143311,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.630806160234759,
+        "bleu": {
+          "avg_bleu1": 0.7615438222043017,
+          "avg_bleu2": 0.6732805088667423,
+          "avg_bleu3": 0.6096998511146428,
+          "avg_bleu4": 0.5590075593003174,
+          "corpus_bleu4": 0.5590075593003174,
+          "precisions": [
+            0.805126973644714,
+            0.6293129403263684,
+            0.5285981759980672,
+            0.4555037256921306
+          ],
+          "brevity_penalty": 0.9458679775152526,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.9002595182595179,
+          "recall": 0.8471869796869795,
+          "f1": 0.8615518998258932,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_rag": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.06,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.18,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.86,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.82,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.82,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.3,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.351199999999999,
+          "min_overall": 3.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "clinical_structure": {
+          "required_section_coverage": 0.99,
+          "optional_section_coverage": 0.9719999999999999,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 0.98,
+            "plan": 0.98,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 0.86,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 14.791024141311645,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.687916372807473,
+          "rouge2": 0.4718800839664421,
+          "rougeL": 0.5871293583121509,
+          "rougeLsum": 0.6596033131646559,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.5871293583121509,
+        "bleu": {
+          "avg_bleu1": 0.681533651277721,
+          "avg_bleu2": 0.6033242096025193,
+          "avg_bleu3": 0.5473272887888636,
+          "avg_bleu4": 0.5031251263202488,
+          "corpus_bleu4": 0.5031251263202488,
+          "precisions": [
+            0.8150854844116661,
+            0.6387487386478304,
+            0.5387107661154236,
+            0.4673890958347443
+          ],
+          "brevity_penalty": 0.8361499061287496,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.877761294261294,
+          "recall": 0.8297846597846594,
+          "f1": 0.8353784955919723,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "teacher": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.94,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.68,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.98,
+          "min_hallucination": 4,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.68,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.8804,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.573713493347168,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.5654738121975644,
+          "rouge2": 0.3102689546751106,
+          "rougeL": 0.420553943255546,
+          "rougeLsum": 0.5310107211636326,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.420553943255546,
+        "bleu": {
+          "avg_bleu1": 0.5067993786003013,
+          "avg_bleu2": 0.4074020107858229,
+          "avg_bleu3": 0.34353566876608516,
+          "avg_bleu4": 0.29584346205078305,
+          "corpus_bleu4": 0.29584346205078305,
+          "precisions": [
+            0.71067650863709,
+            0.4592468107860362,
+            0.34253508166551644,
+            0.2649526595335232
+          ],
+          "brevity_penalty": 0.7131224578848443,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8075841217605924,
+          "recall": 0.7515050227550227,
+          "f1": 0.7717152239205376,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "_rag_backends": {
+        "llama_index": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.06,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.16,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.82,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.8,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.84,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.24,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.332199999999998,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 2,
+            "samples_with_critical_errors": 2
+          },
+          "avg_generation_time": 15.0028164434433,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.687916372807473,
+            "rouge2": 0.4718800839664421,
+            "rougeL": 0.5871293583121509,
+            "rougeLsum": 0.6596033131646559,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.5871293583121509,
+          "bleu": {
+            "avg_bleu1": 0.681533651277721,
+            "avg_bleu2": 0.6033242096025193,
+            "avg_bleu3": 0.5473272887888636,
+            "avg_bleu4": 0.5031251263202488,
+            "corpus_bleu4": 0.5031251263202488,
+            "precisions": [
+              0.8150854844116661,
+              0.6387487386478304,
+              0.5387107661154236,
+              0.4673890958347443
+            ],
+            "brevity_penalty": 0.8361499061287496,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.877761294261294,
+            "recall": 0.8297846597846594,
+            "f1": 0.8353784955919723,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "manual": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.04,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.26,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.92,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.74,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.92,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.4,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.3806,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 3,
+            "samples_with_critical_errors": 3
+          },
+          "avg_generation_time": 14.325208826065063,
+          "avg_rag_score": 0.0,
+          "rouge": {
+            "rouge1": 0.7299138781364366,
+            "rouge2": 0.5012005886238655,
+            "rougeL": 0.630806160234759,
+            "rougeLsum": 0.6991534266143311,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.630806160234759,
+          "bleu": {
+            "avg_bleu1": 0.7615438222043017,
+            "avg_bleu2": 0.6732805088667423,
+            "avg_bleu3": 0.6096998511146428,
+            "avg_bleu4": 0.5590075593003174,
+            "corpus_bleu4": 0.5590075593003174,
+            "precisions": [
+              0.805126973644714,
+              0.6293129403263684,
+              0.5285981759980672,
+              0.4555037256921306
+            ],
+            "brevity_penalty": 0.9458679775152526,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.9002595182595179,
+            "recall": 0.8471869796869795,
+            "f1": 0.8615518998258932,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "hybrid": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.08,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.18,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.9,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.82,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.84,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.28,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.3599999999999985,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 0,
+            "samples_with_critical_errors": 0
+          },
+          "avg_generation_time": 15.432064719200135,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.687916372807473,
+            "rouge2": 0.4718800839664421,
+            "rougeL": 0.5871293583121509,
+            "rougeLsum": 0.6596033131646559,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.5871293583121509,
+          "bleu": {
+            "avg_bleu1": 0.681533651277721,
+            "avg_bleu2": 0.6033242096025193,
+            "avg_bleu3": 0.5473272887888636,
+            "avg_bleu4": 0.5031251263202488,
+            "corpus_bleu4": 0.5031251263202488,
+            "precisions": [
+              0.8150854844116661,
+              0.6387487386478304,
+              0.5387107661154236,
+              0.4673890958347443
+            ],
+            "brevity_penalty": 0.8361499061287496,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.877761294261294,
+            "recall": 0.8297846597846594,
+            "f1": 0.8353784955919723,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        }
+      }
+    },
+    "Llama-3.2 (3B)": {
+      "baseline": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.68,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.44,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.92,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.96,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.92,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 3.98,
+          "min_conciseness": 3,
+          "max_conciseness": 5,
+          "avg_overall": 4.6506000000000025,
+          "min_overall": 4.0,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 9.921822538375855,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.49726946687417617,
+          "rouge2": 0.2301905605856286,
+          "rougeL": 0.3289754206749919,
+          "rougeLsum": 0.4730964616211665,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.3289754206749919,
+        "bleu": {
+          "avg_bleu1": 0.5569298729983435,
+          "avg_bleu2": 0.43107808751469573,
+          "avg_bleu3": 0.3468743894132852,
+          "avg_bleu4": 0.28619648126754116,
+          "corpus_bleu4": 0.28619648126754116,
+          "precisions": [
+            0.5569298729983435,
+            0.33366555924695457,
+            0.2245974458634092,
+            0.16074610244988863
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.7848450830215536,
+          "recall": 0.7195151792651793,
+          "f1": 0.7398144536459083,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "rag_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.4,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.46,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.52,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.82,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.88,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 3.92,
+          "min_conciseness": 3,
+          "max_conciseness": 5,
+          "avg_overall": 4.502600000000003,
+          "min_overall": 3.33,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 3,
+          "samples_with_critical_errors": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.70088318824768,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.48021580902931565,
+          "rouge2": 0.22016059119880865,
+          "rougeL": 0.3212408890978875,
+          "rougeLsum": 0.46017972019310044,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.3212408890978875,
+        "bleu": {
+          "avg_bleu1": 0.5293991646139017,
+          "avg_bleu2": 0.4017118022592476,
+          "avg_bleu3": 0.31173954439918006,
+          "avg_bleu4": 0.24842917739744086,
+          "corpus_bleu4": 0.24842917739744086,
+          "precisions": [
+            0.5293991646139017,
+            0.30482173539518903,
+            0.1877355443092495,
+            0.12572878427985315
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.7769449161949161,
+          "recall": 0.7184739982239983,
+          "f1": 0.7331276486459553,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.06,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.28,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.68,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.84,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.94,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.2,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.3438,
+          "min_overall": 3.67,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 2,
+          "samples_with_critical_errors": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 9.939159216880798,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.7227729598777928,
+          "rouge2": 0.4869944043227218,
+          "rougeL": 0.623216158994798,
+          "rougeLsum": 0.6911349756840282,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.623216158994798,
+        "bleu": {
+          "avg_bleu1": 0.7567054998645354,
+          "avg_bleu2": 0.6656786434704983,
+          "avg_bleu3": 0.6008698660655567,
+          "avg_bleu4": 0.5494810303514555,
+          "corpus_bleu4": 0.5494810303514555,
+          "precisions": [
+            0.7567054998645354,
+            0.5856017386579734,
+            0.48956687551076,
+            0.4202130565419284
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8922526362526358,
+          "recall": 0.8413878343878344,
+          "f1": 0.8563864733930794,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_rag": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.06,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.3,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.7,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.7,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.92,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.26,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.328599999999998,
+          "min_overall": 3.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 6,
+          "samples_with_critical_errors": 6
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.159609117507934,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.719416338647111,
+          "rouge2": 0.48206989388283095,
+          "rougeL": 0.6189822568822709,
+          "rougeLsum": 0.6888543471289972,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.6189822568822709,
+        "bleu": {
+          "avg_bleu1": 0.7524431726148696,
+          "avg_bleu2": 0.6603355809010346,
+          "avg_bleu3": 0.5950921064225152,
+          "avg_bleu4": 0.5434930854661062,
+          "corpus_bleu4": 0.5434930854661062,
+          "precisions": [
+            0.7524431726148696,
+            0.5795030047100861,
+            0.48330709516312903,
+            0.41402210004899026
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8685598878245935,
+          "recall": 0.8607601287601286,
+          "f1": 0.8521118691050615,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "teacher": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.98,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.72,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.74,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.9037999999999995,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 6.299806203842163,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.5668642090860976,
+          "rouge2": 0.31296240468768466,
+          "rougeL": 0.4233135541137062,
+          "rougeLsum": 0.5314975220815181,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.4233135541137062,
+        "bleu": {
+          "avg_bleu1": 0.5070923857244497,
+          "avg_bleu2": 0.40811348522594243,
+          "avg_bleu3": 0.34427201588512946,
+          "avg_bleu4": 0.2966596283348925,
+          "corpus_bleu4": 0.2966596283348925,
+          "precisions": [
+            0.7103642308569691,
+            0.46011754827875734,
+            0.3431920925599571,
+            0.2659026228751635
+          ],
+          "brevity_penalty": 0.7138484226784669,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8078904820669526,
+          "recall": 0.7596716894216894,
+          "f1": 0.7765096017382698,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "_rag_backends": {
+        "llama_index": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.02,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.22,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.68,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.64,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.92,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.26,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.2984,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 7,
+            "samples_with_critical_errors": 6
+          },
+          "avg_generation_time": 10.407344942092896,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.719416338647111,
+            "rouge2": 0.48206989388283095,
+            "rougeL": 0.6189822568822709,
+            "rougeLsum": 0.6888543471289972,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.6189822568822709,
+          "bleu": {
+            "avg_bleu1": 0.7524431726148696,
+            "avg_bleu2": 0.6603355809010346,
+            "avg_bleu3": 0.5950921064225152,
+            "avg_bleu4": 0.5434930854661062,
+            "corpus_bleu4": 0.5434930854661062,
+            "precisions": [
+              0.7524431726148696,
+              0.5795030047100861,
+              0.48330709516312903,
+              0.41402210004899026
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8685598878245935,
+            "recall": 0.8607601287601286,
+            "f1": 0.8521118691050615,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "manual": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.02,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.26,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.64,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.82,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.92,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.28,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.326999999999999,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 3,
+            "samples_with_critical_errors": 3
+          },
+          "avg_generation_time": 10.504094891548156,
+          "avg_rag_score": 0.0,
+          "rouge": {
+            "rouge1": 0.7227729598777928,
+            "rouge2": 0.4869944043227218,
+            "rougeL": 0.623216158994798,
+            "rougeLsum": 0.6911349756840282,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.623216158994798,
+          "bleu": {
+            "avg_bleu1": 0.7567054998645354,
+            "avg_bleu2": 0.6656786434704983,
+            "avg_bleu3": 0.6008698660655567,
+            "avg_bleu4": 0.5494810303514555,
+            "corpus_bleu4": 0.5494810303514555,
+            "precisions": [
+              0.7567054998645354,
+              0.5856017386579734,
+              0.48956687551076,
+              0.4202130565419284
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8922526362526358,
+            "recall": 0.8413878343878344,
+            "f1": 0.8563864733930794,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "hybrid": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 4.04,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.28,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.64,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.68,
+            "min_clinical_safety": 4,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.9,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.26,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.3118,
+            "min_overall": 3.5,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 6,
+            "samples_with_critical_errors": 6
+          },
+          "avg_generation_time": 10.660854420661927,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.719416338647111,
+            "rouge2": 0.48206989388283095,
+            "rougeL": 0.6189822568822709,
+            "rougeLsum": 0.6888543471289972,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.6189822568822709,
+          "bleu": {
+            "avg_bleu1": 0.7524431726148696,
+            "avg_bleu2": 0.6603355809010346,
+            "avg_bleu3": 0.5950921064225152,
+            "avg_bleu4": 0.5434930854661062,
+            "corpus_bleu4": 0.5434930854661062,
+            "precisions": [
+              0.7524431726148696,
+              0.5795030047100861,
+              0.48330709516312903,
+              0.41402210004899026
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8685598878245935,
+            "recall": 0.8607601287601286,
+            "f1": 0.8521118691050615,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        }
+      }
+    },
+    "Llama-3.2 (1B)": {
+      "baseline": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.32,
+          "min_clinical_accuracy": 2,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 3.96,
+          "min_completeness": 3,
+          "max_completeness": 4,
+          "avg_hallucination": 2.72,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.1,
+          "min_clinical_safety": 2,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.32,
+          "min_coherence": 3,
+          "max_coherence": 5,
+          "avg_conciseness": 3.62,
+          "min_conciseness": 2,
+          "max_conciseness": 4,
+          "avg_overall": 3.686400000000001,
+          "min_overall": 2.67,
+          "max_overall": 4.67,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 18,
+          "samples_with_critical_errors": 14
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.089845237731933,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.4633673462705987,
+          "rouge2": 0.18923725770921884,
+          "rougeL": 0.2840389183490136,
+          "rougeLsum": 0.42765959321993297,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.2840389183490136,
+        "bleu": {
+          "avg_bleu1": 0.5007313068299942,
+          "avg_bleu2": 0.358625529855044,
+          "avg_bleu3": 0.2623016254105396,
+          "avg_bleu4": 0.19825689447569575,
+          "corpus_bleu4": 0.19825689447569575,
+          "precisions": [
+            0.5365720192132304,
+            0.27523327437945966,
+            0.15036398115862237,
+            0.09173467509357551
+          ],
+          "brevity_penalty": 0.9332042836751179,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.7915560273060274,
+          "recall": 0.6401854534354535,
+          "f1": 0.6944203597375289,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "rag_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.04,
+          "min_clinical_accuracy": 1,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 3.68,
+          "min_completeness": 2,
+          "max_completeness": 5,
+          "avg_hallucination": 2.48,
+          "min_hallucination": 1,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 3.7,
+          "min_clinical_safety": 1,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.1,
+          "min_coherence": 3,
+          "max_coherence": 5,
+          "avg_conciseness": 3.38,
+          "min_conciseness": 3,
+          "max_conciseness": 4,
+          "avg_overall": 3.432,
+          "min_overall": 1.67,
+          "max_overall": 4.83,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 48,
+          "samples_with_critical_errors": 25
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.49321412563324,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.4460865351586235,
+          "rouge2": 0.17592269230159202,
+          "rougeL": 0.2736232680414429,
+          "rougeLsum": 0.41358013525395787,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.2736232680414429,
+        "bleu": {
+          "avg_bleu1": 0.4722564571761682,
+          "avg_bleu2": 0.3240227855762881,
+          "avg_bleu3": 0.23161734979526846,
+          "avg_bleu4": 0.17174216885045523,
+          "corpus_bleu4": 0.17174216885045523,
+          "precisions": [
+            0.4888509737012414,
+            0.2301292264117543,
+            0.1225069538971415,
+            0.07247581171721969
+          ],
+          "brevity_penalty": 0.9660540381060694,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.7735836385836385,
+          "recall": 0.6252143689643692,
+          "f1": 0.6737667689611101,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_only": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.76,
+          "min_clinical_accuracy": 2,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.1,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.08,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.54,
+          "min_clinical_safety": 3,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.76,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.16,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.09,
+          "min_overall": 3.33,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 10,
+          "samples_with_critical_errors": 8
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.533480000495911,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.699553712807282,
+          "rouge2": 0.45799432337248924,
+          "rougeL": 0.5926375326658695,
+          "rougeLsum": 0.6671624597531136,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.5926375326658695,
+        "bleu": {
+          "avg_bleu1": 0.7496957628056201,
+          "avg_bleu2": 0.6521111825195997,
+          "avg_bleu3": 0.5847739990289257,
+          "avg_bleu4": 0.532490389910397,
+          "corpus_bleu4": 0.532490389910397,
+          "precisions": [
+            0.7496957628056201,
+            0.5672287552695806,
+            0.47024140616308824,
+            0.4020526550647033
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8821389443889441,
+          "recall": 0.8334683094683095,
+          "f1": 0.8465862933132783,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "ft_rag": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.9,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.18,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.4,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.58,
+          "min_clinical_safety": 3,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.8,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.12,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.174600000000001,
+          "min_overall": 3.33,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 6,
+          "samples_with_critical_errors": 5
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.657757053375244,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.7020139354830333,
+          "rouge2": 0.45872148899840326,
+          "rougeL": 0.5938651272870479,
+          "rougeLsum": 0.6697220123706433,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.5938651272870479,
+        "bleu": {
+          "avg_bleu1": 0.7552135608341697,
+          "avg_bleu2": 0.6569434806226228,
+          "avg_bleu3": 0.5887484599378221,
+          "avg_bleu4": 0.5354061976296539,
+          "corpus_bleu4": 0.5354061976296539,
+          "precisions": [
+            0.7552135608341697,
+            0.5714605233728473,
+            0.4728608276326119,
+            0.40266531713900133
+          ],
+          "brevity_penalty": 1.0,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8757766122766122,
+          "recall": 0.8402827172827173,
+          "f1": 0.8488709818869998,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "teacher": {
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.98,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.68,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.72,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.8972,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 50,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 5.708237924575806,
+        "valid_outputs": 50,
+        "empty_outputs": 0,
+        "rouge": {
+          "rouge1": 0.5654235186502198,
+          "rouge2": 0.31196773239638864,
+          "rougeL": 0.42179931939782567,
+          "rougeLsum": 0.5296505068150579,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "rouge_l": 0.42179931939782567,
+        "bleu": {
+          "avg_bleu1": 0.5052133350999514,
+          "avg_bleu2": 0.4062817431319432,
+          "avg_bleu3": 0.34270074696541897,
+          "avg_bleu4": 0.2953710681831126,
+          "corpus_bleu4": 0.2953710681831126,
+          "precisions": [
+            0.7142091563313429,
+            0.4618813403012604,
+            0.34469989199197654,
+            0.2673482032218092
+          ],
+          "brevity_penalty": 0.7073744863410403,
+          "num_samples": 50,
+          "method": "evaluate"
+        },
+        "bleurt": {
+          "error": "evaluate or bleurt not installed"
+        },
+        "medcon": {
+          "precision": 0.8228410315175019,
+          "recall": 0.7658475135975135,
+          "f1": 0.7859688069199007,
+          "num_samples": 50,
+          "method": "regex_fallback"
+        }
+      },
+      "_rag_backends": {
+        "llama_index": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 3.92,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.2,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.44,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.6,
+            "min_clinical_safety": 3,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.86,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.14,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.2054,
+            "min_overall": 3.33,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 3,
+            "samples_with_critical_errors": 2
+          },
+          "avg_generation_time": 5.629918961524964,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.7020139354830333,
+            "rouge2": 0.45872148899840326,
+            "rougeL": 0.5938651272870479,
+            "rougeLsum": 0.6697220123706433,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.5938651272870479,
+          "bleu": {
+            "avg_bleu1": 0.7552135608341697,
+            "avg_bleu2": 0.6569434806226228,
+            "avg_bleu3": 0.5887484599378221,
+            "avg_bleu4": 0.5354061976296539,
+            "corpus_bleu4": 0.5354061976296539,
+            "precisions": [
+              0.7552135608341697,
+              0.5714605233728473,
+              0.4728608276326119,
+              0.40266531713900133
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8757766122766122,
+            "recall": 0.8402827172827173,
+            "f1": 0.8488709818869998,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "manual": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 3.74,
+            "min_clinical_accuracy": 2,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.08,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.18,
+            "min_hallucination": 1,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.54,
+            "min_clinical_safety": 3,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.74,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.12,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.097599999999999,
+            "min_overall": 3.33,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 9,
+            "samples_with_critical_errors": 7
+          },
+          "avg_generation_time": 5.5987777376174925,
+          "avg_rag_score": 0.0,
+          "rouge": {
+            "rouge1": 0.699553712807282,
+            "rouge2": 0.45799432337248924,
+            "rougeL": 0.5926375326658695,
+            "rougeLsum": 0.6671624597531136,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.5926375326658695,
+          "bleu": {
+            "avg_bleu1": 0.7496957628056201,
+            "avg_bleu2": 0.6521111825195997,
+            "avg_bleu3": 0.5847739990289257,
+            "avg_bleu4": 0.532490389910397,
+            "corpus_bleu4": 0.532490389910397,
+            "precisions": [
+              0.7496957628056201,
+              0.5672287552695806,
+              0.47024140616308824,
+              0.4020526550647033
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8821389443889441,
+            "recall": 0.8334683094683095,
+            "f1": 0.8465862933132783,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        },
+        "hybrid": {
+          "llm_judge": {
+            "avg_clinical_accuracy": 3.88,
+            "min_clinical_accuracy": 3,
+            "max_clinical_accuracy": 5,
+            "avg_completeness": 4.16,
+            "min_completeness": 4,
+            "max_completeness": 5,
+            "avg_hallucination": 3.42,
+            "min_hallucination": 2,
+            "max_hallucination": 5,
+            "avg_clinical_safety": 4.58,
+            "min_clinical_safety": 3,
+            "max_clinical_safety": 5,
+            "avg_coherence": 4.82,
+            "min_coherence": 4,
+            "max_coherence": 5,
+            "avg_conciseness": 4.14,
+            "min_conciseness": 4,
+            "max_conciseness": 5,
+            "avg_overall": 4.176,
+            "min_overall": 3.33,
+            "max_overall": 5.0,
+            "num_evaluated": 50,
+            "num_failed": 0,
+            "total_critical_errors": 7,
+            "samples_with_critical_errors": 6
+          },
+          "avg_generation_time": 5.606855735778809,
+          "avg_rag_score": 0.7293051439534658,
+          "rouge": {
+            "rouge1": 0.7020139354830333,
+            "rouge2": 0.45872148899840326,
+            "rougeL": 0.5938651272870479,
+            "rougeLsum": 0.6697220123706433,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "rouge_l": 0.5938651272870479,
+          "bleu": {
+            "avg_bleu1": 0.7552135608341697,
+            "avg_bleu2": 0.6569434806226228,
+            "avg_bleu3": 0.5887484599378221,
+            "avg_bleu4": 0.5354061976296539,
+            "corpus_bleu4": 0.5354061976296539,
+            "precisions": [
+              0.7552135608341697,
+              0.5714605233728473,
+              0.4728608276326119,
+              0.40266531713900133
+            ],
+            "brevity_penalty": 1.0,
+            "num_samples": 50,
+            "method": "evaluate"
+          },
+          "bleurt": {
+            "error": "evaluate or bleurt not installed"
+          },
+          "medcon": {
+            "precision": 0.8757766122766122,
+            "recall": 0.8402827172827173,
+            "f1": 0.8488709818869998,
+            "num_samples": 50,
+            "method": "regex_fallback"
+          }
+        }
+      }
+    }
+  }
+}

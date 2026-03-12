@@ -24,3 +24,5 @@ unsloth_compiled_cache/
 
 demographics_patterns.py
 
+evaluation_results_phi/
+evaluation_results_phi_more_tokenize/

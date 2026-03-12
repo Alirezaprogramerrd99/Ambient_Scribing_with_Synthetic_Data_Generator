@@ -19,6 +19,9 @@ import os
 os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
 os.environ["TORCHDYNAMO_DISABLE"] = "1"
+
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
+ 
 import torch._inductor.config
 
 import json

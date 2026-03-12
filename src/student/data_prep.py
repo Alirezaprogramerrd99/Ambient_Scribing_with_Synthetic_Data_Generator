@@ -158,7 +158,12 @@ class DataPrepConfig:
     """Configuration for data preparation."""
     
     # Input
-    raw_data_dirs: List[str] = field(default_factory=lambda: ["./data/synthetic_output_llama_index"])
+    raw_data_dirs: List[str] = field(default_factory=lambda: [
+        "./data/batch_1", "./data/batch_2", "./data/batch_3",
+        "./data/batch_4", "./data/batch_5", "./data/batch_6",
+        "./data/batch_7", "./data/batch_8", "./data/batch_9",
+        "./data/synthetic_output_llama_index",
+    ])
     
     # Output
     output_dir: str = "./data/training_data"
@@ -908,7 +913,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model-type",
         default="auto",
-        choices=["auto", "phi3", "qwen2"],
+        choices=["auto", "phi3", "qwen2", "llama3"],
         help="Chat template type (auto-detected from --model if 'auto')"
     )
     

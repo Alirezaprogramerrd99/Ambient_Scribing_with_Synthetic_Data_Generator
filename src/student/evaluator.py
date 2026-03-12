@@ -11,7 +11,9 @@ Comprehensive evaluation framework for the fine-tuned student model:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import os
 import patch_torch  # Must be first — patches torch.int1-int7 for Windows
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 
 import json
 import logging
@@ -341,11 +343,30 @@ def load_test_data(path: str, max_samples: Optional[int] = None) -> List[Dict]:
 
 
 def extract_dialogue_from_chatml(chatml_text: str) -> str:
-    """Extract the dialogue text from a ChatML formatted string."""
-    # Find content between <|user|> and SUMMARY_INSTRUCTION
+    """
+    Extract the dialogue text from a chat-template formatted string.
+    
+    Supports all template formats:
+        - Phi-3.5:  <|user|>\n...<|end|>
+        - Qwen2.5:  <|im_start|>user\n...<|im_end|>
+        - Llama 3:  <|start_header_id|>user<|end_header_id|>\n\n...<|eot_id|>
+    """
     import re
     
+    # Try Phi format: <|user|>\n...<|end|>
     user_match = re.search(r"<\|user\|>\n(.*?)(?:<\|end\|>)", chatml_text, re.DOTALL)
+    
+    # Try Qwen format: <|im_start|>user\n...<|im_end|>
+    if not user_match:
+        user_match = re.search(r"<\|im_start\|>user\n(.*?)(?:<\|im_end\|>)", chatml_text, re.DOTALL)
+    
+    # Try Llama format: <|start_header_id|>user<|end_header_id|>\n\n...<|eot_id|>
+    if not user_match:
+        user_match = re.search(
+            r"<\|start_header_id\|>user<\|end_header_id\|>\n\n(.*?)(?:<\|eot_id\|>)",
+            chatml_text, re.DOTALL
+        )
+    
     if not user_match:
         return ""
     
@@ -354,6 +375,8 @@ def extract_dialogue_from_chatml(chatml_text: str) -> str:
     # Remove RAG context prefix if present
     if "Summarise the following clinical consultation:" in user_content:
         dialogue_part = user_content.split("Summarise the following clinical consultation:")[-1]
+    elif "Summarize the following clinical consultation:" in user_content:
+        dialogue_part = user_content.split("Summarize the following clinical consultation:")[-1]
     else:
         dialogue_part = user_content
     
@@ -365,13 +388,36 @@ def extract_dialogue_from_chatml(chatml_text: str) -> str:
 
 
 def extract_reference_from_chatml(chatml_text: str) -> str:
-    """Extract the reference summary from a ChatML formatted string."""
+    """
+    Extract the reference summary (assistant response) from a chat-template string.
+    
+    Supports all template formats:
+        - Phi-3.5:  <|assistant|>\n...<|end|>
+        - Qwen2.5:  <|im_start|>assistant\n...<|im_end|>
+        - Llama 3:  <|start_header_id|>assistant<|end_header_id|>\n\n...<|eot_id|>
+    """
     import re
     
+    # Try Phi format
     assistant_match = re.search(
         r"<\|assistant\|>\n(.*?)(?:<\|end\|>|$)", 
         chatml_text, re.DOTALL
     )
+    
+    # Try Qwen format
+    if not assistant_match:
+        assistant_match = re.search(
+            r"<\|im_start\|>assistant\n(.*?)(?:<\|im_end\|>|$)",
+            chatml_text, re.DOTALL
+        )
+    
+    # Try Llama format
+    if not assistant_match:
+        assistant_match = re.search(
+            r"<\|start_header_id\|>assistant<\|end_header_id\|>\n\n(.*?)(?:<\|eot_id\|>|$)",
+            chatml_text, re.DOTALL
+        )
+    
     if assistant_match:
         return assistant_match.group(1).strip()
     return ""
@@ -441,6 +487,8 @@ class StudentEvaluator:
                 "teacher_model": self.config.teacher_model,
                 "judge_model": self.config.judge_model,
             },
+            "references": references,
+            "dialogues": dialogues,
         }
         
         # ---- Experiment 1: Five-way comparison ----
@@ -550,6 +598,7 @@ class StudentEvaluator:
                 "description": f"Fine-tuned {_short_name} (no RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
             }
         except Exception as e:
             logger.error(f"  ft_only failed: {e}")
@@ -584,6 +633,7 @@ class StudentEvaluator:
                 "description": f"Fine-tuned {_short_name} + RAG",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
             }
         except Exception as e:
             logger.error(f"  ft_rag failed: {e}")
@@ -626,6 +676,7 @@ class StudentEvaluator:
                 "description": f"Base {_short_name} (no fine-tuning, no RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
             }
             
             # ---- Step 6: RAG-only (same base model + RAG) ----
@@ -655,6 +706,7 @@ class StudentEvaluator:
                 "description": f"Base {_short_name} + RAG (no fine-tuning)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
             }
             
             del base_scribe
@@ -738,6 +790,7 @@ class StudentEvaluator:
                 "description": f"Teacher ({self.config.teacher_model} + RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
             }
             
         except Exception as e:
@@ -809,10 +862,12 @@ class StudentEvaluator:
                         dialogues, references, candidates
                     )
                     metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                    metrics["llm_judge_per_sample"] = judge_scores
                 
                 all_results[backend] = {
                     "metrics": metrics,
                     "num_samples": len(candidates),
+                    "raw_outputs": candidates,
                 }
                 
             except Exception as e:
