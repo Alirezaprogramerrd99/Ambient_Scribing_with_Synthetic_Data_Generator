@@ -157,6 +157,11 @@ pip install "ragas>=0.1.0" "rouge-score>=0.1.2" "bert-score>=0.3.13" "nltk>=3.8.
 pip install "mlflow>=2.10.0"
 pip install "pytest>=7.4.0" "jupyter>=1.0.0" "ipykernel>=6.28.0"
 ```
+#### Additional libs
+```
+pip install hf_transfer
+pip install xformers triton
+```
 
 ### Step 8: Verify and lock
 
@@ -170,12 +175,26 @@ All 12 packages should pass. Then **immediately lock**:
 pip freeze > requirements_lock_working.txt
 ```
 
+
+### For calculating BertScore you would have to do the following:
+```
+conda create -n bertscore_env python=3.11 -y
+
+conda activate bertscore_env
+
+pip install torch==2.6.0+cu126 --index-url https://download.pytorch.org/whl/cu126
+
+pip install evaluate bert-score rouge-score nltk
+```
+
 **Commit this file to git.** It is your insurance policy against machine wipes.
 
 ```powershell
 git add requirements_lock_working.txt
 git commit -m "Lock working environment (March 2026)"
 ```
+
+
 
 ---
 
