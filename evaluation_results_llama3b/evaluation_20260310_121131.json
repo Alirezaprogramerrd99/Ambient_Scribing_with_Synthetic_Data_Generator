@@ -1,0 +1,1012 @@
+{
+  "timestamp": "2026-03-10T12:03:36.536350",
+  "num_test_samples": 3,
+  "config": {
+    "student_model": "clinical-scribe",
+    "base_model": "phi3.5:3.8b-mini-instruct-q4_K_M",
+    "ft_model_path": "./checkpoints/llama32_3b_clinical_scribe/hf_merged",
+    "base_model_hf": "unsloth/Llama-3.2-3B-Instruct",
+    "teacher_model": "gpt-4o-mini",
+    "judge_model": "gpt-4o-mini"
+  },
+  "references": [
+    "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion that started three months ago, initially small but now varying in size and color. The lesion occasionally bleeds and has moderate to severe intermittent severity. There are no specific aggravating or relieving factors noted. Associated symptoms include occasional itching.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, moderate alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 130/80, HR 72 bpm, Temp 98.6\u00c2\u00b0F. Lesion on the left forearm: approximately 1.5 cm in diameter, irregular borders, varied color, dry skin surrounding, with some areas of bleeding.\n**Assessment:** Working diagnosis of a potential skin lesion requiring further evaluation; differential diagnoses include melanoma and other benign conditions.\n**Plan:** Initiate treatment with topical vitamin D analogue (Calcipotriol) and follow up in 4 weeks. Consider referral to a dermatologist if no improvement. Educate patient on red flags: rapid changes in size or color, increased bleeding, or signs of infection.\n**Safety Netting:** Return if there are rapid changes in the lesion, increased bleeding, or signs of infection such as increased redness or pus.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the left forearm for 3 months, varying in color and size, with intermittent bleeding and occasional itching.\nO: Vital signs stable. Examination reveals a lesion of 1.5 cm with irregular borders and varied color.\nA: Possible skin lesion requiring further evaluation, differential includes melanoma.\nP: Start topical vitamin D analogue, follow up in 4 weeks, consider referral to dermatology.",
+    "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is an 80-year-old male who presents with a tremor that started about two weeks ago. The tremor is constant and has been progressively worsening. The patient reports associated weight loss due to decreased appetite, stating that eating has become difficult because of the tremor. He notes that taking antacids seems to relieve the symptoms somewhat.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** No smoking or alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 130/80 mmHg, HR 72 bpm, RR 16 breaths/min. Examination reveals a pronounced tremor in both hands, with no rigidity or bradykinesia noted.\n**Assessment:** Working diagnosis includes essential tremor or anxiety-related tremor. Differential diagnoses include metabolic causes.\n**Plan:** Order blood tests to evaluate metabolic issues. Refer to neurology for further assessment. Discuss potential management options and consider lifestyle modifications. Advise follow-up based on test results.\n**Safety Netting:** Return if experiencing severe weakness, visual changes, significantly worsening tremor, or if new symptoms arise.\n\n**SOAP Note:**\nS: 80-year-old male presents with a tremor for 2 weeks, worsening, associated with weight loss due to decreased appetite.\nO: Vital signs stable, pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor or anxiety-related tremor; rule out metabolic causes.\nP: Order blood tests; refer to neurology; advise follow-up on symptoms.",
+    "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 42-year-old female presenting with urinary difficulty for the past three days. She reports incomplete bladder emptying and nocturia, with a severity rated at 7/10. No fever or back pain noted. Denies previous urinary issues.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdomen soft, non-distended, no palpable bladder.\n**Assessment:** Likely uncomplicated urinary tract infection (UTI). Differential includes bladder irritability.\n**Plan:** Perform a urine dipstick test to check for infection; if positive for nitrites/leukocytes, initiate treatment with Nitrofurantoin 100mg BD for 3 days, unless eGFR <45. Consider sending MSU for culture if symptoms persist. Follow up based on results.\n**Safety Netting:** Return if symptoms do not improve within 48 hours, develop fever, experience loin pain, or cannot pass urine.\n\n**SOAP Note:**\nS: Patient reports difficulty urinating for 3 days, incomplete emptying, nocturia, severity 7/10. No previous urinary issues.\nO: Vital signs stable. Abdomen examination normal; no bladder distention.\nA: Likely uncomplicated UTI.\nP: Urine dipstick test, initiate antibiotics if indicated, safety net for worsening symptoms."
+  ],
+  "dialogues": [
+    "Doctor: Good morning, I'm Dr. Smith. What brings you in today?\nPatient: Hello, Doctor. I've had this skin lesion on my arm for about three months.\nDoctor: I see. Can you tell me more about it? When did it first appear?\nPatient: It started as a small spot, but it's been changing. Sometimes it bleeds and has changed color.\nDoctor: How would you describe the severity of the lesion? Has it been consistent or does it vary?\nPatient: It varies a lot. Some days it looks worse than others. I\u00e2\u20ac\u2122d say it\u00e2\u20ac\u2122s moderate to severe at times.\nDoctor: Are there any specific triggers that make it worse or anything that helps relieve it?\nPatient: No, I haven\u00e2\u20ac\u2122t noticed anything specific that makes it better or worse.\nDoctor: Have you experienced any other symptoms like itching or pain associated with the lesion?\nPatient: It itches sometimes, but mostly it\u00e2\u20ac\u2122s just the appearance that bothers me.\nDoctor: Thank you for sharing that. Can I ask about your past medical history? Do you have any other health conditions?\nPatient: I have osteoarthritis and high cholesterol. I'm on atorvastatin 20mg for that.\nDoctor: Got it. Do you have any allergies to medications?\nPatient: No, I don\u00e2\u20ac\u2122t have any allergies.\nDoctor: Great. Now, let me examine the lesion on your arm.\nDoctor: The lesion is approximately 1.5 cm in diameter, irregular borders, and has a varied color with some areas darker than others. There is dry skin around it and some areas of bleeding.\nDoctor: Based on the appearance, this could potentially be a skin condition that requires further investigation. I'll recommend a topical vitamin D analogue like Calcipotriol, and possibly a combination product if it doesn't improve. However, given your age and the characteristics of the lesion, we may also need to consider a referral to a dermatologist for further evaluation.\nPatient: That sounds good, but what should I look out for in case it gets worse?\nDoctor: You should return immediately if you notice rapid changes in size or color, if it starts to bleed more frequently, or if you see any signs of infection like increased redness or pus. These are important red flags.\nDoctor: I will arrange for a follow-up appointment in a few weeks to see how the treatment is working.\nPatient: Thank you, Doctor. I appreciate your help.",
+    "Doctor: Good morning, I'm Dr. Smith. What brings you in today?\nPatient: Good morning, Doctor. I've been having a tremor for the last two weeks, and it's getting worse.\nDoctor: I'm sorry to hear that. Can you tell me more about the tremor? When did it start?\nPatient: It started about two weeks ago. At first, it was just a little shaky, but now it's more noticeable.\nDoctor: How would you describe the tremor? Is it constant or does it come and go?\nPatient: It\u00e2\u20ac\u2122s mostly constant, but it can get worse if I\u00e2\u20ac\u2122m trying to do something.\nDoctor: Have you noticed any other symptoms, like weight loss or changes in your appetite?\nPatient: Yes, I\u00e2\u20ac\u2122ve lost some weight because I haven\u00e2\u20ac\u2122t been eating much. The tremor makes it hard to eat.\nDoctor: That sounds challenging. Have you found anything that helps alleviate the tremor?\nPatient: Well, I noticed that taking antacids seems to help a bit.\nDoctor: Interesting. Do you have any other medical conditions or are you taking any medications?\nPatient: No significant medical history, and I\u00e2\u20ac\u2122m not on any medications.\nDoctor: Do you have any allergies?\nPatient: No, no known allergies.\nDoctor: Alright, let me perform a quick physical examination. I will check your vital signs and assess the tremor.\nDoctor: Your blood pressure is within normal limits, but I notice that the tremor is quite pronounced in both hands. There\u00e2\u20ac\u2122s no evidence of rigidity or bradykinesia, so I don't suspect Parkinson's at this stage.\nPatient: What do you think it could be?\nDoctor: Based on your symptoms and the guidelines, this could be essential tremor or possibly related to anxiety or another underlying condition. I recommend some initial blood tests to rule out any metabolic issues and possibly a referral for a neurologist.\nPatient: That sounds reasonable. Is there anything else I should watch out for?\nDoctor: Yes, please be on the lookout for any new symptoms such as severe weakness, changes in vision, or if the tremor worsens significantly. If you experience any of these, please return right away.\nPatient: Thank you, Doctor. I appreciate your help.\nDoctor: You're welcome! We\u00e2\u20ac\u2122ll get to the bottom of this together.",
+    "Doctor: Good morning, I'm Dr. Smith. What brings you in today?\nPatient: Hi, I've been having trouble urinating for the past three days.\nDoctor: I\u00e2\u20ac\u2122m sorry to hear that. Can you tell me more about the symptoms you're experiencing?\nPatient: Sure. I feel like I can't empty my bladder completely, and I've been waking up a lot at night to use the bathroom.\nDoctor: How would you describe the severity of your symptoms on a scale from 1 to 10?\nPatient: It\u00e2\u20ac\u2122s about a 7. It\u00e2\u20ac\u2122s really uncomfortable.\nDoctor: Have you noticed if anything makes it worse or better?\nPatient: Not really, it just seems to be getting worse. I haven\u00e2\u20ac\u2122t had any fever or back pain, though.\nDoctor: That\u00e2\u20ac\u2122s good to hear. Have you had any previous urinary tract infections or any other urinary issues in the past?\nPatient: No, this is the first time I'm experiencing something like this.\nDoctor: Are you currently taking any medications or have any allergies?\nPatient: I take birth control pills, and I have no known drug allergies.\nDoctor: Alright, let me check your vital signs and perform a quick examination.\nDoctor: Your blood pressure is 120 over 80, pulse is 76, and temperature is normal. I\u00e2\u20ac\u2122ll palpate your abdomen now.\nDoctor: I don\u00e2\u20ac\u2122t feel any bladder distention, which is a good sign. I\u00e2\u20ac\u2122m going to recommend a urine test to check for a urinary tract infection.\nPatient: Okay, what will that show?\nDoctor: It will help us determine if there are any signs of infection, such as nitrites or leukocytes in the urine according to our guidelines. Based on the findings, we may start treatment with antibiotics if needed.\nPatient: That sounds good. How long will it take to get the results?\nDoctor: Usually, we get results within 24 to 48 hours. In the meantime, if your symptoms worsen or you develop a fever, please return immediately.\nPatient: Will do. Thank you, Doctor."
+  ],
+  "comparative": {
+    "ft_only": {
+      "description": "Fine-tuned Llama-3.2-3B (no RAG)",
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.6055452570179479,
+        "rouge_details": {
+          "rouge1": 0.7018513741419089,
+          "rouge2": 0.47708273446096694,
+          "rougeL": 0.6055452570179479,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.575713555018107,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.3333333333333335,
+          "min_hallucination": 3,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.176666666666667,
+          "min_overall": 4.0,
+          "max_overall": 4.33,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Social history inaccurately states 'no alcohol use reported' when the original dialogue mentioned 'moderate alcohol use.'",
+              "Assessment includes potential diagnoses (psoriasis, dermatitis) that were not mentioned in the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes appropriate assessment and plan."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (55 instead of 80).",
+              "Social history includes details not mentioned in the dialogue (engineer, occasional alcohol use).",
+              "Vital signs slightly differ from the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and symptoms.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (20 instead of 42).",
+              "Includes differential diagnosis of BPH which is not relevant for a female patient.",
+              "Lacks specific follow-up instructions based on test results."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months with intermittent severity.\n**History of Present Illness:** The patient reports a skin lesion on the arm that started as a small spot 3 months ago. The lesion has changed in appearance, sometimes bleeding and changing color. Severity varies, with moderate to severe episodes. The patient experiences intermittent itching but no specific triggers. No improvement noted with anything.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination reveals a 1.5 cm skin lesion on the arm with irregular borders, varied color, dry skin surrounding, and areas of bleeding.\n**Assessment:** Working diagnosis of a possible skin condition (e.g., psoriasis, dermatitis) vs. melanoma due to irregular borders and color variation.\n**Plan:** Start treatment with a topical vitamin D analogue (Calcipotriol) and consider a combination product if no improvement. Refer to dermatology for further evaluation if symptoms do not improve. Follow-up in 4 weeks.\n**Safety Netting:** Return immediately if the lesion changes rapidly, bleeds more frequently, or shows signs of infection (increased redness, pus).\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, intermittent severity, with bleeding and color changes.\nO: Vital signs stable. Examination reveals a 1.5 cm lesion with irregular borders, varied color, dry skin, and bleeding.\nA: Possible skin condition (psoriasis, dermatitis) vs. melanoma.\nP: Start Calcipotriol topical treatment, consider combination product, refer to dermatology if no improvement, follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is a 55-year-old male presenting with a tremor that started 2 weeks ago. Initially mild, the tremor has progressively worsened and is now noticeable. The tremor is constant but worsens with activity. The patient reports associated weight loss due to decreased appetite. He finds some relief with antacids. No other significant symptoms were noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, works as an engineer.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological examination reveals a pronounced tremor in both hands, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor vs. anxiety-related tremor. Differential diagnoses include metabolic causes.\n**Plan:** 1. Order blood tests to rule out metabolic causes. 2. Consider referral to a neurologist for further evaluation. 3. Educate patient on lifestyle modifications and potential medications.\n**Safety Netting:** Return if experiencing severe weakness, changes in vision, or if tremor worsens significantly.\n\n**SOAP Note:**\nS: 55-year-old male with tremor for 2 weeks, worsening severity, associated with weight loss and relief with antacids.\nO: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological exam shows pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor vs. anxiety-related tremor. Differential includes metabolic causes.\nP: 1. Blood tests to rule out metabolic issues. 2. Neurologist referral. 3. Educate on lifestyle modifications.",
+        "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 20-year-old female presenting with difficulty urinating for the past three days. She reports a feeling of incomplete bladder emptying and nocturia, waking up multiple times at night to urinate. The severity of her symptoms is rated at 7 out of 10. There are no associated symptoms of fever or back pain. This is her first episode of such symptoms.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdominal examination reveals no bladder distention.\n**Assessment:** Working diagnosis of urinary tract infection (UTI). Differential diagnoses include benign prostatic hyperplasia (BPH) and other urinary tract conditions.\n**Plan:** 1. Urine test to check for UTI. 2. If UTI is confirmed, initiate treatment with Nitrofurantoin 100mg BD for 3 days. 3. Advise patient to return if symptoms worsen or if fever develops. 4. Follow-up in 1 week or sooner if symptoms persist.\n**Safety Netting:** Return if symptoms worsen, develop fever, or experience blood in urine. Seek immediate care if unable to pass urine or if there is significant increase in symptoms.\n\n**SOAP Note:**\nS: 20-year-old female with difficulty urinating for 3 days, feeling of incomplete emptying, and nocturia.\nO: BP 120/80, Pulse 76, Temperature normal. Abdominal examination shows no bladder distention.\nA: Urinary tract infection (UTI) likely. Differential includes BPH and other urinary conditions.\nP: Urine test, initiate Nitrofurantoin if UTI confirmed, safety netting advice, follow-up in 1 week."
+      ]
+    },
+    "ft_rag": {
+      "description": "Fine-tuned Llama-3.2-3B + RAG",
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.6244653709127075,
+        "rouge_details": {
+          "rouge1": 0.723771330774072,
+          "rouge2": 0.49306801180113813,
+          "rougeL": 0.6244653709127075,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.08044958114624,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.6666666666666665,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.3333333333333335,
+          "min_hallucination": 3,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.666666666666667,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.066666666666666,
+          "min_overall": 3.67,
+          "max_overall": 4.33,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes safety netting and follow-up plan."
+            ],
+            "weaknesses": [
+              "Differential diagnoses include psoriasis and eczema, which were not mentioned in the original dialogue.",
+              "Social history states 'no alcohol use reported' which was not discussed in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age of the patient (55 instead of 80)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes safety netting and follow-up instructions"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Inclusion of Parkinson's disease in differential diagnosis without sufficient evidence from the dialogue"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 20 instead of 42.",
+              "Lacks detail in the assessment compared to the reference summary."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion on the arm that started as a small spot but has changed over the past three months. The lesion has varied in severity, with some days appearing worse than others. It has bled and changed color, and the patient notes occasional itching. There are no known triggers that worsen or improve the lesion.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination reveals a skin lesion on the left forearm, approximately 1.5 cm in diameter, with irregular borders, varied color, and dry skin surrounding it. There are areas of bleeding noted.\n**Assessment:** Working diagnosis of a skin lesion with possible differential diagnoses including psoriasis, eczema, or melanoma based on the ABCDE criteria.\n**Plan:** Start treatment with topical vitamin D analogue (Calcipotriol) and consider a combination product if no improvement. Refer to dermatology for further evaluation if symptoms do not improve. Follow-up appointment in 4 weeks.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size or color, if it bleeds more frequently, or if signs of infection (increased redness, pus) develop.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, varying in severity, with bleeding and color changes.\nO: Vital signs stable. Examination reveals a 1.5 cm irregular lesion with varied color and dry skin.\nA: Skin lesion with possible differential diagnoses including psoriasis or melanoma.\nP: Start Calcipotriol topical treatment. Refer to dermatology if no improvement. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is a 55-year-old male presenting with a tremor that started 2 weeks ago. Initially mild, the tremor has progressively worsened and is now more noticeable. The tremor is constant but worsens with physical activity. The patient reports associated weight loss due to decreased appetite. He finds some relief with antacids. No other significant symptoms were noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, works as an engineer.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological examination reveals a pronounced tremor in both hands, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor or anxiety-related tremor. Differential diagnoses include metabolic causes and Parkinson's disease.\n**Plan:** 1. Order blood tests to rule out metabolic causes. 2. Refer to a neurologist for further evaluation. 3. Educate the patient on lifestyle modifications and potential medications for tremor management.\n**Safety Netting:** Return if experiencing severe weakness, changes in vision, or if tremor worsens significantly.\n\n**SOAP Note:**\nS: 55-year-old male with tremor for 2 weeks, worsening severity, associated with weight loss and relief with antacids.\nO: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological exam shows pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor or anxiety-related tremor. Differential includes metabolic causes and Parkinson's disease.\nP: 1. Blood tests to rule out metabolic causes. 2. Neurologist referral. 3. Lifestyle modifications and potential medication discussion.",
+        "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 20-year-old female presenting with difficulty urinating for the past three days. She reports a feeling of incomplete bladder emptying and nocturia, waking up multiple times at night to urinate. The severity of her symptoms is rated at 7 out of 10. There are no associated symptoms of fever or back pain. She has no previous history of urinary tract infections.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdominal examination reveals no palpable bladder distention.\n**Assessment:** Working diagnosis of urinary tract infection (UTI) with symptoms of lower urinary tract dysfunction.\n**Plan:** 1. Urine test to check for UTI. 2. If UTI is confirmed, initiate treatment with Nitrofurantoin 100mg BD for 3 days. 3. Advise patient to return if symptoms worsen or if fever develops.\n**Safety Netting:** Return if symptoms worsen, develop fever, or if unable to pass urine.\n\n**SOAP Note:**\nS: 20-year-old female with difficulty urinating for 3 days, feeling of incomplete emptying, and nocturia.\nO: BP 120/80, Pulse 76, Temperature normal. Abdominal examination shows no palpable bladder distention.\nA: Urinary tract infection (UTI) with lower urinary tract dysfunction.\nP: Urine test, initiate Nitrofurantoin 100mg BD for 3 days, safety net for worsening symptoms."
+      ]
+    },
+    "baseline": {
+      "description": "Base Llama-3.2-3B (no fine-tuning, no RAG)",
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.31215979699002094,
+        "rouge_details": {
+          "rouge1": 0.5169250313138744,
+          "rouge2": 0.23039441537149477,
+          "rougeL": 0.31215979699002094,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.314106146494547,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.333333333333333,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.333333333333333,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 4.666666666666667,
+          "min_hallucination": 4,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.553333333333334,
+          "min_overall": 4.33,
+          "max_overall": 4.83,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate description of the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks specific details on vital signs and social/family history.",
+              "Assessment could be more definitive regarding differential diagnoses."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as assessment and plan.",
+              "No hallucinations present; all information is derived from the dialogue.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks specific patient demographic information such as age and name."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and symptoms.",
+              "Well-structured and logically organized.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Lacks specific patient demographics (age, name).",
+              "Does not mention the differential diagnosis.",
+              "Some redundancy in the description of symptoms."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Not provided]\n* Date of Birth: [Not provided]\n* Age: [Not provided]\n\n**Chief Complaint:**\nThe patient presents with a skin lesion on the arm that has been changing over the past three months.\n\n**History of Present Illness:**\nThe patient describes the lesion as starting as a small spot, but it has been changing, sometimes bleeding and changing color. The lesion varies in severity, with some days appearing worse than others. The patient reports itching occasionally, but mostly the appearance of the lesion bothers them.\n\n**Past Medical History:**\nThe patient has osteoarthritis and high cholesterol, for which they are taking atorvastatin 20mg.\n\n**Medications:**\n* Atorvastatin 20mg (for high cholesterol)\n\n**Allergies:**\nNone reported\n\n**Examination Findings:**\nThe lesion is approximately 1.5 cm in diameter, with irregular borders and varied color, including areas darker than others. There is dry skin around the lesion and some areas of bleeding.\n\n**Assessment:**\nBased on the appearance of the lesion, it is unclear what the underlying cause is, but it may require further investigation. The patient is at risk for rapid changes in size or color, increased bleeding, or signs of infection.\n\n**Plan:**\n* Topical vitamin D analogue (Calcipotriol) will be prescribed to treat the lesion.\n* A combination product may be considered if the lesion does not improve.\n* A referral to a dermatologist will be considered for further evaluation.\n* Follow-up appointment in a few weeks to assess treatment response.\n\n**Safety Netting:**\n* The patient should return immediately if they notice rapid changes in size or color, increased bleeding, or signs of infection.\n* The patient should be aware of the importance of monitoring the lesion and reporting any changes to the doctor.",
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Not provided]\n* Date of Birth: [Not provided]\n* Age: [Not provided]\n\n**Chief Complaint:**\n\n* The patient presents with a 2-week history of a worsening tremor.\n\n**History of Present Illness:**\n\n* The tremor started 2 weeks ago and is mostly constant, but can worsen with activity.\n* The patient reports difficulty eating due to the tremor, leading to weight loss.\n* The tremor is pronounced in both hands, with no evidence of rigidity or bradykinesia.\n* The patient reports that taking antacids helps alleviate the tremor.\n\n**Past Medical History:**\n\n* No significant medical history.\n* No known allergies.\n\n**Medications:**\n\n* None.\n\n**Allergies:**\n\n* None.\n\n**Examination Findings:**\n\n* Vital signs: Blood pressure within normal limits.\n* Physical examination: Tremor is pronounced in both hands, with no evidence of rigidity or bradykinesia.\n\n**Assessment:**\n\n* The patient's symptoms are consistent with essential tremor or possibly related to anxiety or another underlying condition.\n* Initial blood tests are recommended to rule out any metabolic issues.\n* A referral to a neurologist may be necessary for further evaluation and management.\n\n**Plan:**\n\n* Initial blood tests to rule out metabolic issues.\n* Referral to a neurologist for further evaluation and management.\n* Monitoring for any new symptoms, such as severe weakness, changes in vision, or worsening tremor.\n\n**Safety Netting:**\n\n* The patient should be advised to return immediately if they experience any of the following:\n\t+ Severe weakness\n\t+ Changes in vision\n\t+ Worsening tremor significantly\n* The patient should also be advised to contact the doctor if they have any concerns or questions about their symptoms or treatment plan.",
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Not provided]\n* Date of Birth: [Not provided]\n* Chief Complaint: Difficulty urinating for the past three days\n* Reason for Visit: [Not provided]\n\n**Chief Complaint:**\nThe patient reports difficulty urinating for the past three days, feeling like they cannot empty their bladder completely, and experiencing nocturia (waking up at night to use the bathroom).\n\n**History of Present Illness:**\nThe patient describes the severity of their symptoms as a 7 out of 10, indicating significant discomfort. They have not noticed any factors that make their symptoms worse or better. They have no fever or back pain. This is the patient's first experience with urinary symptoms.\n\n**Past Medical History:**\nThe patient has no previous urinary tract infections or other urinary issues.\n\n**Medications:**\nThe patient takes birth control pills and has no known drug allergies.\n\n**Allergies:**\nThe patient has no known drug allergies.\n\n**Examination Findings:**\nThe doctor's examination revealed normal vital signs (blood pressure 120/80, pulse 76, temperature normal) and no bladder distention. A urine test is recommended to check for signs of infection.\n\n**Assessment:**\nThe patient's symptoms are consistent with a possible urinary tract infection (UTI). The absence of bladder distention and normal vital signs suggest that the patient may not have a significant UTI at this time. However, the patient's symptoms are severe enough to warrant further evaluation and potential treatment with antibiotics.\n\n**Plan:**\nThe doctor recommends a urine test to check for signs of infection (nitrites or leukocytes in the urine). If the test is positive, the doctor may start treatment with antibiotics. The patient will be advised to return immediately if their symptoms worsen or they develop a fever.\n\n**Safety Netting:**\nThe patient will be advised to return immediately if their symptoms worsen or they develop a fever. The patient will also be advised to contact the doctor if they experience any signs of worsening symptoms, such as increased frequency or urgency of urination, or if they experience any signs of infection, such as burning during urination or a strong, unpleasant odor."
+      ]
+    },
+    "rag_only": {
+      "description": "Base Llama-3.2-3B + RAG (no fine-tuning)",
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.30582689119274487,
+        "rouge_details": {
+          "rouge1": 0.48511482657824123,
+          "rouge2": 0.2098998662911532,
+          "rougeL": 0.30582689119274487,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 11.366775115331015,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.333333333333333,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 3.3333333333333335,
+          "min_hallucination": 2,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.666666666666667,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 3.6666666666666665,
+          "min_conciseness": 3,
+          "max_conciseness": 4,
+          "avg_overall": 4.12,
+          "min_overall": 3.33,
+          "max_overall": 4.83,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Accurate description of the lesion and associated symptoms.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Lacks specific details on vital signs and social/family history.",
+              "Suggests potential skin cancer without clear differentiation from benign conditions."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of chief complaint and history of present illness.",
+              "Includes relevant examination findings and assessment.",
+              "Well-structured and organized summary."
+            ],
+            "weaknesses": [
+              "Slightly verbose in the documentation section."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 3,
+            "overall": 3.33,
+            "critical_errors": [
+              "Incorrectly states patient sex as male, which is inconsistent with the dialogue."
+            ],
+            "strengths": [
+              "Captures chief complaint and severity of symptoms well.",
+              "Includes examination findings and assessment.",
+              "Provides a clear plan and safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies patient as male.",
+              "Lacks specific details on follow-up and treatment plan compared to reference.",
+              "Some redundancy in the history of present illness section."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Patient's Name]\n* Date of Birth: [Patient's Date of Birth]\n* Age: [Patient's Age]\n\n**Chief Complaint:**\n\n* The patient presents with a skin lesion on the arm that has been changing over the past three months.\n\n**History of Present Illness:**\n\n* The lesion started as a small spot, but it has been changing in size, color, and bleeding.\n* The patient reports that the lesion varies in severity, with some days being more severe than others.\n* The patient has not noticed any specific triggers that make the lesion better or worse.\n* The patient experiences occasional itching associated with the lesion.\n\n**Past Medical History:**\n\n* Osteoarthritis\n* High cholesterol\n* Atorvastatin 20mg for high cholesterol\n\n**Medications:**\n\n* Atorvastatin 20mg\n\n**Allergies:**\n\n* None\n\n**Examination Findings:**\n\n* The lesion is approximately 1.5 cm in diameter, with irregular borders and varied color.\n* There is dry skin around the lesion and areas of bleeding.\n* The patient's skin is otherwise normal.\n\n**Assessment:**\n\n* The patient's symptoms and examination findings are consistent with a skin condition that requires further investigation.\n* The lesion may be a type of skin cancer, such as basal cell carcinoma or squamous cell carcinoma.\n* The patient may benefit from a referral to a dermatologist for further evaluation and treatment.\n\n**Plan:**\n\n* The patient will be prescribed a topical vitamin D analogue, such as Calcipotriol, to help manage the lesion.\n* The patient will be scheduled for a follow-up appointment in a few weeks to see how the treatment is working.\n* The patient will be advised to return immediately if they notice any rapid changes in size or color, or if they experience any signs of infection.\n\n**Safety Netting:**\n\n* The patient should return immediately if they notice any of the following:\n\t+ Rapid changes in size or color of the lesion\n\t+ Increased bleeding or discharge from the lesion\n\t+ Redness, swelling, or warmth around the lesion\n\t+ Fever or chills\n\t+ Numbness or tingling in the arm or hand\n* The patient should also be aware of any other symptoms that may be related to the lesion, such as itching or pain.",
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Patient's Name]\n* Date of Birth: [Patient's Date of Birth]\n* Age: [Patient's Age]\n\n**Chief Complaint:**\n\n* The patient presents with a 2-week history of tremor, which is worsening.\n\n**History of Present Illness:**\n\n* The tremor started 2 weeks ago and is mostly constant, but can worsen with activity.\n* The patient reports difficulty eating due to the tremor, leading to weight loss.\n* The tremor is pronounced in both hands, with no evidence of rigidity or bradykinesia.\n* The patient denies any significant medical history or medications.\n\n**Past Medical History:**\n\n* None reported.\n\n**Medications:**\n\n* None reported.\n\n**Allergies:**\n\n* None reported.\n\n**Examination Findings:**\n\n* Vital signs: Blood pressure within normal limits.\n* Physical examination: Tremor is pronounced in both hands, with no evidence of rigidity or bradykinesia.\n\n**Assessment:**\n\n* The patient's symptoms are consistent with essential tremor or possibly related to anxiety or another underlying condition.\n* Further evaluation is needed to rule out any metabolic issues.\n\n**Plan:**\n\n* Initial blood tests to rule out metabolic issues.\n* Referral to a neurologist for further evaluation and management.\n\n**Safety Netting:**\n\n* The patient should be monitored for any new symptoms such as severe weakness, changes in vision, or worsening tremor.\n* The patient should return immediately if any of these symptoms occur.\n\n**Follow-up:**\n\n* The patient will be scheduled for follow-up with the neurologist to discuss further management and treatment options.\n\n**Documentation:**\n\n* This summary will be documented in the patient's medical record and shared with the neurologist and other relevant healthcare providers.",
+        "**Structured Clinical Summary**\n\n**Patient Information:**\n\n* Name: [Patient's Name]\n* Date of Birth: [Patient's Date of Birth]\n* Sex: Male\n* Age: [Patient's Age]\n\n**Chief Complaint:**\n\n* Difficulty urinating for the past three days\n\n**History of Present Illness:**\n\n* The patient reports feeling like he cannot empty his bladder completely and has been waking up multiple times at night to use the bathroom.\n* He describes the severity of his symptoms as a 7 out of 10, indicating significant discomfort.\n* He has not noticed any improvement with his symptoms and has not experienced any fever or back pain.\n\n**Past Medical History:**\n\n* No previous urinary tract infections or other urinary issues\n* Currently taking birth control pills\n* No known drug allergies\n\n**Medications:**\n\n* Birth control pills\n\n**Allergies:**\n\n* None\n\n**Examination Findings:**\n\n* Vital signs: Blood pressure 120/80, pulse 76, temperature normal\n* Abdominal palpation: No bladder distention\n* Urine test pending\n\n**Assessment:**\n\n* The patient's symptoms are consistent with a urinary tract infection (UTI) or other lower urinary tract symptoms (LUTS).\n* The absence of fever and back pain makes a more serious condition such as kidney stones or pyelonephritis less likely.\n* The patient's symptoms and examination findings warrant further evaluation and potential treatment with antibiotics.\n\n**Plan:**\n\n* Order a urine test to check for nitrites and leukocytes, which will help determine if there is a UTI.\n* If the test is positive, start treatment with antibiotics as prescribed by the guidelines.\n* Monitor the patient's symptoms and vital signs closely and adjust treatment as needed.\n* Schedule a follow-up appointment to assess the patient's response to treatment and determine if further evaluation is necessary.\n\n**Safety Netting:**\n\n* The patient will be instructed to return immediately if his symptoms worsen or he develops a fever.\n* The patient will be advised to contact the doctor if he experiences any signs of worsening symptoms, such as increased frequency or urgency, or if he has difficulty starting or stopping the flow of urine.\n* The patient will be provided with a list of emergency contact numbers, including the doctor's office and the hospital."
+      ]
+    },
+    "teacher": {
+      "description": "Teacher (gpt-4o-mini + RAG)",
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.4014009272929983,
+        "rouge_details": {
+          "rouge1": 0.5611389537785395,
+          "rouge2": 0.29645691500660837,
+          "rougeL": 0.4014009272929983,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 6.4529547691345215,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.666666666666667,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.333333333333333,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.333333333333333,
+          "min_conciseness": 4,
+          "max_conciseness": 5,
+          "avg_overall": 4.723333333333334,
+          "min_overall": 4.5,
+          "max_overall": 5.0,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.67,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Detailed examination findings are included.",
+              "Clear safety netting advice provided."
+            ],
+            "weaknesses": [
+              "Lacks social and family history details.",
+              "Assessment could be more specific regarding differential diagnoses."
+            ]
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant clinical elements such as past medical history, medications, allergies, examination findings, assessment, and plan.",
+              "No hallucinations present; all information is derived from the dialogue.",
+              "Safety netting is clearly outlined."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Clear examination findings and assessment.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Lacks specific details on past medical history and social/family history.",
+              "Assessment could be more precise regarding the differential diagnosis."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:**  \nSkin lesion on the arm for about three months.\n\n**History of Present Illness:**  \nThe patient reports a skin lesion that started as a small spot and has been changing in appearance. It sometimes bleeds and has changed color. The severity varies, described as moderate to severe at times. The patient experiences occasional itching but is mostly concerned about the appearance of the lesion. No specific triggers for worsening or relief have been noted.\n\n**Past Medical History:**  \n- Osteoarthritis  \n- High cholesterol  \n\n**Medications:**  \n- Atorvastatin 20mg  \n\n**Allergies:**  \nNo known drug allergies.  \n\n**Examination Findings:**  \n- Lesion approximately 1.5 cm in diameter  \n- Irregular borders  \n- Varied color with some darker areas  \n- Dry skin around the lesion  \n- Some areas of bleeding  \n\n**Assessment:**  \nThe lesion has characteristics that may require further investigation, potentially indicating a skin condition.\n\n**Plan:**  \n- Recommend a topical vitamin D analogue (Calcipotriol).  \n- Consider a combination product if no improvement is noted.  \n- Referral to a dermatologist for further evaluation may be necessary.\n\n**Safety Netting:**  \nThe patient should return immediately if there are rapid changes in size or color, increased bleeding, or signs of infection (increased redness or pus). A follow-up appointment will be arranged in a few weeks to assess treatment efficacy.",
+        "**Clinical Summary**\n\n**Chief Complaint:**  \nTremor for the last two weeks, worsening over time.\n\n**History of Present Illness:**  \nThe patient reports a tremor that started approximately two weeks ago. Initially mild, it has become more pronounced and is mostly constant, worsening during activities such as eating. The patient has also experienced weight loss due to decreased appetite, as the tremor makes eating difficult.\n\n**Past Medical History:**  \nNo significant medical history reported.\n\n**Medications:**  \nNot currently taking any medications.\n\n**Allergies:**  \nNo known allergies.\n\n**Examination Findings:**  \n- Vital signs: Within normal limits.  \n- Neurological examination: Pronounced tremor in both hands, no evidence of rigidity or bradykinesia.\n\n**Assessment:**  \nThe tremor may be indicative of essential tremor or could be related to anxiety or another underlying condition. Parkinson's disease is not suspected at this stage.\n\n**Plan:**  \n1. Order initial blood tests to rule out any metabolic issues.  \n2. Consider referral to a neurologist for further evaluation.\n\n**Safety Netting:**  \nThe patient is advised to monitor for new symptoms such as severe weakness, changes in vision, or significant worsening of the tremor. If any of these occur, the patient should return for further evaluation promptly.",
+        "**Chief Complaint:**  \nDifficulty urinating for the past three days.\n\n**History of Present Illness:**  \nThe patient reports feeling unable to completely empty the bladder and has been waking up frequently at night to urinate. The severity of symptoms is rated as 7 out of 10, indicating significant discomfort. The patient denies any fever or back pain. This is the first occurrence of such urinary issues.\n\n**Past Medical History:**  \nNo previous urinary tract infections or urinary issues reported.\n\n**Medications:**  \nCurrently taking birth control pills.\n\n**Allergies:**  \nNo known drug allergies.\n\n**Examination Findings:**  \n- Blood pressure: 120/80 mmHg  \n- Pulse: 76 bpm  \n- Temperature: Normal  \n- Abdomen palpation: No bladder distention noted.\n\n**Assessment:**  \nThe patient is experiencing urinary retention symptoms, likely indicative of a urinary tract infection, pending further investigation.\n\n**Plan:**  \n- Recommend a urine test to check for signs of infection (nitrites, leukocytes).\n- Depending on the test results, consider starting antibiotics if an infection is confirmed.\n- Results expected within 24 to 48 hours.\n\n**Safety Netting:**  \nInstruct the patient to return immediately if symptoms worsen or if a fever develops."
+      ]
+    }
+  },
+  "rag_backends": {
+    "llama_index": {
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.6244653709127075,
+        "rouge_details": {
+          "rouge1": 0.723771330774072,
+          "rouge2": 0.49306801180113813,
+          "rougeL": 0.6244653709127075,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.391551733016968,
+        "avg_rag_score": 0.7183820995661149,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.6666666666666665,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.3333333333333335,
+          "min_hallucination": 3,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.12,
+          "min_overall": 3.83,
+          "max_overall": 4.33,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes safety netting and follow-up plan."
+            ],
+            "weaknesses": [
+              "Differential diagnoses include psoriasis and eczema, which were not mentioned in the original dialogue.",
+              "Social history inaccurately states 'no alcohol use reported' when the original dialogue did not provide this information."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 3.83,
+            "critical_errors": [
+              "Incorrect age of the patient (55 instead of 80)"
+            ],
+            "strengths": [
+              "Well-structured and coherent summary",
+              "Includes safety netting and follow-up recommendations"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Unnecessary mention of occasional alcohol use",
+              "Includes Parkinson's disease in differential diagnosis despite being ruled out"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and symptoms.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly states the patient's age as 20 instead of 42.",
+              "Lacks detail on differential diagnosis compared to the reference."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion on the arm that started as a small spot but has changed over the past three months. The lesion has varied in severity, with some days appearing worse than others. It has bled and changed color, and the patient notes occasional itching. There are no known triggers that worsen or improve the lesion.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination reveals a skin lesion on the left forearm, approximately 1.5 cm in diameter, with irregular borders, varied color, and dry skin surrounding it. There are areas of bleeding noted.\n**Assessment:** Working diagnosis of a skin lesion with possible differential diagnoses including psoriasis, eczema, or melanoma based on the ABCDE criteria.\n**Plan:** Start treatment with topical vitamin D analogue (Calcipotriol) and consider a combination product if no improvement. Refer to dermatology for further evaluation if symptoms do not improve. Follow-up appointment in 4 weeks.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size or color, if it bleeds more frequently, or if signs of infection (increased redness, pus) develop.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, varying in severity, with bleeding and color changes.\nO: Vital signs stable. Examination reveals a 1.5 cm irregular lesion with varied color and dry skin.\nA: Skin lesion with possible differential diagnoses including psoriasis or melanoma.\nP: Start Calcipotriol topical treatment. Refer to dermatology if no improvement. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is a 55-year-old male presenting with a tremor that started 2 weeks ago. Initially mild, the tremor has progressively worsened and is now more noticeable. The tremor is constant but worsens with physical activity. The patient reports associated weight loss due to decreased appetite. He finds some relief with antacids. No other significant symptoms were noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, works as an engineer.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological examination reveals a pronounced tremor in both hands, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor or anxiety-related tremor. Differential diagnoses include metabolic causes and Parkinson's disease.\n**Plan:** 1. Order blood tests to rule out metabolic causes. 2. Refer to a neurologist for further evaluation. 3. Educate the patient on lifestyle modifications and potential medications for tremor management.\n**Safety Netting:** Return if experiencing severe weakness, changes in vision, or if tremor worsens significantly.\n\n**SOAP Note:**\nS: 55-year-old male with tremor for 2 weeks, worsening severity, associated with weight loss and relief with antacids.\nO: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological exam shows pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor or anxiety-related tremor. Differential includes metabolic causes and Parkinson's disease.\nP: 1. Blood tests to rule out metabolic causes. 2. Neurologist referral. 3. Lifestyle modifications and potential medication discussion.",
+        "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 20-year-old female presenting with difficulty urinating for the past three days. She reports a feeling of incomplete bladder emptying and nocturia, waking up multiple times at night to urinate. The severity of her symptoms is rated at 7 out of 10. There are no associated symptoms of fever or back pain. She has no previous history of urinary tract infections.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdominal examination reveals no palpable bladder distention.\n**Assessment:** Working diagnosis of urinary tract infection (UTI) with symptoms of lower urinary tract dysfunction.\n**Plan:** 1. Urine test to check for UTI. 2. If UTI is confirmed, initiate treatment with Nitrofurantoin 100mg BD for 3 days. 3. Advise patient to return if symptoms worsen or if fever develops.\n**Safety Netting:** Return if symptoms worsen, develop fever, or if unable to pass urine.\n\n**SOAP Note:**\nS: 20-year-old female with difficulty urinating for 3 days, feeling of incomplete emptying, and nocturia.\nO: BP 120/80, Pulse 76, Temperature normal. Abdominal examination shows no palpable bladder distention.\nA: Urinary tract infection (UTI) with lower urinary tract dysfunction.\nP: Urine test, initiate Nitrofurantoin 100mg BD for 3 days, safety net for worsening symptoms."
+      ]
+    },
+    "manual": {
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.6055452570179479,
+        "rouge_details": {
+          "rouge1": 0.7018513741419089,
+          "rouge2": 0.47708273446096694,
+          "rougeL": 0.6055452570179479,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.897722403208414,
+        "avg_rag_score": 0.0,
+        "llm_judge": {
+          "avg_clinical_accuracy": 4.0,
+          "min_clinical_accuracy": 4,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.3333333333333335,
+          "min_hallucination": 3,
+          "max_hallucination": 4,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.176666666666667,
+          "min_overall": 4.0,
+          "max_overall": 4.33,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 4,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes relevant past medical history and medications.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Social history inaccurately states 'no alcohol use reported' when the original dialogue mentioned 'moderate alcohol use.'",
+              "Assessment includes 'psoriasis' and 'dermatitis' which were not mentioned in the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes appropriate assessment and plan."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (55 instead of 80).",
+              "Social history includes details not mentioned in the dialogue (engineer, occasional alcohol use).",
+              "Vital signs slightly differ from the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and symptoms.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (20 instead of 42).",
+              "Inclusion of benign prostatic hyperplasia (BPH) as a differential, which is not relevant for a female patient."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months with intermittent severity.\n**History of Present Illness:** The patient reports a skin lesion on the arm that started as a small spot 3 months ago. The lesion has changed in appearance, sometimes bleeding and changing color. Severity varies, with moderate to severe episodes. The patient experiences intermittent itching but no specific triggers. No improvement noted with anything.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination reveals a 1.5 cm skin lesion on the arm with irregular borders, varied color, dry skin surrounding, and areas of bleeding.\n**Assessment:** Working diagnosis of a possible skin condition (e.g., psoriasis, dermatitis) vs. melanoma due to irregular borders and color variation.\n**Plan:** Start treatment with a topical vitamin D analogue (Calcipotriol) and consider a combination product if no improvement. Refer to dermatology for further evaluation if symptoms do not improve. Follow-up in 4 weeks.\n**Safety Netting:** Return immediately if the lesion changes rapidly, bleeds more frequently, or shows signs of infection (increased redness, pus).\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, intermittent severity, with bleeding and color changes.\nO: Vital signs stable. Examination reveals a 1.5 cm lesion with irregular borders, varied color, dry skin, and bleeding.\nA: Possible skin condition (psoriasis, dermatitis) vs. melanoma.\nP: Start Calcipotriol topical treatment, consider combination product, refer to dermatology if no improvement, follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is a 55-year-old male presenting with a tremor that started 2 weeks ago. Initially mild, the tremor has progressively worsened and is now noticeable. The tremor is constant but worsens with activity. The patient reports associated weight loss due to decreased appetite. He finds some relief with antacids. No other significant symptoms were noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, works as an engineer.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological examination reveals a pronounced tremor in both hands, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor vs. anxiety-related tremor. Differential diagnoses include metabolic causes.\n**Plan:** 1. Order blood tests to rule out metabolic causes. 2. Consider referral to a neurologist for further evaluation. 3. Educate patient on lifestyle modifications and potential medications.\n**Safety Netting:** Return if experiencing severe weakness, changes in vision, or if tremor worsens significantly.\n\n**SOAP Note:**\nS: 55-year-old male with tremor for 2 weeks, worsening severity, associated with weight loss and relief with antacids.\nO: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological exam shows pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor vs. anxiety-related tremor. Differential includes metabolic causes.\nP: 1. Blood tests to rule out metabolic issues. 2. Neurologist referral. 3. Educate on lifestyle modifications.",
+        "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 20-year-old female presenting with difficulty urinating for the past three days. She reports a feeling of incomplete bladder emptying and nocturia, waking up multiple times at night to urinate. The severity of her symptoms is rated at 7 out of 10. There are no associated symptoms of fever or back pain. This is her first episode of such symptoms.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdominal examination reveals no bladder distention.\n**Assessment:** Working diagnosis of urinary tract infection (UTI). Differential diagnoses include benign prostatic hyperplasia (BPH) and other urinary tract conditions.\n**Plan:** 1. Urine test to check for UTI. 2. If UTI is confirmed, initiate treatment with Nitrofurantoin 100mg BD for 3 days. 3. Advise patient to return if symptoms worsen or if fever develops. 4. Follow-up in 1 week or sooner if symptoms persist.\n**Safety Netting:** Return if symptoms worsen, develop fever, or experience blood in urine. Seek immediate care if unable to pass urine or if there is significant increase in symptoms.\n\n**SOAP Note:**\nS: 20-year-old female with difficulty urinating for 3 days, feeling of incomplete emptying, and nocturia.\nO: BP 120/80, Pulse 76, Temperature normal. Abdominal examination shows no bladder distention.\nA: Urinary tract infection (UTI) likely. Differential includes BPH and other urinary conditions.\nP: Urine test, initiate Nitrofurantoin if UTI confirmed, safety netting advice, follow-up in 1 week."
+      ]
+    },
+    "hybrid": {
+      "metrics": {
+        "valid_outputs": 3,
+        "empty_outputs": 0,
+        "rouge_l": 0.6244653709127075,
+        "rouge_details": {
+          "rouge1": 0.723771330774072,
+          "rouge2": 0.49306801180113813,
+          "rougeL": 0.6244653709127075,
+          "num_samples": 3
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 10.012243429819742,
+        "avg_rag_score": 0.7183820995661149,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.6666666666666665,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.6666666666666665,
+          "min_hallucination": 3,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 4.666666666666667,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.666666666666667,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.123333333333334,
+          "min_overall": 3.67,
+          "max_overall": 4.5,
+          "num_evaluated": 3,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Includes relevant past medical history, medications, and allergies.",
+              "Well-structured and coherent summary."
+            ],
+            "weaknesses": [
+              "Differential diagnoses include psoriasis and eczema, which were not mentioned in the original dialogue.",
+              "Social history states 'no alcohol use reported' which is not supported by the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age of the patient (55 instead of 80)"
+            ],
+            "strengths": [
+              "Well-structured and organized summary",
+              "Includes safety netting",
+              "Addresses the chief complaint and HPI adequately"
+            ],
+            "weaknesses": [
+              "Incorrect patient age",
+              "Inclusion of unnecessary details in social history",
+              "Mention of Parkinson's disease as a differential diagnosis without sufficient basis"
+            ]
+          },
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.5,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "Includes appropriate safety netting."
+            ],
+            "weaknesses": [
+              "Incorrect age of the patient (20 instead of 42).",
+              "Assessment could be more precise regarding differential diagnoses."
+            ]
+          }
+        ]
+      },
+      "num_samples": 3,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion on the arm that started as a small spot but has changed over the past three months. The lesion has varied in severity, with some days appearing worse than others. It has bled and changed color, and the patient notes occasional itching. There are no known triggers that worsen or improve the lesion.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination reveals a skin lesion on the left forearm, approximately 1.5 cm in diameter, with irregular borders, varied color, and dry skin surrounding it. There are areas of bleeding noted.\n**Assessment:** Working diagnosis of a skin lesion with possible differential diagnoses including psoriasis, eczema, or melanoma based on the ABCDE criteria.\n**Plan:** Start treatment with topical vitamin D analogue (Calcipotriol) and consider a combination product if no improvement. Refer to dermatology for further evaluation if symptoms do not improve. Follow-up appointment in 4 weeks.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size or color, if it bleeds more frequently, or if signs of infection (increased redness, pus) develop.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, varying in severity, with bleeding and color changes.\nO: Vital signs stable. Examination reveals a 1.5 cm irregular lesion with varied color and dry skin.\nA: Skin lesion with possible differential diagnoses including psoriasis or melanoma.\nP: Start Calcipotriol topical treatment. Refer to dermatology if no improvement. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is a 55-year-old male presenting with a tremor that started 2 weeks ago. Initially mild, the tremor has progressively worsened and is now more noticeable. The tremor is constant but worsens with physical activity. The patient reports associated weight loss due to decreased appetite. He finds some relief with antacids. No other significant symptoms were noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, works as an engineer.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological examination reveals a pronounced tremor in both hands, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor or anxiety-related tremor. Differential diagnoses include metabolic causes and Parkinson's disease.\n**Plan:** 1. Order blood tests to rule out metabolic causes. 2. Refer to a neurologist for further evaluation. 3. Educate the patient on lifestyle modifications and potential medications for tremor management.\n**Safety Netting:** Return if experiencing severe weakness, changes in vision, or if tremor worsens significantly.\n\n**SOAP Note:**\nS: 55-year-old male with tremor for 2 weeks, worsening severity, associated with weight loss and relief with antacids.\nO: BP 120/80 mmHg, HR 72 bpm, Temp 98.6\u00b0F. Neurological exam shows pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor or anxiety-related tremor. Differential includes metabolic causes and Parkinson's disease.\nP: 1. Blood tests to rule out metabolic causes. 2. Neurologist referral. 3. Lifestyle modifications and potential medication discussion.",
+        "**Chief Complaint:** Difficulty urinating for 3 days.\n**History of Present Illness:** The patient is a 20-year-old female presenting with difficulty urinating for the past three days. She reports a feeling of incomplete bladder emptying and nocturia, waking up multiple times at night to urinate. The severity of her symptoms is rated at 7 out of 10. There are no associated symptoms of fever or back pain. She has no previous history of urinary tract infections.\n**Past Medical History:** No significant past medical history.\n**Medications:** Birth control pills.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80, Pulse 76, Temperature normal. Abdominal examination reveals no palpable bladder distention.\n**Assessment:** Working diagnosis of urinary tract infection (UTI) with symptoms of lower urinary tract dysfunction.\n**Plan:** 1. Urine test to check for UTI. 2. If UTI is confirmed, initiate treatment with Nitrofurantoin 100mg BD for 3 days. 3. Advise patient to return if symptoms worsen or if fever develops.\n**Safety Netting:** Return if symptoms worsen, develop fever, or if unable to pass urine.\n\n**SOAP Note:**\nS: 20-year-old female with difficulty urinating for 3 days, feeling of incomplete emptying, and nocturia.\nO: BP 120/80, Pulse 76, Temperature normal. Abdominal examination shows no palpable bladder distention.\nA: Urinary tract infection (UTI) with lower urinary tract dysfunction.\nP: Urine test, initiate Nitrofurantoin 100mg BD for 3 days, safety net for worsening symptoms."
+      ]
+    }
+  }
+}

@@ -19,9 +19,7 @@ import os
 os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
 os.environ["TORCHDYNAMO_DISABLE"] = "1"
-
-os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
- 
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"  # Prevent broken hf_transfer from blocking downloads
 import torch._inductor.config
 
 import json
@@ -467,17 +465,25 @@ class ClinicalScribeInference:
             )
 
         with torch.no_grad():
-            outputs = self.model.generate(
+            # Use greedy decoding when temperature is 0, sampling otherwise
+            # Ref: Woo et al. (2025) tested temp 0 vs 1; Renze & Guven (2024)
+            # found no significant difference in problem-solving for temp 0-1.
+            use_sampling = self.config.temperature > 0
+            
+            gen_kwargs = dict(
                 **inputs,
                 max_new_tokens=self.config.max_tokens,
                 use_cache=True,
-                do_sample=False,
-                # CRITICAL: Tell the model to stop at ALL relevant tokens.
-                # Without this, the model continues past <|end|> and generates
-                # hallucinated consultations, prompt fragments, etc.
+                do_sample=use_sampling,
                 eos_token_id=self._stop_token_ids,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
+            
+            if use_sampling:
+                gen_kwargs["temperature"] = self.config.temperature
+                gen_kwargs["top_p"] = self.config.top_p
+            
+            outputs = self.model.generate(**gen_kwargs)
 
         # Decode only newly generated tokens
         output_tokens = outputs[0][input_length:]

@@ -11,8 +11,12 @@ Comprehensive evaluation framework for the fine-tuned student model:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
-import os
 import patch_torch  # Must be first — patches torch.int1-int7 for Windows
+
+import os
+# CRITICAL: Unsloth/patch_torch sets HF_HUB_ENABLE_HF_TRANSFER=1 at import time,
+# which breaks model downloads (including the RAG embedding model) when hf_transfer
+# is buggy or incompatible. Force it off immediately after import.
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 
 import json
@@ -23,7 +27,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import defaultdict
-import os
 from dotenv import load_dotenv
 load_dotenv()  # Load OPENAI_API_KEY from .env file
 
@@ -50,6 +53,10 @@ class EvaluationConfig:
     # Model paths for native PyTorch inference (used by inference_fixed.py)
     ft_model_path: str = "./checkpoints/phi35_clinical_scribe/hf_merged"
     base_model_hf: str = "unsloth/Phi-3.5-mini-instruct"  # HuggingFace ID for base model
+    
+    # Generation parameters (for temperature/sampling experiments)
+    temperature: float = 0.3
+    top_p: float = 0.9
     
     # LLM-as-a-Judge
     judge_model: str = "gpt-4o-mini"
@@ -486,6 +493,8 @@ class StudentEvaluator:
                 "base_model_hf": self.config.base_model_hf,
                 "teacher_model": self.config.teacher_model,
                 "judge_model": self.config.judge_model,
+                "temperature": self.config.temperature,
+                "top_p": self.config.top_p,
             },
             "references": references,
             "dialogues": dialogues,
@@ -568,6 +577,8 @@ class StudentEvaluator:
             ft_config_no_rag = InferenceConfig(
                 model_path=ft_model_path,
                 use_rag=False,
+                temperature=self.config.temperature,
+                top_p=self.config.top_p,
             )
             scribe = ClinicalScribeInference(ft_config_no_rag)
         except Exception as e:
@@ -652,6 +663,8 @@ class StudentEvaluator:
             base_config = InferenceConfig(
                 model_path=self.config.base_model_hf,
                 use_rag=False,
+                temperature=self.config.temperature,
+                top_p=self.config.top_p,
             )
             base_scribe = ClinicalScribeInference(base_config)
             
@@ -823,6 +836,8 @@ class StudentEvaluator:
             inf_config = InferenceConfig(
                 model_path=self.config.ft_model_path,
                 use_rag=False,  # We'll init RAG manually below
+                temperature=self.config.temperature,
+                top_p=self.config.top_p,
             )
             scribe = ClinicalScribeInference(inf_config)
         except Exception as e:
@@ -1181,6 +1196,10 @@ if __name__ == "__main__":
     parser.add_argument("--no-bertscore", action="store_true", help="Disable BERTScore (faster)")
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--judge-model", default="gpt-4o-mini")
+    parser.add_argument("--temperature", type=float, default=0.3,
+                        help="Generation temperature (0=greedy, >0=sampling)")
+    parser.add_argument("--top-p", type=float, default=0.9,
+                        help="Top-p (nucleus) sampling parameter")
     
     args = parser.parse_args()
     
@@ -1195,6 +1214,8 @@ if __name__ == "__main__":
         compute_bertscore=not args.no_bertscore,
         judge_model=args.judge_model,
         max_samples=args.max_samples,
+        temperature=args.temperature,
+        top_p=args.top_p,
     )
     
     evaluator = StudentEvaluator(config)
