@@ -64,6 +64,9 @@ class InferenceConfig:
     rag_persist_dir: str = "./data/llama_index_chroma_db"
     rag_top_k: int = 5
     rag_max_context_chars: int = 3000  # Limit RAG context to prevent overflow
+    
+    # Logprobs for uncertainty quantification (Kadavath et al., 2022)
+    return_logprobs: bool = False
 
 
 # =============================================================================
@@ -73,9 +76,14 @@ class InferenceConfig:
 SYSTEM_PROMPT = (
     "You are a clinical documentation assistant. Given a doctor-patient "
     "conversation and relevant clinical guidelines, produce a structured "
-    "clinical summary in the specified format. Be accurate and concise. "
-    "Only include information explicitly stated in the conversation. "
-    "Do not fabricate symptoms, medications, or findings."
+    "clinical summary in the specified format. Follow these rules strictly:\n"
+    "1. Only include information explicitly stated in the conversation.\n"
+    "2. Do NOT fabricate or infer patient demographics (age, gender, occupation) "
+    "unless the patient or doctor explicitly mentions them.\n"
+    "3. Do NOT invent symptoms, medications, diagnoses, or examination findings.\n"
+    "4. If information for a section is not available in the conversation, "
+    "write 'Not discussed' or 'Not mentioned' for that section.\n"
+    "5. Be accurate and concise. Use clinical terminology appropriately."
 )
 
 SUMMARY_INSTRUCTION = (
@@ -181,6 +189,7 @@ class ClinicalScribeInference:
     def __init__(self, config: InferenceConfig):
         self.config = config
         self._retriever = None
+        self._last_logprobs = None  # Stores logprobs from last generation
 
         logger.info(f"Loading model from: {config.model_path}")
 
@@ -317,6 +326,11 @@ class ClinicalScribeInference:
         result["raw_output"] = cleaned
         result["summary"] = parse_structured_summary(cleaned)
         result["generation_time"] = time.time() - start_time
+        
+        # Attach logprobs if computed
+        if self._last_logprobs:
+            result["logprobs"] = self._last_logprobs
+        
         return result
 
     def generate_summary_no_rag(self, dialogue: str) -> Dict[str, Any]:
@@ -327,7 +341,7 @@ class ClinicalScribeInference:
         raw_output = self._generate(prompt)
 
         cleaned = _clean_output(raw_output)
-        return {
+        result = {
             "summary": parse_structured_summary(cleaned),
             "raw_output": cleaned,
             "generation_time": time.time() - start_time,
@@ -335,6 +349,12 @@ class ClinicalScribeInference:
             "rag_scores": [],
             "rag_context": None,
         }
+        
+        if self._last_logprobs:
+            result["logprobs"] = self._last_logprobs
+        
+        return result
+  
 
     def batch_inference(
         self, dialogues: List[str], use_rag: bool = True
@@ -477,6 +497,8 @@ class ClinicalScribeInference:
                 do_sample=use_sampling,
                 eos_token_id=self._stop_token_ids,
                 pad_token_id=self.tokenizer.eos_token_id,
+                output_scores=self.config.return_logprobs,
+                return_dict_in_generate=self.config.return_logprobs,
             )
             
             if use_sampling:
@@ -485,9 +507,37 @@ class ClinicalScribeInference:
             
             outputs = self.model.generate(**gen_kwargs)
 
-        # Decode only newly generated tokens
-        output_tokens = outputs[0][input_length:]
-        response = self.tokenizer.decode(output_tokens, skip_special_tokens=True)
+        # Extract generated tokens and text
+        if self.config.return_logprobs:
+            # outputs is a GenerateDecoderOnlyOutput with .sequences and .scores
+            output_tokens = outputs.sequences[0][input_length:]
+            response = self.tokenizer.decode(output_tokens, skip_special_tokens=True)
+            
+            # Compute per-token log probabilities
+            # outputs.scores is a tuple of (num_generated_tokens,) tensors of shape (batch, vocab)
+            token_logprobs = []
+            token_texts = []
+            for i, score_tensor in enumerate(outputs.scores):
+                # Apply log_softmax to get log probabilities
+                log_probs = torch.nn.functional.log_softmax(score_tensor[0], dim=-1)
+                # Get the logprob of the actually generated token
+                generated_token_id = output_tokens[i].item()
+                token_lp = log_probs[generated_token_id].item()
+                token_logprobs.append(token_lp)
+                token_texts.append(self.tokenizer.decode([generated_token_id]))
+            
+            self._last_logprobs = {
+                "token_logprobs": token_logprobs,
+                "token_texts": token_texts,
+                "mean_logprob": sum(token_logprobs) / len(token_logprobs) if token_logprobs else 0,
+                "min_logprob": min(token_logprobs) if token_logprobs else 0,
+                "num_tokens": len(token_logprobs),
+            }
+        else:
+            output_tokens = outputs[0][input_length:]
+            response = self.tokenizer.decode(output_tokens, skip_special_tokens=True)
+            self._last_logprobs = None
+        
         return response
 
 
