@@ -390,17 +390,31 @@
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
+      "history_of_present_illness": {
+        "mean_logprob": -0.11375254360333213,
+        "std_logprob": 0.033122303273046994,
+        "mean_perplexity": 1.1210877211419235,
+        "mean_frac_low_conf": 0.003076772166903746,
+        "num_samples": 20
+      },
+      "past_medical_history": {
+        "mean_logprob": -0.018873690799017608,
+        "std_logprob": 0.027884228624999067,
+        "mean_perplexity": 1.0194534761019436,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 20
+      },
       "medications": {
-        "mean_logprob": 0.0,
-        "std_logprob": 0.0,
-        "mean_perplexity": 1.0,
+        "mean_logprob": -0.006673656590282917,
+        "std_logprob": 0.02908979466093746,
+        "mean_perplexity": 1.0071395280501865,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
       "allergies": {
-        "mean_logprob": -0.019557772419425277,
-        "std_logprob": 0.02316286567408343,
-        "mean_perplexity": 1.0200263411506874,
+        "mean_logprob": -0.01901742008827141,
+        "std_logprob": 0.02307059180512068,
+        "mean_perplexity": 1.0194732839636862,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
@@ -419,16 +433,16 @@
         "num_samples": 20
       },
       "plan": {
-        "mean_logprob": -0.09579145283602573,
-        "std_logprob": 0.051437371917144196,
-        "mean_perplexity": 1.101988023473498,
+        "mean_logprob": -0.09593115713540375,
+        "std_logprob": 0.051363890564653764,
+        "mean_perplexity": 1.102137681681935,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
       "safety_netting": {
-        "mean_logprob": -0.05921580366639756,
-        "std_logprob": 0.0191780413551492,
-        "mean_perplexity": 1.0611990616699027,
+        "mean_logprob": -0.059203108596520705,
+        "std_logprob": 0.01917865480523402,
+        "mean_perplexity": 1.0611856047099106,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       }

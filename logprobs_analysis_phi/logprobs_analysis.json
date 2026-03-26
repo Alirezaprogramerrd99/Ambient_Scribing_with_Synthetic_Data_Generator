@@ -383,19 +383,47 @@
       }
     ],
     "section_summary": {
+      "chief_complaint": {
+        "mean_logprob": -0.03490932540653158,
+        "std_logprob": 0.04070897266471597,
+        "mean_perplexity": 1.0363963999832055,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 20
+      },
+      "history_of_present_illness": {
+        "mean_logprob": -0.10640553338289263,
+        "std_logprob": 0.02471920813626408,
+        "mean_perplexity": 1.1126164131878373,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 20
+      },
+      "past_medical_history": {
+        "mean_logprob": -0.003199885126316186,
+        "std_logprob": 0.007317926651524834,
+        "mean_perplexity": 1.0032320322333674,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 20
+      },
       "medications": {
-        "mean_logprob": -0.011162803011945966,
-        "std_logprob": 0.027061005282848383,
-        "mean_perplexity": 1.0116046441905273,
+        "mean_logprob": -0.01235788436102286,
+        "std_logprob": 0.02706941559656716,
+        "mean_perplexity": 1.0128141222063405,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
       "allergies": {
-        "mean_logprob": -0.03204067558301206,
-        "std_logprob": 0.015394313238588494,
-        "mean_perplexity": 1.0326816814464839,
+        "mean_logprob": -0.019978973766603708,
+        "std_logprob": 0.02077844062613251,
+        "mean_perplexity": 1.0204039380256298,
         "mean_frac_low_conf": 0.0,
         "num_samples": 19
+      },
+      "physical_examination": {
+        "mean_logprob": -0.04740368104467188,
+        "std_logprob": 0.02405151858250123,
+        "mean_perplexity": 1.0488479957083667,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 18
       },
       "assessment": {
         "mean_logprob": -0.07362006211501868,
@@ -405,11 +433,18 @@
         "num_samples": 17
       },
       "plan": {
-        "mean_logprob": -0.050689211999007625,
-        "std_logprob": 0.012483018987370254,
-        "mean_perplexity": 1.0520778641369393,
+        "mean_logprob": -0.07088196627344762,
+        "std_logprob": 0.034870250694268294,
+        "mean_perplexity": 1.074109507621844,
         "mean_frac_low_conf": 0.0,
         "num_samples": 17
+      },
+      "safety_netting": {
+        "mean_logprob": -0.04059920955517738,
+        "std_logprob": 0.00956255697339149,
+        "mean_perplexity": 1.0414822307120832,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 12
       }
     },
     "config": "ft_rag"

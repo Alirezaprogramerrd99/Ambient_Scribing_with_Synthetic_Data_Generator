@@ -42,7 +42,7 @@ from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
-TEMPERATURES = [0.0, 0.3, 0.7, 1.0]
+TEMPERATURES = [0.0, 0.1, 0.3, 0.7, 1.0]
 TOP_P_VALUES = [0.9]  # Fixed; expand if needed
 
 

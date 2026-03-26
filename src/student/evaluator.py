@@ -71,8 +71,12 @@ class EvaluationConfig:
     compute_bertscore: bool = True  # Enabled for dissertation comparison
     compute_clinical_accuracy: bool = True
     
-    # RAG backends to compare (manual removed — broken on Windows)
-    rag_backends: List[str] = field(default_factory=lambda: ["llama_index", "hybrid"])
+    # RAG ablation configs to compare
+    # Options: dense_only, dense_rerank, dense_rerank_qe, full_medical
+    # Legacy names (llama_index, hybrid) are auto-mapped
+    rag_backends: List[str] = field(default_factory=lambda: [
+        "dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"
+    ])
     
     # Which experiment configs to run (default: all 5)
     # Options: baseline, rag_only, ft_only, ft_rag, teacher
@@ -859,40 +863,92 @@ class StudentEvaluator:
         references: List[str],
     ) -> Dict[str, Dict]:
         """
-        Compare RAG backends with the fine-tuned model.
+        RAG Ablation Study: Compare RAG configurations progressively.
+        
+        Tests the contribution of each RAG component:
+        - dense_only: BGE embeddings + ChromaDB (baseline retrieval)
+        - dense_rerank: + Cross-encoder reranking (Nogueira & Cho, 2019)
+        - dense_rerank_qe: + Medical query expansion
+        - full_medical: + Clinical relevance filtering
         
         CRITICAL: We load the model ONCE and swap only the RAG retriever 
-        for each backend. Reloading the model causes CUDA memory corruption 
+        for each config. Reloading the model causes CUDA memory corruption 
         on Windows (illegal memory access after the first unload/reload cycle).
         """
         from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
-        # Load model once with RAG disabled — we'll init RAG manually per backend
-        logger.info("\nLoading model for RAG backend comparison...")
+        # Define ablation configurations
+        # Each is a dict of overrides passed to _init_rag(rag_overrides=...)
+        rag_ablation_configs = {
+            "dense_only": {
+                "use_reranker": False,
+                "use_query_expansion": False,
+                "use_clinical_filtering": False,
+            },
+            "dense_rerank": {
+                "use_reranker": True,
+                "use_query_expansion": False,
+                "use_clinical_filtering": False,
+            },
+            "dense_rerank_qe": {
+                "use_reranker": True,
+                "use_query_expansion": True,
+                "use_clinical_filtering": False,
+            },
+            "full_medical": {
+                "use_reranker": True,
+                "use_query_expansion": True,
+                "use_clinical_filtering": True,
+            },
+        }
+        
+        # Filter to only requested backends
+        configs_to_run = {}
+        for name in self.config.rag_backends:
+            if name in rag_ablation_configs:
+                configs_to_run[name] = rag_ablation_configs[name]
+            else:
+                # Legacy support: map old names to new
+                legacy_map = {
+                    "llama_index": "dense_only",
+                    "hybrid": "full_medical",
+                }
+                mapped = legacy_map.get(name)
+                if mapped and mapped in rag_ablation_configs:
+                    configs_to_run[mapped] = rag_ablation_configs[mapped]
+                else:
+                    logger.warning(f"Unknown RAG config: {name}, skipping")
+        
+        if not configs_to_run:
+            logger.warning("No valid RAG configs to run")
+            return {}
+        
+        # Load model once with RAG disabled — we'll init RAG manually per config
+        logger.info("\nLoading model for RAG ablation study...")
         try:
             inf_config = InferenceConfig(
                 model_path=self.config.ft_model_path,
-                use_rag=False,  # We'll init RAG manually below
+                use_rag=False,
                 temperature=self.config.temperature,
                 top_p=self.config.top_p,
                 return_logprobs=self.config.return_logprobs,
             )
             scribe = ClinicalScribeInference(inf_config)
         except Exception as e:
-            logger.error(f"Failed to load model for RAG comparison: {e}")
-            return {b: {"error": str(e)} for b in self.config.rag_backends}
+            logger.error(f"Failed to load model for RAG ablation: {e}")
+            return {name: {"error": str(e)} for name in configs_to_run}
         
-        for backend in self.config.rag_backends:
-            logger.info(f"\nEvaluating RAG backend: {backend}")
+        for config_name, rag_overrides in configs_to_run.items():
+            logger.info(f"\nRAG Ablation: {config_name} ({rag_overrides})")
             
             try:
                 # Swap the retriever without reloading the model
                 scribe.config.use_rag = True
-                scribe.config.rag_backend = backend
+                scribe.config.rag_backend = "llama_index"
                 scribe._retriever = None  # Clear old retriever
-                scribe._init_rag()
+                scribe._init_rag(rag_overrides=rag_overrides)
                 
                 outputs = scribe.batch_inference(dialogues, use_rag=True)
                 candidates = [o.get("raw_output", "") for o in outputs]
@@ -910,16 +966,17 @@ class StudentEvaluator:
                 metrics["avg_rag_score"] = (
                     sum(rag_scores) / len(rag_scores) if rag_scores else 0
                 )
+                metrics["rag_config"] = rag_overrides
                 
                 if self.judge:
-                    logger.info(f"  Running LLM judge on {backend}...")
+                    logger.info(f"  Running LLM judge on {config_name}...")
                     judge_scores = self.judge.evaluate_batch(
                         dialogues, references, candidates
                     )
                     metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
                     metrics["llm_judge_per_sample"] = judge_scores
                 
-                all_results[backend] = {
+                all_results[config_name] = {
                     "metrics": metrics,
                     "num_samples": len(candidates),
                     "raw_outputs": candidates,
@@ -928,9 +985,11 @@ class StudentEvaluator:
                 
             except Exception as e:
                 logger.error(f"  Failed: {e}")
-                all_results[backend] = {"error": str(e)}
+                import traceback
+                traceback.print_exc()
+                all_results[config_name] = {"error": str(e)}
         
-        # Clean up after all backends are done
+        # Clean up after all configs are done
         try:
             del scribe
             import torch, gc
@@ -938,7 +997,7 @@ class StudentEvaluator:
                 torch.cuda.empty_cache()
             gc.collect()
         except Exception:
-            pass  # CUDA may already be in a bad state; don't crash on cleanup
+            pass
         
         return all_results
     
@@ -1246,6 +1305,10 @@ if __name__ == "__main__":
                         help="Which configs to run (e.g. --configs ft_rag teacher)")
     parser.add_argument("--skip-rag-comparison", action="store_true",
                         help="Skip RAG backend comparison experiment")
+    parser.add_argument("--rag-configs", nargs="+",
+                        default=["dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"],
+                        help="RAG ablation configs to compare. "
+                             "Options: dense_only, dense_rerank, dense_rerank_qe, full_medical")
     parser.add_argument("--return-logprobs", action="store_true",
                         help="Compute per-token logprobs for uncertainty quantification")
     
@@ -1266,6 +1329,7 @@ if __name__ == "__main__":
         top_p=args.top_p,
         configs_to_run=args.configs,
         run_rag_comparison=not args.skip_rag_comparison,
+        rag_backends=args.rag_configs,
         return_logprobs=args.return_logprobs,
     )
     

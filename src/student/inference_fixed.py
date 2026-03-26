@@ -261,17 +261,33 @@ class ClinicalScribeInference:
 
         return stop_ids
 
-    def _init_rag(self):
-        """Initialise RAG retriever."""
+    def _init_rag(self, rag_overrides: Optional[Dict[str, Any]] = None):
+        """
+        Initialise RAG retriever.
+        
+        Args:
+            rag_overrides: Optional dict to override RAG settings for ablation.
+                Keys: use_reranker, use_query_expansion, 
+                use_clinical_filtering, similarity_top_k
+        """
         try:
             from src.knowledge_base import RAGFactory, RAGConfig, RAGBackend
 
             backend_map = {
                 "llama_index": RAGBackend.LLAMA_INDEX,
-                "manual": RAGBackend.MANUAL,
                 "hybrid": RAGBackend.HYBRID,
             }
-            backend = backend_map.get(self.config.rag_backend, RAGBackend.LLAMA_INDEX)
+            
+            overrides = rag_overrides or {}
+            
+            # If query expansion or clinical filtering requested, use HYBRID
+            use_qe = overrides.get("use_query_expansion", False)
+            use_cf = overrides.get("use_clinical_filtering", False)
+            
+            if use_qe or use_cf:
+                backend = RAGBackend.HYBRID
+            else:
+                backend = backend_map.get(self.config.rag_backend, RAGBackend.LLAMA_INDEX)
 
             rag_config = RAGConfig(
                 backend=backend,
@@ -280,12 +296,22 @@ class ClinicalScribeInference:
                 embedding_model="BAAI/bge-base-en-v1.5",
                 chunk_size=512,
                 chunk_overlap=50,
-                similarity_top_k=self.config.rag_top_k,
+                similarity_top_k=overrides.get("similarity_top_k", self.config.rag_top_k),
+                use_reranker=overrides.get("use_reranker", False),
+                use_query_expansion=use_qe,
             )
 
             factory = RAGFactory(rag_config)
             self._retriever = factory.get_retriever()
-            logger.info(f"RAG retriever initialised ({self.config.rag_backend} backend)")
+            
+            desc_parts = [self.config.rag_backend]
+            if overrides.get("use_reranker"):
+                desc_parts.append("reranker")
+            if use_qe:
+                desc_parts.append("query_expansion")
+            if use_cf:
+                desc_parts.append("clinical_filter")
+            logger.info(f"RAG retriever initialised ({' + '.join(desc_parts)})")
 
         except Exception as e:
             logger.warning(f"RAG initialisation failed: {e}. Proceeding without RAG.")
@@ -395,22 +421,33 @@ class ClinicalScribeInference:
             scores = []
             total_chars = 0
 
-            for r in response.results:
-                if r.score >= 0.3:
-                    # Enforce context length limit to prevent overflow
-                    if total_chars + len(r.text) > self.config.rag_max_context_chars:
-                        # Add truncated remainder if we have room
-                        remaining = self.config.rag_max_context_chars - total_chars
-                        if remaining > 100:
-                            context_parts.append(r.text[:remaining] + "...")
-                            sources.append(r.source_file)
-                            scores.append(r.score)
-                        break
+            # Detect if results come from a cross-encoder reranker
+            # (scores outside 0-1 range) vs cosine similarity (0-1 range).
+            # For reranked results, skip score thresholding and trust top-k.
+            is_reranked = any(
+                s.score is not None and (s.score < 0 or s.score > 1.0)
+                for s in response.results
+            )
+            min_score = -float("inf") if is_reranked else 0.3
 
-                    context_parts.append(r.text)
-                    sources.append(r.source_file)
-                    scores.append(r.score)
-                    total_chars += len(r.text)
+            for r in response.results:
+                if r.score < min_score:
+                    continue
+
+                # Enforce context length limit to prevent overflow
+                if total_chars + len(r.text) > self.config.rag_max_context_chars:
+                    # Add truncated remainder if we have room
+                    remaining = self.config.rag_max_context_chars - total_chars
+                    if remaining > 100:
+                        context_parts.append(r.text[:remaining] + "...")
+                        sources.append(r.source_file)
+                        scores.append(r.score)
+                    break
+
+                context_parts.append(r.text)
+                sources.append(r.source_file)
+                scores.append(r.score)
+                total_chars += len(r.text)
 
             return {
                 "context": "\n\n---\n\n".join(context_parts) if context_parts else None,

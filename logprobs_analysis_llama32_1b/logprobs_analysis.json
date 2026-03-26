@@ -390,10 +390,24 @@
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
+      "history_of_present_illness": {
+        "mean_logprob": -0.11497469515674896,
+        "std_logprob": 0.031224404991395942,
+        "mean_perplexity": 1.122397208837189,
+        "mean_frac_low_conf": 0.002308054243621395,
+        "num_samples": 20
+      },
+      "past_medical_history": {
+        "mean_logprob": -0.013206332199406406,
+        "std_logprob": 0.04550902965670298,
+        "mean_perplexity": 1.0144086006568604,
+        "mean_frac_low_conf": 0.0,
+        "num_samples": 20
+      },
       "medications": {
-        "mean_logprob": -0.020286453771558438,
-        "std_logprob": 0.044167467289764055,
-        "mean_perplexity": 1.0215200936072941,
+        "mean_logprob": -0.02046574865779528,
+        "std_logprob": 0.04409196569011774,
+        "mean_perplexity": 1.0216997103446865,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
@@ -419,16 +433,16 @@
         "num_samples": 20
       },
       "plan": {
-        "mean_logprob": -0.0806317051294873,
-        "std_logprob": 0.03786793169443637,
-        "mean_perplexity": 1.0847541896113913,
+        "mean_logprob": -0.08090926264757078,
+        "std_logprob": 0.03774554650992305,
+        "mean_perplexity": 1.085050121578885,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       },
       "safety_netting": {
-        "mean_logprob": -0.0662737707990188,
-        "std_logprob": 0.03076239405195609,
-        "mean_perplexity": 1.0690296518081184,
+        "mean_logprob": -0.06605628800505901,
+        "std_logprob": 0.030530040187540453,
+        "mean_perplexity": 1.068789558578287,
         "mean_frac_low_conf": 0.0,
         "num_samples": 20
       }
