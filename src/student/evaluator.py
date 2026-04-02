@@ -846,7 +846,7 @@ class StudentEvaluator:
                 "metrics": metrics,
                 "num_samples": len(candidates),
                 "raw_outputs": candidates,
-                "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
+                "logprobs_per_sample": [],  # Teacher (API) has no logprobs
             }
             
         except Exception as e:

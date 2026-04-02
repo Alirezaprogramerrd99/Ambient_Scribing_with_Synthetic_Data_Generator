@@ -149,8 +149,38 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
     if not token_lps:
         return {}
     arr = np.array(token_lps)
+    n = len(token_lps)
+    
+    # Sum of logprobs = unnormalised sequence log-probability
+    # This is log p(s|x) = sum_i log p(s_i | s_<i, x)
+    # Ref: Kuhn et al. (2023) Eq. in Section 2
+    sum_lp = float(arr.sum())
+    
+    # Length-normalised log-probability = mean logprob
+    # This is (1/N) * sum_i log p(s_i | s_<i, x)
+    # Ref: Malinin & Gales (2020), discussed in Kuhn et al. Section 3.3
+    # "asserting that the expected uncertainty of generations is independent
+    #  of sentence length"
+    mean_lp = float(arr.mean())
+    
+    # Predictive entropy (unnormalised) = -sum of logprobs
+    # Higher values = more uncertain. This is H(Y|x) approximated by
+    # the negative log-likelihood of the generated sequence.
+    # Ref: Kadavath et al. (2022), Kuhn et al. (2023) Eq. 1
+    predictive_entropy = -sum_lp
+    
+    # Length-normalised predictive entropy = -mean logprob
+    # Ref: Malinin & Gales (2020), Kuhn et al. Section 3.3
+    # "the geometric mean token-probability... an arithmetic mean log-probability"
+    length_norm_entropy = -mean_lp
+    
+    # Perplexity = exp(length_norm_entropy) = exp(-mean_logprob)
+    # Ref: Standard definition, used in Kuhn et al. as baseline
+    perplexity = float(np.exp(length_norm_entropy))
+    
     return {
-        "mean_logprob": float(arr.mean()),
+        "mean_logprob": mean_lp,
+        "sum_logprob": sum_lp,
         "median_logprob": float(np.median(arr)),
         "std_logprob": float(arr.std()),
         "min_logprob": float(arr.min()),
@@ -159,8 +189,10 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
         "p25_logprob": float(np.percentile(arr, 25)),
         "num_low_conf_tokens": int(np.sum(arr < -3.0)),
         "frac_low_conf": float(np.mean(arr < -3.0)),
-        "perplexity": float(np.exp(-arr.mean())),
-        "num_tokens": len(token_lps),
+        "predictive_entropy": predictive_entropy,
+        "length_norm_entropy": length_norm_entropy,
+        "perplexity": perplexity,
+        "num_tokens": n,
     }
 
 
@@ -183,6 +215,139 @@ def compute_section_confidence(logprobs_data: Dict) -> Dict[str, Dict[str, float
                 "perplexity": float(np.exp(-arr.mean())),
             }
     return section_confidence
+
+
+# =============================================================================
+# AUROC for Hallucination Detection
+# Ref: Kuhn et al. (2023) Section 6: "we evaluate uncertainty by treating
+#      uncertainty estimation as the problem of predicting whether to rely
+#      on a model generation... The AUROC metric is equivalent to the
+#      probability that a randomly chosen correct answer has a higher
+#      uncertainty score than a randomly chosen incorrect answer."
+# Ref: Xiong et al. (2024) Section 4: use AUROC for failure prediction
+# =============================================================================
+
+def compute_auroc(uncertainty_scores: List[float], is_correct: List[bool]) -> float:
+    """
+    Compute AUROC: can the uncertainty score distinguish correct from incorrect?
+    
+    Higher AUROC = better uncertainty estimation.
+    0.5 = random (uncertainty provides no signal).
+    1.0 = perfect (all incorrect samples have higher uncertainty than correct ones).
+    
+    Args:
+        uncertainty_scores: Higher = MORE uncertain (e.g., predictive_entropy)
+        is_correct: True if sample is "correct" (low hallucination)
+    """
+    from sklearn.metrics import roc_auc_score
+    # AUROC expects: higher score = more likely to be POSITIVE class
+    # Our convention: higher uncertainty = more likely INCORRECT
+    # So we predict "incorrect" with uncertainty as the score
+    # and is_correct=False as the positive class for "failure detection"
+    try:
+        # Binary labels: 1 = incorrect (hallucinated), 0 = correct
+        binary_labels = [0 if c else 1 for c in is_correct]
+        if len(set(binary_labels)) < 2:
+            return 0.5  # All same class, AUROC undefined
+        return float(roc_auc_score(binary_labels, uncertainty_scores))
+    except Exception:
+        return 0.5
+
+
+def compute_auroc_simple(scores: List[float], labels: List[int]) -> float:
+    """
+    Manual AUROC without sklearn dependency.
+    Computes the probability that a randomly chosen positive example
+    has a higher score than a randomly chosen negative example.
+    """
+    pos = [s for s, l in zip(scores, labels) if l == 1]
+    neg = [s for s, l in zip(scores, labels) if l == 0]
+    if not pos or not neg:
+        return 0.5
+    concordant = sum(1 for p in pos for n in neg if p > n)
+    tied = sum(1 for p in pos for n in neg if p == n)
+    total = len(pos) * len(neg)
+    return (concordant + 0.5 * tied) / total
+
+
+# =============================================================================
+# Expected Calibration Error (ECE)
+# Ref: Guo et al. (2017) "On Calibration of Modern Neural Networks"
+# Ref: Xiong et al. (2024) Section 4: "ECE measures the calibration of a
+#      classifier by quantifying the discrepancy between predicted
+#      probabilities and observed accuracy"
+# 
+# For logprob-based confidence: we convert logprobs to probabilities
+# using sigmoid or by normalising to [0,1] range, then bin and compute
+# the gap between average confidence and accuracy per bin.
+# =============================================================================
+
+def compute_ece(confidence_scores: List[float], is_correct: List[bool], 
+                n_bins: int = 10) -> Dict[str, Any]:
+    """
+    Compute Expected Calibration Error.
+    
+    Args:
+        confidence_scores: Values in [0, 1] where 1 = fully confident
+        is_correct: True if the sample is correct
+        n_bins: Number of calibration bins
+    
+    Returns:
+        Dict with ece, per-bin accuracies, confidences, and counts
+    """
+    confidences = np.array(confidence_scores)
+    accuracies = np.array([1.0 if c else 0.0 for c in is_correct])
+    
+    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    bin_accs = []
+    bin_confs = []
+    bin_counts = []
+    
+    ece = 0.0
+    total = len(confidences)
+    
+    for i in range(n_bins):
+        lo, hi = bin_boundaries[i], bin_boundaries[i + 1]
+        mask = (confidences > lo) & (confidences <= hi)
+        if i == 0:  # Include 0 in first bin
+            mask = (confidences >= lo) & (confidences <= hi)
+        
+        count = mask.sum()
+        if count == 0:
+            bin_accs.append(0)
+            bin_confs.append((lo + hi) / 2)
+            bin_counts.append(0)
+            continue
+        
+        bin_acc = accuracies[mask].mean()
+        bin_conf = confidences[mask].mean()
+        bin_accs.append(float(bin_acc))
+        bin_confs.append(float(bin_conf))
+        bin_counts.append(int(count))
+        
+        ece += (count / total) * abs(bin_acc - bin_conf)
+    
+    return {
+        "ece": float(ece),
+        "bin_accuracies": bin_accs,
+        "bin_confidences": bin_confs,
+        "bin_counts": bin_counts,
+        "n_bins": n_bins,
+    }
+
+
+def logprob_to_confidence(mean_logprobs: List[float]) -> List[float]:
+    """
+    Convert mean logprobs to confidence scores in [0, 1].
+    
+    Uses the transformation: confidence = exp(mean_logprob)
+    Since mean_logprob is in (-inf, 0], exp maps to (0, 1].
+    A mean_logprob of 0 = 100% confident, -inf = 0% confident.
+    
+    This is the natural probability interpretation: if all tokens
+    have probability 1.0 (logprob=0), confidence is 1.0.
+    """
+    return [float(np.exp(lp)) for lp in mean_logprobs]
 
 
 # =============================================================================
@@ -275,6 +440,52 @@ def run_logprobs_analysis(
             if any(h > 0 for h in halluc_scores):
                 corr = np.corrcoef(mean_lps, halluc_scores)[0, 1]
                 logger.info(f"  Logprob-Hallucination correlation: {corr:.4f}")
+            
+            # ---- AUROC: Can uncertainty detect hallucinations? ----
+            # Binarise: hallucination <= 3 = "hallucinated", > 3 = "not hallucinated"
+            # Ref: Kuhn et al. (2023) use AUROC as primary evaluation metric
+            is_correct = [s.get("judge_hallucination", 0) > 3 for s in sample_stats]
+            
+            # AUROC using different uncertainty measures
+            pred_entropies = [s["predictive_entropy"] for s in sample_stats]
+            ln_entropies = [s["length_norm_entropy"] for s in sample_stats]
+            perplexities = [s["perplexity"] for s in sample_stats]
+            
+            try:
+                auroc_pred_ent = compute_auroc(pred_entropies, is_correct)
+                auroc_ln_ent = compute_auroc(ln_entropies, is_correct)
+                auroc_perplexity = compute_auroc(perplexities, is_correct)
+            except ImportError:
+                # Fallback without sklearn
+                binary_labels = [0 if c else 1 for c in is_correct]
+                auroc_pred_ent = compute_auroc_simple(pred_entropies, binary_labels)
+                auroc_ln_ent = compute_auroc_simple(ln_entropies, binary_labels)
+                auroc_perplexity = compute_auroc_simple(perplexities, binary_labels)
+            
+            logger.info(f"  AUROC (predictive entropy): {auroc_pred_ent:.4f}")
+            logger.info(f"  AUROC (length-norm entropy): {auroc_ln_ent:.4f}")
+            logger.info(f"  AUROC (perplexity):          {auroc_perplexity:.4f}")
+            
+            # ---- ECE: Is the model well-calibrated? ----
+            # Convert logprobs to confidence, then measure calibration
+            # Ref: Xiong et al. (2024), Guo et al. (2017)
+            confidences = logprob_to_confidence(mean_lps)
+            ece_result = compute_ece(confidences, is_correct)
+            logger.info(f"  ECE: {ece_result['ece']:.4f}")
+            
+            # Store AUROC and ECE in results
+            all_results[label]["auroc"] = {
+                "predictive_entropy": auroc_pred_ent,
+                "length_norm_entropy": auroc_ln_ent,
+                "perplexity": auroc_perplexity,
+                "hallucination_threshold": 3,
+                "n_correct": sum(is_correct),
+                "n_incorrect": sum(not c for c in is_correct),
+            }
+            all_results[label]["ece"] = ece_result
+            all_results[label]["correlation"] = {
+                "logprob_vs_hallucination": float(corr) if any(h > 0 for h in halluc_scores) else None,
+            }
 
     if not all_results:
         logger.error("No valid results to analyze!")
@@ -344,16 +555,18 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
     fig, ax = plt.subplots(figsize=(16, 7))
     x = np.arange(len(section_keys))
     w = 0.8 / max(n_models, 1)
+    all_sec_vals = []
     for i, label in enumerate(labels):
         data = all_results.get(label, {})
         sec_summary = data.get("section_summary", {})
         vals = [sec_summary.get(k, {}).get("mean_logprob", 0) for k in section_keys]
+        all_sec_vals.extend([v for v in vals if v != 0])
         bars = ax.bar(x + i * w, vals, w, label=label, color=colors[i])
         for bar, val in zip(bars, vals):
             if val != 0:
                 ax.text(bar.get_x() + bar.get_width() / 2,
-                        min(val - 0.003, -0.003),
-                        f"{val:.2f}", ha="center", va="top", fontsize=6, rotation=45)
+                        val - 0.001,
+                        f"{val:.3f}", ha="center", va="top", fontsize=6, rotation=45)
     ax.set_xlabel("Clinical Section")
     ax.set_ylabel("Mean Log Probability (less negative = more confident)")
     ax.set_title("Per-Section Model Confidence\n(Lower values indicate higher uncertainty)",
@@ -361,7 +574,10 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
     ax.set_xticks(x + w * (n_models - 1) / 2)
     ax.set_xticklabels(section_names, fontsize=9, rotation=30, ha="right")
     ax.legend(fontsize=8)
-    ax.axhline(y=-3.0, color="red", linestyle="--", alpha=0.5)
+    # Zoom y-axis to actual data range instead of showing -3.0 threshold
+    if all_sec_vals:
+        min_val = min(all_sec_vals)
+        ax.set_ylim(min_val * 1.5, 0.005)
     plt.tight_layout()
     plt.savefig(output_dir / "section_confidence.png", dpi=150, bbox_inches="tight")
     plt.close()
@@ -448,6 +664,205 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
         plt.close()
         print("Saved: logprobs_summary_table.png")
 
+    # ---- Plot 6: AUROC Comparison Bar Chart ----
+    # Ref: Kuhn et al. (2023) Fig. 1a - compares AUROC across uncertainty methods
+    # Ref: Xiong et al. (2024) Table 2 - reports AUROC for failure prediction
+    auroc_methods = ["predictive_entropy", "length_norm_entropy", "perplexity"]
+    auroc_labels = ["Predictive\nEntropy", "Length-Norm\nEntropy", "Perplexity"]
+    
+    has_auroc = any(all_results.get(l, {}).get("auroc") for l in labels)
+    if has_auroc:
+        fig, ax = plt.subplots(figsize=(12, 7))
+        x = np.arange(len(auroc_methods))
+        w = 0.8 / max(n_models, 1)
+        
+        all_vals = []
+        for i, label in enumerate(labels):
+            auroc_data = all_results.get(label, {}).get("auroc", {})
+            vals = [auroc_data.get(m, 0.5) for m in auroc_methods]
+            all_vals.extend(vals)
+            bars = ax.bar(x + i * w, vals, w, label=label, color=colors[i],
+                         edgecolor="black", linewidth=0.5)
+            for bar, val in zip(bars, vals):
+                # Place text inside bar if bar is tall, above if short
+                if val > 0.55:
+                    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() - 0.03,
+                            f"{val:.3f}", ha="center", va="top", fontsize=9, 
+                            fontweight="bold", color="white")
+                else:
+                    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                            f"{val:.3f}", ha="center", va="bottom", fontsize=9, fontweight="bold")
+        
+        ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.7, linewidth=1.5,
+                   label="Random baseline (0.5)")
+        ax.set_ylabel("AUROC", fontsize=12)
+        ax.set_title("Hallucination Detection: AUROC of Uncertainty Measures\n"
+                     "(Kuhn et al., 2023; Xiong et al., 2024)",
+                     fontsize=13, fontweight="bold")
+        ax.set_xticks(x + w * (n_models - 1) / 2)
+        ax.set_xticklabels(auroc_labels, fontsize=10)
+        ax.legend(fontsize=9, loc="upper right")
+        # Dynamic ylim based on data
+        max_val = max(all_vals) if all_vals else 0.8
+        ax.set_ylim(0.3, max(max_val + 0.08, 0.95))
+        ax.grid(axis="y", alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(output_dir / "auroc_comparison.png", dpi=150, bbox_inches="tight")
+        plt.close()
+        print("Saved: auroc_comparison.png")
+    
+    # ---- Plot 7: ECE Reliability Diagram ----
+    # Ref: Guo et al. (2017) Fig. 1 - the standard reliability diagram format
+    # Ref: Xiong et al. (2024) Fig. 2 - reliability diagrams for LLMs
+    # Shows: for each confidence bin, the actual accuracy vs predicted confidence
+    has_ece = any(all_results.get(l, {}).get("ece") for l in labels)
+    if has_ece:
+        fig, axes = plt.subplots(1, n_models, figsize=(5 * n_models, 5), sharey=True)
+        if n_models == 1:
+            axes = [axes]
+        
+        for i, label in enumerate(labels):
+            ax = axes[i]
+            ece_data = all_results.get(label, {}).get("ece", {})
+            if not ece_data:
+                continue
+            
+            bin_accs = ece_data["bin_accuracies"]
+            bin_confs = ece_data["bin_confidences"]
+            bin_counts = ece_data["bin_counts"]
+            n_bins = ece_data["n_bins"]
+            
+            bar_width = 1.0 / n_bins
+            
+            # Plot all bins, show gap between confidence and accuracy
+            for j in range(n_bins):
+                bin_center = (j + 0.5) / n_bins
+                if bin_counts[j] > 0:
+                    # Accuracy bar
+                    ax.bar(bin_center, bin_accs[j], width=bar_width * 0.9,
+                           color=colors[i], alpha=0.7, edgecolor="black", linewidth=0.5)
+                    # Gap (overconfidence) shown as red overlay
+                    if bin_confs[j] > bin_accs[j]:
+                        ax.bar(bin_center, bin_confs[j] - bin_accs[j], width=bar_width * 0.9,
+                               bottom=bin_accs[j], color="red", alpha=0.2, edgecolor="red",
+                               linewidth=0.5, linestyle="--")
+                    # Annotate with count
+                    ax.text(bin_center, bin_accs[j] + 0.02, f"n={bin_counts[j]}",
+                           ha="center", fontsize=7, color="gray")
+            
+            # Perfect calibration line
+            ax.plot([0, 1], [0, 1], "k--", alpha=0.5, label="Perfect calibration")
+            
+            ax.set_xlabel("Confidence", fontsize=10)
+            if i == 0:
+                ax.set_ylabel("Accuracy (non-hallucination rate)", fontsize=10)
+            ax.set_title(f"{label}\nECE = {ece_data['ece']:.4f}", fontsize=11, fontweight="bold")
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.legend(fontsize=8)
+            ax.set_aspect("equal")
+        
+        fig.suptitle("Calibration Reliability Diagrams\n(Guo et al., 2017; Xiong et al., 2024)",
+                     fontsize=13, fontweight="bold", y=1.05)
+        plt.tight_layout()
+        plt.savefig(output_dir / "ece_reliability_diagram.png", dpi=150, bbox_inches="tight")
+        plt.close()
+        print("Saved: ece_reliability_diagram.png")
+    
+    # ---- Plot 8: Predictive Entropy vs Length-Normalised Entropy ----
+    # Ref: Kuhn et al. (2023) Section 3.3: "longer sequences have lower joint
+    #      likelihoods... length-normalising the log-probabilities"
+    # This plot shows whether normalisation matters for your models
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    
+    # Left: Predictive entropy distribution
+    ax = axes[0]
+    for i, label in enumerate(labels):
+        stats = all_results.get(label, {}).get("sample_stats", [])
+        if not stats:
+            continue
+        vals = [s["predictive_entropy"] for s in stats]
+        ax.hist(vals, bins=15, alpha=0.4, color=colors[i], label=label,
+                edgecolor=colors[i], linewidth=1.5)
+    ax.set_xlabel("Predictive Entropy (= -sum of logprobs)")
+    ax.set_ylabel("Count")
+    ax.set_title("Predictive Entropy (Unnormalised)\nHigher = more uncertain", fontsize=11, fontweight="bold")
+    ax.legend(fontsize=9)
+    
+    # Right: Length-normalised entropy distribution
+    ax = axes[1]
+    for i, label in enumerate(labels):
+        stats = all_results.get(label, {}).get("sample_stats", [])
+        if not stats:
+            continue
+        vals = [s["length_norm_entropy"] for s in stats]
+        ax.hist(vals, bins=15, alpha=0.4, color=colors[i], label=label,
+                edgecolor=colors[i], linewidth=1.5)
+    ax.set_xlabel("Length-Normalised Entropy (= -mean logprob)")
+    ax.set_ylabel("Count")
+    ax.set_title("Length-Normalised Entropy\n(Malinin & Gales, 2020)", fontsize=11, fontweight="bold")
+    ax.legend(fontsize=9)
+    
+    fig.suptitle("Effect of Length Normalisation on Entropy Distribution",
+                 fontsize=13, fontweight="bold", y=1.02)
+    plt.tight_layout()
+    plt.savefig(output_dir / "entropy_normalisation.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print("Saved: entropy_normalisation.png")
+    
+    # ---- Plot 9: Comprehensive UQ Summary Table ----
+    if n_models >= 1:
+        fig, ax = plt.subplots(figsize=(18, 2.5 + n_models * 0.8))
+        ax.axis("off")
+        col_labels = ["Model", "Mean\nLogProb", "Perplexity", "Pred.\nEntropy",
+                      "AUROC\n(Pred.Ent.)", "AUROC\n(Len.Norm.)", "AUROC\n(Perplex.)",
+                      "ECE", "r(lp,halluc)", "Errors"]
+        table_data = []
+        for label in labels:
+            data = all_results.get(label, {})
+            stats = data.get("sample_stats", [])
+            auroc = data.get("auroc", {})
+            ece = data.get("ece", {})
+            corr_data = data.get("correlation", {})
+            if not stats:
+                continue
+            mean_lps = [s["mean_logprob"] for s in stats]
+            perps = [s["perplexity"] for s in stats]
+            pred_ents = [s["predictive_entropy"] for s in stats]
+            n_errors = sum(1 for s in stats if s.get("has_critical_errors", False))
+            corr_val = corr_data.get("logprob_vs_hallucination")
+            corr_str = f"{corr_val:.3f}" if corr_val is not None else "N/A"
+            
+            table_data.append([
+                label,
+                f"{np.mean(mean_lps):.4f}",
+                f"{np.mean(perps):.3f}",
+                f"{np.mean(pred_ents):.1f}",
+                f"{auroc.get('predictive_entropy', 0.5):.3f}",
+                f"{auroc.get('length_norm_entropy', 0.5):.3f}",
+                f"{auroc.get('perplexity', 0.5):.3f}",
+                f"{ece.get('ece', 0):.4f}",
+                corr_str,
+                f"{n_errors}/{len(stats)}",
+            ])
+        
+        table = ax.table(cellText=table_data, colLabels=col_labels,
+                        loc="center", cellLoc="center")
+        table.auto_set_font_size(False)
+        table.set_fontsize(8)
+        table.scale(1.0, 1.5)
+        for j in range(len(col_labels)):
+            table[0, j].set_text_props(fontweight="bold")
+            table[0, j].set_facecolor("#E8E8E8")
+        
+        ax.set_title("Uncertainty Quantification: Comprehensive Summary\n"
+                     "(Kadavath et al., 2022; Kuhn et al., 2023; Xiong et al., 2024)",
+                     fontsize=13, fontweight="bold", pad=20)
+        plt.tight_layout()
+        plt.savefig(output_dir / "uq_comprehensive_summary.png", dpi=150, bbox_inches="tight")
+        plt.close()
+        print("Saved: uq_comprehensive_summary.png")
+
     print(f"\nAll logprobs plots saved to {output_dir}/")
 
 
@@ -488,6 +903,39 @@ def _generate_report(all_results: Dict, labels: List[str], output_dir: Path):
             lines.append(f"| Correlation (logprob vs hallucination) | {np.corrcoef(mean_lps, halluc_scores)[0, 1]:.4f} |")
             lines.append(f"| Correlation (logprob vs overall quality) | {np.corrcoef(mean_lps, overall_scores)[0, 1]:.4f} |")
         lines.append("")
+        
+        # AUROC results
+        auroc = data.get("auroc", {})
+        if auroc:
+            lines.extend([
+                "### Hallucination Detection AUROC",
+                "",
+                "AUROC measures whether uncertainty scores can distinguish hallucinated",
+                "from non-hallucinated outputs (Kuhn et al., 2023; Xiong et al., 2024).",
+                "AUROC = 0.5 is random; AUROC = 1.0 is perfect detection.",
+                "",
+                "| Uncertainty Measure | AUROC | Interpretation |",
+                "|---|---|---|",
+                f"| Predictive Entropy (-sum logprobs) | {auroc.get('predictive_entropy', 0.5):.4f} | {'Useful' if auroc.get('predictive_entropy', 0.5) > 0.6 else 'Near-random'} |",
+                f"| Length-Norm Entropy (-mean logprob) | {auroc.get('length_norm_entropy', 0.5):.4f} | {'Useful' if auroc.get('length_norm_entropy', 0.5) > 0.6 else 'Near-random'} |",
+                f"| Perplexity (exp(-mean logprob)) | {auroc.get('perplexity', 0.5):.4f} | {'Useful' if auroc.get('perplexity', 0.5) > 0.6 else 'Near-random'} |",
+                f"| Hallucination threshold | <= {auroc.get('hallucination_threshold', 3)}/5 |  |",
+                f"| N correct / N incorrect | {auroc.get('n_correct', 0)} / {auroc.get('n_incorrect', 0)} |  |",
+                "",
+            ])
+        
+        # ECE results
+        ece_data = data.get("ece", {})
+        if ece_data:
+            lines.extend([
+                "### Calibration (ECE)",
+                "",
+                "Expected Calibration Error measures alignment between model confidence",
+                "and actual accuracy (Guo et al., 2017). Lower ECE = better calibrated.",
+                "",
+                f"| ECE | {ece_data.get('ece', 0):.4f} |",
+                "",
+            ])
         if sec:
             lines.extend(["### Per-Section Confidence", "",
                          "| Section | Mean LogProb | Perplexity | Frac Low-Conf | N Samples |",

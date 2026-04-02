@@ -297,7 +297,9 @@ class ClinicalScribeInference:
                 chunk_size=512,
                 chunk_overlap=50,
                 similarity_top_k=overrides.get("similarity_top_k", self.config.rag_top_k),
-                use_reranker=overrides.get("use_reranker", False),
+                # Default: reranker ON (dense_rerank), justified by RAG ablation study
+                # showing cross-encoder reranking improves ROUGE-L by up to 18%
+                use_reranker=overrides.get("use_reranker", True),
                 use_query_expansion=use_qe,
             )
 
@@ -305,7 +307,7 @@ class ClinicalScribeInference:
             self._retriever = factory.get_retriever()
             
             desc_parts = [self.config.rag_backend]
-            if overrides.get("use_reranker"):
+            if overrides.get("use_reranker", True):
                 desc_parts.append("reranker")
             if use_qe:
                 desc_parts.append("query_expansion")
