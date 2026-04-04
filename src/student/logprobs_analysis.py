@@ -151,32 +151,52 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
     arr = np.array(token_lps)
     n = len(token_lps)
     
-    # Sum of logprobs = unnormalised sequence log-probability
+    # Sum of logprobs = sequence log-probability (confidence score)
     # This is log p(s|x) = sum_i log p(s_i | s_<i, x)
-    # Ref: Kuhn et al. (2023) Eq. in Section 2
+    # Higher (closer to 0) = model is more confident in its generation.
+    # Kadavath et al. (2022) use this as a confidence score for AUROC.
+    # Ref: Kuhn et al. (2023) Section 2
     sum_lp = float(arr.sum())
     
-    # Length-normalised log-probability = mean logprob
+    # Length-normalised sequence log-probability = mean logprob
     # This is (1/N) * sum_i log p(s_i | s_<i, x)
+    # Removes length bias: longer sequences have lower sum_lp by construction.
     # Ref: Malinin & Gales (2020), discussed in Kuhn et al. Section 3.3
-    # "asserting that the expected uncertainty of generations is independent
-    #  of sentence length"
     mean_lp = float(arr.mean())
     
-    # Predictive entropy (unnormalised) = -sum of logprobs
-    # Higher values = more uncertain. This is H(Y|x) approximated by
-    # the negative log-likelihood of the generated sequence.
-    # Ref: Kadavath et al. (2022), Kuhn et al. (2023) Eq. 1
-    predictive_entropy = -sum_lp
+    # Sequence NLL (negative log-likelihood) = -sum of logprobs
+    # This is -log p(s|x). Higher = model is LESS confident = more uncertain.
+    # This is the SAME information as sequence log-probability, just negated.
+    # Used as an uncertainty score for failure detection (AUROC):
+    #   AUROC asks "do hallucinated samples get higher NLL than correct ones?"
+    # Note: This is NOT the true predictive entropy H(Y|x) from Kuhn et al.
+    # Eq. 1, which requires marginalising over all possible outputs via Monte
+    # Carlo sampling. With a single generation, the MC estimate degenerates
+    # to the sequence NLL. We use this standard proxy following the baselines
+    # in Kuhn et al. (2023) and Kadavath et al. (2022).
+    # Ref: Kuhn et al. (2023) — "predictive entropy" baseline (single-sample)
+    # Ref: Kadavath et al. (2022) — sequence probability for uncertainty
+    # Ref: Xiong et al. (2024) Table 5 — "seq-prob" white-box method
+    sequence_nll = -sum_lp
     
-    # Length-normalised predictive entropy = -mean logprob
-    # Ref: Malinin & Gales (2020), Kuhn et al. Section 3.3
-    # "the geometric mean token-probability... an arithmetic mean log-probability"
-    length_norm_entropy = -mean_lp
+    # Length-normalised NLL = -mean logprob
+    # Removes length bias from the uncertainty score.
+    # Ref: Malinin & Gales (2020) — length-normalised sequence log-probability
+    # Ref: Kuhn et al. (2023) Section 3.3 — "normalised entropy" baseline
+    # Ref: Xiong et al. (2024) Table 5 — "len-norm-prob" white-box method
+    length_norm_nll = -mean_lp
     
-    # Perplexity = exp(length_norm_entropy) = exp(-mean_logprob)
-    # Ref: Standard definition, used in Kuhn et al. as baseline
-    perplexity = float(np.exp(length_norm_entropy))
+    # Perplexity = exp(length_norm_nll) = exp(-mean_logprob)
+    # Geometric mean of inverse token probabilities.
+    # Perplexity of 1.0 = perfect confidence; higher = more uncertain.
+    # Monotonic transform of length_norm_nll, so produces identical AUROC.
+    perplexity = float(np.exp(length_norm_nll))
+    
+    # Adaptive low-confidence threshold: tokens below the 5th percentile
+    # of the logprob distribution for this sample are flagged as low-confidence.
+    # This is more robust than a fixed threshold (e.g., -3.0) which does not
+    # generalise across models with different logprob distributions.
+    low_conf_threshold = float(np.percentile(arr, 5))
     
     return {
         "mean_logprob": mean_lp,
@@ -187,10 +207,11 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
         "max_logprob": float(arr.max()),
         "p10_logprob": float(np.percentile(arr, 10)),
         "p25_logprob": float(np.percentile(arr, 25)),
-        "num_low_conf_tokens": int(np.sum(arr < -3.0)),
-        "frac_low_conf": float(np.mean(arr < -3.0)),
-        "predictive_entropy": predictive_entropy,
-        "length_norm_entropy": length_norm_entropy,
+        "num_low_conf_tokens": int(np.sum(arr < low_conf_threshold)),
+        "frac_low_conf": float(np.mean(arr < low_conf_threshold)),
+        "low_conf_threshold": low_conf_threshold,
+        "sequence_nll": sequence_nll,
+        "length_norm_nll": length_norm_nll,
         "perplexity": perplexity,
         "num_tokens": n,
     }
@@ -211,7 +232,7 @@ def compute_section_confidence(logprobs_data: Dict) -> Dict[str, Dict[str, float
                 "mean_logprob": float(arr.mean()),
                 "min_logprob": float(arr.min()),
                 "num_tokens": len(section_lps),
-                "frac_low_conf": float(np.mean(arr < -3.0)),
+                "frac_low_conf": float(np.mean(arr < np.percentile(arr, 5))) if len(arr) > 1 else 0.0,
                 "perplexity": float(np.exp(-arr.mean())),
             }
     return section_confidence
@@ -236,7 +257,7 @@ def compute_auroc(uncertainty_scores: List[float], is_correct: List[bool]) -> fl
     1.0 = perfect (all incorrect samples have higher uncertainty than correct ones).
     
     Args:
-        uncertainty_scores: Higher = MORE uncertain (e.g., predictive_entropy)
+        uncertainty_scores: Higher = MORE uncertain (e.g., sequence_nll)
         is_correct: True if sample is "correct" (low hallucination)
     """
     from sklearn.metrics import roc_auc_score
@@ -273,13 +294,21 @@ def compute_auroc_simple(scores: List[float], labels: List[int]) -> float:
 # =============================================================================
 # Expected Calibration Error (ECE)
 # Ref: Guo et al. (2017) "On Calibration of Modern Neural Networks"
-# Ref: Xiong et al. (2024) Section 4: "ECE measures the calibration of a
-#      classifier by quantifying the discrepancy between predicted
-#      probabilities and observed accuracy"
-# 
-# For logprob-based confidence: we convert logprobs to probabilities
-# using sigmoid or by normalising to [0,1] range, then bin and compute
-# the gap between average confidence and accuracy per bin.
+# Ref: Xiong et al. (2024) Section 4
+#
+# IMPORTANT CAVEAT: ECE was originally designed for classifiers where the
+# predicted probability directly corresponds to P(correct). For LLMs,
+# token-level confidence (exp(mean_logprob)) reflects the model's probability
+# of its chosen token sequence, NOT the probability that the output is
+# factually correct. A model can produce high-probability hallucinations.
+# (Kuhn et al., 2023, Section 6: "the language model outputs a likelihood 
+# for a given token-sequence, but not for an entire meaning.")
+#
+# We use ECE here to measure the gap between token-level confidence and
+# output quality (as judged by the LLM judge). The resulting ECE values 
+# quantify HOW overconfident the models are in their token selections,
+# not whether the models produce calibrated correctness probabilities.
+# This is an informative diagnostic, not a calibration guarantee.
 # =============================================================================
 
 def compute_ece(confidence_scores: List[float], is_correct: List[bool], 
@@ -344,8 +373,13 @@ def logprob_to_confidence(mean_logprobs: List[float]) -> List[float]:
     Since mean_logprob is in (-inf, 0], exp maps to (0, 1].
     A mean_logprob of 0 = 100% confident, -inf = 0% confident.
     
-    This is the natural probability interpretation: if all tokens
-    have probability 1.0 (logprob=0), confidence is 1.0.
+    This represents the model's average token-level probability — i.e.,
+    how probable the model considers its own token choices. This is NOT
+    a calibrated probability of factual correctness. A model can assign
+    high token probability to hallucinated content.
+    
+    Ref: Xiong et al. (2024) Table 5 — "seq-prob" and "len-norm-prob"
+         use the same transformation as white-box confidence baselines.
     """
     return [float(np.exp(lp)) for lp in mean_logprobs]
 
@@ -447,8 +481,8 @@ def run_logprobs_analysis(
             is_correct = [s.get("judge_hallucination", 0) > 3 for s in sample_stats]
             
             # AUROC using different uncertainty measures
-            pred_entropies = [s["predictive_entropy"] for s in sample_stats]
-            ln_entropies = [s["length_norm_entropy"] for s in sample_stats]
+            pred_entropies = [s["sequence_nll"] for s in sample_stats]
+            ln_entropies = [s["length_norm_nll"] for s in sample_stats]
             perplexities = [s["perplexity"] for s in sample_stats]
             
             try:
@@ -462,8 +496,8 @@ def run_logprobs_analysis(
                 auroc_ln_ent = compute_auroc_simple(ln_entropies, binary_labels)
                 auroc_perplexity = compute_auroc_simple(perplexities, binary_labels)
             
-            logger.info(f"  AUROC (predictive entropy): {auroc_pred_ent:.4f}")
-            logger.info(f"  AUROC (length-norm entropy): {auroc_ln_ent:.4f}")
+            logger.info(f"  AUROC (sequence NLL): {auroc_pred_ent:.4f}")
+            logger.info(f"  AUROC (length-norm NLL): {auroc_ln_ent:.4f}")
             logger.info(f"  AUROC (perplexity):          {auroc_perplexity:.4f}")
             
             # ---- ECE: Is the model well-calibrated? ----
@@ -475,8 +509,8 @@ def run_logprobs_analysis(
             
             # Store AUROC and ECE in results
             all_results[label]["auroc"] = {
-                "predictive_entropy": auroc_pred_ent,
-                "length_norm_entropy": auroc_ln_ent,
+                "sequence_nll": auroc_pred_ent,
+                "length_norm_nll": auroc_ln_ent,
                 "perplexity": auroc_perplexity,
                 "hallucination_threshold": 3,
                 "n_correct": sum(is_correct),
@@ -667,8 +701,8 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
     # ---- Plot 6: AUROC Comparison Bar Chart ----
     # Ref: Kuhn et al. (2023) Fig. 1a - compares AUROC across uncertainty methods
     # Ref: Xiong et al. (2024) Table 2 - reports AUROC for failure prediction
-    auroc_methods = ["predictive_entropy", "length_norm_entropy", "perplexity"]
-    auroc_labels = ["Predictive\nEntropy", "Length-Norm\nEntropy", "Perplexity"]
+    auroc_methods = ["sequence_nll", "length_norm_nll", "perplexity"]
+    auroc_labels = ["Sequence\nNLL", "Length-Norm\nNLL", "Perplexity"]
     
     has_auroc = any(all_results.get(l, {}).get("auroc") for l in labels)
     if has_auroc:
@@ -697,7 +731,7 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
                    label="Random baseline (0.5)")
         ax.set_ylabel("AUROC", fontsize=12)
         ax.set_title("Hallucination Detection: AUROC of Uncertainty Measures\n"
-                     "(Kuhn et al., 2023; Xiong et al., 2024)",
+                     "(Kadavath et al., 2022; Kuhn et al., 2023; Xiong et al., 2024)",
                      fontsize=13, fontweight="bold")
         ax.set_xticks(x + w * (n_models - 1) / 2)
         ax.set_xticklabels(auroc_labels, fontsize=10)
@@ -755,38 +789,39 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
             
             ax.set_xlabel("Confidence", fontsize=10)
             if i == 0:
-                ax.set_ylabel("Accuracy (non-hallucination rate)", fontsize=10)
+                ax.set_ylabel("Non-hallucination Rate", fontsize=10)
             ax.set_title(f"{label}\nECE = {ece_data['ece']:.4f}", fontsize=11, fontweight="bold")
             ax.set_xlim(0, 1)
             ax.set_ylim(0, 1)
             ax.legend(fontsize=8)
             ax.set_aspect("equal")
         
-        fig.suptitle("Calibration Reliability Diagrams\n(Guo et al., 2017; Xiong et al., 2024)",
+        fig.suptitle("Token-Level Confidence vs Output Quality\n(Guo et al., 2017; Xiong et al., 2024)",
                      fontsize=13, fontweight="bold", y=1.05)
         plt.tight_layout()
         plt.savefig(output_dir / "ece_reliability_diagram.png", dpi=150, bbox_inches="tight")
         plt.close()
         print("Saved: ece_reliability_diagram.png")
     
-    # ---- Plot 8: Predictive Entropy vs Length-Normalised Entropy ----
+    # ---- Plot 8: Sequence NLL vs Length-Normalised NLL ----
     # Ref: Kuhn et al. (2023) Section 3.3: "longer sequences have lower joint
     #      likelihoods... length-normalising the log-probabilities"
+    # Ref: Xiong et al. (2024) Table 5: "seq-prob" vs "len-norm-prob"
     # This plot shows whether normalisation matters for your models
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     
-    # Left: Predictive entropy distribution
+    # Left: Sequence NLL distribution
     ax = axes[0]
     for i, label in enumerate(labels):
         stats = all_results.get(label, {}).get("sample_stats", [])
         if not stats:
             continue
-        vals = [s["predictive_entropy"] for s in stats]
+        vals = [s["sequence_nll"] for s in stats]
         ax.hist(vals, bins=15, alpha=0.4, color=colors[i], label=label,
                 edgecolor=colors[i], linewidth=1.5)
-    ax.set_xlabel("Predictive Entropy (= -sum of logprobs)")
+    ax.set_xlabel("Sequence NLL (= -sum of logprobs)")
     ax.set_ylabel("Count")
-    ax.set_title("Predictive Entropy (Unnormalised)\nHigher = more uncertain", fontsize=11, fontweight="bold")
+    ax.set_title("Sequence NLL (Unnormalised)\nHigher = more uncertain", fontsize=11, fontweight="bold")
     ax.legend(fontsize=9)
     
     # Right: Length-normalised entropy distribution
@@ -795,15 +830,15 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
         stats = all_results.get(label, {}).get("sample_stats", [])
         if not stats:
             continue
-        vals = [s["length_norm_entropy"] for s in stats]
+        vals = [s["length_norm_nll"] for s in stats]
         ax.hist(vals, bins=15, alpha=0.4, color=colors[i], label=label,
                 edgecolor=colors[i], linewidth=1.5)
-    ax.set_xlabel("Length-Normalised Entropy (= -mean logprob)")
+    ax.set_xlabel("Length-Normalised NLL (= -mean logprob)")
     ax.set_ylabel("Count")
-    ax.set_title("Length-Normalised Entropy\n(Malinin & Gales, 2020)", fontsize=11, fontweight="bold")
+    ax.set_title("Length-Normalised NLL\n(Malinin & Gales, 2020; Xiong et al., 2024)", fontsize=11, fontweight="bold")
     ax.legend(fontsize=9)
     
-    fig.suptitle("Effect of Length Normalisation on Entropy Distribution",
+    fig.suptitle("Effect of Length Normalisation on Uncertainty Score Distribution",
                  fontsize=13, fontweight="bold", y=1.02)
     plt.tight_layout()
     plt.savefig(output_dir / "entropy_normalisation.png", dpi=150, bbox_inches="tight")
@@ -814,8 +849,8 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
     if n_models >= 1:
         fig, ax = plt.subplots(figsize=(18, 2.5 + n_models * 0.8))
         ax.axis("off")
-        col_labels = ["Model", "Mean\nLogProb", "Perplexity", "Pred.\nEntropy",
-                      "AUROC\n(Pred.Ent.)", "AUROC\n(Len.Norm.)", "AUROC\n(Perplex.)",
+        col_labels = ["Model", "Mean\nLogProb", "Perplexity", "Seq.\nNLL",
+                      "AUROC\n(Seq.NLL)", "AUROC\n(Len.Norm.)", "AUROC\n(Perplex.)",
                       "ECE", "r(lp,halluc)", "Errors"]
         table_data = []
         for label in labels:
@@ -828,7 +863,7 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
                 continue
             mean_lps = [s["mean_logprob"] for s in stats]
             perps = [s["perplexity"] for s in stats]
-            pred_ents = [s["predictive_entropy"] for s in stats]
+            pred_ents = [s["sequence_nll"] for s in stats]
             n_errors = sum(1 for s in stats if s.get("has_critical_errors", False))
             corr_val = corr_data.get("logprob_vs_hallucination")
             corr_str = f"{corr_val:.3f}" if corr_val is not None else "N/A"
@@ -838,8 +873,8 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
                 f"{np.mean(mean_lps):.4f}",
                 f"{np.mean(perps):.3f}",
                 f"{np.mean(pred_ents):.1f}",
-                f"{auroc.get('predictive_entropy', 0.5):.3f}",
-                f"{auroc.get('length_norm_entropy', 0.5):.3f}",
+                f"{auroc.get('sequence_nll', 0.5):.3f}",
+                f"{auroc.get('length_norm_nll', 0.5):.3f}",
                 f"{auroc.get('perplexity', 0.5):.3f}",
                 f"{ece.get('ece', 0):.4f}",
                 corr_str,
@@ -916,8 +951,8 @@ def _generate_report(all_results: Dict, labels: List[str], output_dir: Path):
                 "",
                 "| Uncertainty Measure | AUROC | Interpretation |",
                 "|---|---|---|",
-                f"| Predictive Entropy (-sum logprobs) | {auroc.get('predictive_entropy', 0.5):.4f} | {'Useful' if auroc.get('predictive_entropy', 0.5) > 0.6 else 'Near-random'} |",
-                f"| Length-Norm Entropy (-mean logprob) | {auroc.get('length_norm_entropy', 0.5):.4f} | {'Useful' if auroc.get('length_norm_entropy', 0.5) > 0.6 else 'Near-random'} |",
+                f"| Sequence NLL (-sum logprobs) | {auroc.get('sequence_nll', 0.5):.4f} | {'Useful' if auroc.get('sequence_nll', 0.5) > 0.6 else 'Near-random'} |",
+                f"| Length-Norm NLL (-mean logprob) | {auroc.get('length_norm_nll', 0.5):.4f} | {'Useful' if auroc.get('length_norm_nll', 0.5) > 0.6 else 'Near-random'} |",
                 f"| Perplexity (exp(-mean logprob)) | {auroc.get('perplexity', 0.5):.4f} | {'Useful' if auroc.get('perplexity', 0.5) > 0.6 else 'Near-random'} |",
                 f"| Hallucination threshold | <= {auroc.get('hallucination_threshold', 3)}/5 |  |",
                 f"| N correct / N incorrect | {auroc.get('n_correct', 0)} / {auroc.get('n_incorrect', 0)} |  |",
@@ -930,8 +965,12 @@ def _generate_report(all_results: Dict, labels: List[str], output_dir: Path):
             lines.extend([
                 "### Calibration (ECE)",
                 "",
-                "Expected Calibration Error measures alignment between model confidence",
-                "and actual accuracy (Guo et al., 2017). Lower ECE = better calibrated.",
+                "Expected Calibration Error measures the gap between token-level",
+                "confidence (exp(mean_logprob)) and output quality (Guo et al., 2017).",
+                "**Caveat:** Token-level confidence reflects how probable the model",
+                "considers its chosen tokens, NOT the probability of factual correctness.",
+                "A model can produce high-probability hallucinations. ECE here quantifies",
+                "HOW overconfident models are, not whether they are calibrated classifiers.",
                 "",
                 f"| ECE | {ece_data.get('ece', 0):.4f} |",
                 "",
