@@ -144,6 +144,16 @@ def find_section_token_ranges(token_texts: List[str]) -> Dict[str, Tuple[int, in
 # Analysis Functions
 # =============================================================================
 
+# Fixed threshold for flagging low-confidence tokens.
+# A token logprob below -2.0 nats means the model assigned < exp(-2.0) ≈ 13.5%
+# probability to its chosen token — a meaningful signal of genuine uncertainty.
+# Using a fixed value (rather than a per-sample percentile) makes the metric
+# comparable across samples and models: two samples with identical distributions
+# will produce identical frac_low_conf, which is the desired property.
+# Ref: Malinin & Gales (2020) use fixed entropy thresholds for uncertainty flagging.
+LOW_CONF_THRESHOLD: float = -2.0
+
+
 def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
     token_lps = logprobs_data.get("token_logprobs", [])
     if not token_lps:
@@ -192,12 +202,6 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
     # Monotonic transform of length_norm_nll, so produces identical AUROC.
     perplexity = float(np.exp(length_norm_nll))
     
-    # Adaptive low-confidence threshold: tokens below the 5th percentile
-    # of the logprob distribution for this sample are flagged as low-confidence.
-    # This is more robust than a fixed threshold (e.g., -3.0) which does not
-    # generalise across models with different logprob distributions.
-    low_conf_threshold = float(np.percentile(arr, 5))
-    
     return {
         "mean_logprob": mean_lp,
         "sum_logprob": sum_lp,
@@ -207,9 +211,9 @@ def compute_sample_confidence(logprobs_data: Dict) -> Dict[str, float]:
         "max_logprob": float(arr.max()),
         "p10_logprob": float(np.percentile(arr, 10)),
         "p25_logprob": float(np.percentile(arr, 25)),
-        "num_low_conf_tokens": int(np.sum(arr < low_conf_threshold)),
-        "frac_low_conf": float(np.mean(arr < low_conf_threshold)),
-        "low_conf_threshold": low_conf_threshold,
+        "num_low_conf_tokens": int(np.sum(arr < LOW_CONF_THRESHOLD)),
+        "frac_low_conf": float(np.mean(arr < LOW_CONF_THRESHOLD)),
+        "low_conf_threshold": LOW_CONF_THRESHOLD,
         "sequence_nll": sequence_nll,
         "length_norm_nll": length_norm_nll,
         "perplexity": perplexity,
@@ -232,7 +236,7 @@ def compute_section_confidence(logprobs_data: Dict) -> Dict[str, Dict[str, float
                 "mean_logprob": float(arr.mean()),
                 "min_logprob": float(arr.min()),
                 "num_tokens": len(section_lps),
-                "frac_low_conf": float(np.mean(arr < np.percentile(arr, 5))) if len(arr) > 1 else 0.0,
+                "frac_low_conf": float(np.mean(arr < LOW_CONF_THRESHOLD)),
                 "perplexity": float(np.exp(-arr.mean())),
             }
     return section_confidence
@@ -293,7 +297,7 @@ def compute_auroc_simple(scores: List[float], labels: List[int]) -> float:
 
 # =============================================================================
 # Expected Calibration Error (ECE)
-# Ref: Guo et al. (2017) "On Calibration of Modern Neural Networks"
+# Ref: Guo et al. (2017) "On Calibration of Modern Neural Networks" Formula is drived from this paper.
 # Ref: Xiong et al. (2024) Section 4
 #
 # IMPORTANT CAVEAT: ECE was originally designed for classifiers where the

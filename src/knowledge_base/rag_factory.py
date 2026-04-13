@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class RAGBackend(str, Enum):
     """Available RAG backend implementations"""
     
-    MANUAL = "manual"           # Your custom implementation
+    MANUAL = "manual"           # custom implementation
     LLAMA_INDEX = "llama_index" # LlamaIndex implementation
     HYBRID = "hybrid"           # LlamaIndex with custom medical processing
     
@@ -71,6 +71,7 @@ class RAGConfig:
         use_hybrid_search: bool = False,
         use_reranker: bool = False,
         use_query_expansion: bool = True,
+        use_clinical_filtering: bool = True,
         # Qdrant-specific
         qdrant_host: str = "localhost",
         qdrant_port: int = 6333,
@@ -106,6 +107,7 @@ class RAGConfig:
         self.use_hybrid_search = use_hybrid_search
         self.use_reranker = use_reranker
         self.use_query_expansion = use_query_expansion
+        self.clinical_filtering = use_clinical_filtering
         self.qdrant_host = qdrant_host
         self.qdrant_port = qdrant_port
         self.qdrant_api_key = qdrant_api_key
@@ -124,6 +126,7 @@ class RAGConfig:
             "use_hybrid_search": self.use_hybrid_search,
             "use_reranker": self.use_reranker,
             "use_query_expansion": self.use_query_expansion,
+            "use_clinical_filtering": self.clinical_filtering,
         }
     
     @classmethod
@@ -385,11 +388,11 @@ class RAGFactory:
         )
         
         # Wrap with hybrid medical retriever if configured
-        if self.config.backend == RAGBackend.HYBRID or self.config.use_query_expansion:
+        if self.config.backend == RAGBackend.HYBRID or self.config.use_query_expansion or self.config.clinical_filtering:
             return HybridMedicalRetriever(
                 llama_retriever=base_retriever,
                 use_query_expansion=self.config.use_query_expansion,
-                use_clinical_filtering=True,
+                use_clinical_filtering=self.config.clinical_filtering,
             )
         
         return base_retriever

@@ -301,6 +301,7 @@ class ClinicalScribeInference:
                 # showing cross-encoder reranking improves ROUGE-L by up to 18%
                 use_reranker=overrides.get("use_reranker", True),
                 use_query_expansion=use_qe,
+                use_clinical_filtering=use_cf,
             )
 
             factory = RAGFactory(rag_config)
