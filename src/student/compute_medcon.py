@@ -46,7 +46,7 @@ class UMLSConceptExtractor:
     def __init__(
         self,
         quickumls_path: str,
-        threshold: float = 0.7,
+        threshold: float = 1.0,
         similarity_name: str = "jaccard",
         window: int = 5,
         accepted_semtypes: Optional[Set[str]] = None,
@@ -54,7 +54,7 @@ class UMLSConceptExtractor:
         """
         Args:
             quickumls_path: Path to QuickUMLS installation data
-            threshold: Similarity threshold (0-1). Lower = more matches but noisier
+            threshold: Similarity threshold (0-1). 1.0 = exact match (ACI-Bench default). Lower = more matches but noisier
             similarity_name: Similarity metric ("jaccard", "dice", "cosine", "overlap")
             window: Maximum number of tokens in a concept mention
             accepted_semtypes: Set of UMLS semantic types to accept.
@@ -62,34 +62,90 @@ class UMLSConceptExtractor:
         """
         from quickumls import QuickUMLS
         
-        # Clinically relevant semantic types for clinical documentation
-        # T047=Disease, T184=Sign/Symptom, T121=Drug, T200=Drug formulation,
-        # T060=Diagnostic Proc, T061=Therapeutic Proc, T033=Finding,
-        # T034=Lab Result, T059=Lab Proc, T023=Body Part, T029=Body Location,
-        # T190=Anatomical Abnormality, T037=Injury, T019=Congenital Abnormality
+        # gathered from UMLS Semantic Types and relevance to clinical documentation: https://uts.nlm.nih.gov/uts/umls/semantic-network/
+        
         if accepted_semtypes is None:
             accepted_semtypes = {
+                # --- DISO: Disorders (all) ---
                 "T047",  # Disease or Syndrome
                 "T184",  # Sign or Symptom
-                "T121",  # Pharmacologic Substance
-                "T200",  # Clinical Drug
-                "T060",  # Diagnostic Procedure
-                "T061",  # Therapeutic or Preventive Procedure
                 "T033",  # Finding
-                "T034",  # Laboratory or Test Result
-                "T059",  # Laboratory Procedure
-                "T023",  # Body Part, Organ, or Organ Component
-                "T029",  # Body Location or Region
-                "T190",  # Anatomical Abnormality
                 "T037",  # Injury or Poisoning
                 "T019",  # Congenital Abnormality
                 "T046",  # Pathologic Function
                 "T191",  # Neoplastic Process
                 "T048",  # Mental or Behavioral Dysfunction
-                "T058",  # Health Care Activity
-                "T074",  # Medical Device
+                "T190",  # Anatomical Abnormality
+                "T020",  # Acquired Abnormality
+                "T049",  # Cell or Molecular Dysfunction
+                "T050",  # Experimental Model of Disease
+                # --- CHEM: Chemicals & Drugs (all) ---
+                "T121",  # Pharmacologic Substance
+                "T200",  # Clinical Drug
+                "T116",  # Amino Acid, Peptide, or Protein (biologics, biomarkers)
+                "T195",  # Antibiotic
+                "T123",  # Biologically Active Substance
+                "T122",  # Biomedical or Dental Material
+                "T103",  # Chemical
+                "T120",  # Chemical Viewed Functionally
+                "T104",  # Chemical Viewed Structurally
+                "T196",  # Element, Ion, or Isotope
+                "T126",  # Enzyme
+                "T131",  # Hazardous or Poisonous Substance
+                "T125",  # Hormone
+                "T129",  # Immunologic Factor
+                "T130",  # Indicator, Reagent, or Diagnostic Aid
+                "T197",  # Inorganic Chemical
+                "T114",  # Nucleic Acid, Nucleoside, or Nucleotide
+                "T109",  # Organic Chemical
+                "T192",  # Receptor
+                "T127",  # Vitamin
+                # --- ANAT: Anatomy (all) ---
+                "T023",  # Body Part, Organ, or Organ Component
+                "T029",  # Body Location or Region
+                "T017",  # Anatomical Structure
+                "T030",  # Body Space or Junction
+                "T031",  # Body Substance
+                "T022",  # Body System
+                "T025",  # Cell
+                "T026",  # Cell Component
+                "T018",  # Embryonic Structure
+                "T021",  # Fully Formed Anatomical Structure
+                "T024",  # Tissue
+                # --- PHYS: Physiology (all) ---
                 "T201",  # Clinical Attribute
-                "T170",  # Intellectual Product (for scales, scores)
+                "T039",  # Physiologic Function
+                "T043",  # Cell Function
+                "T045",  # Genetic Function
+                "T041",  # Mental Process
+                "T044",  # Molecular Function
+                "T032",  # Organism Attribute
+                "T040",  # Organism Function
+                "T042",  # Organ or Tissue Function
+                # --- PHEN: Phenomena (all) ---
+                "T038",  # Biologic Function
+                "T034",  # Laboratory or Test Result
+                "T067",  # Phenomenon or Process
+                "T068",  # Human-caused Phenomenon or Process
+                "T069",  # Environmental Effect of Humans
+                "T070",  # Natural Phenomenon or Process
+                # --- DEVI: Devices (all) ---
+                "T074",  # Medical Device
+                "T203",  # Drug Delivery Device
+                "T075",  # Research Device
+                # --- GENE: Genes & Molecular Sequences (all) ---
+                "T028",  # Gene or Genome
+                "T085",  # Molecular Sequence
+                "T086",  # Nucleotide Sequence
+                "T087",  # Amino Acid Sequence
+                "T088",  # Carbohydrate Sequence
+                # --- Additional (not in ACI-Bench exclusion list; kept intentionally) ---
+                "T060",  # Diagnostic Procedure  [PROC group — kept for clinical scribing]
+                "T061",  # Therapeutic or Preventive Procedure  [PROC]
+                "T058",  # Health Care Activity  [PROC]
+                "T059",  # Laboratory Procedure  [PROC]
+                "T170",  # Intellectual Product (clinical scales: GCS, PHQ-9)  [CONC]
+                "T055",  # Individual Behavior (smoking, alcohol)  [ACTI]
             }
         
         self.accepted_semtypes = accepted_semtypes
@@ -115,7 +171,7 @@ class UMLSConceptExtractor:
         
         cuis = set()
         try:
-            matches = self.matcher.match(text)
+            matches = self.matcher.match(text, ignore_syntax=True)
             for match_group in matches:
                 for candidate in match_group:
                     # Filter by semantic type
@@ -138,7 +194,7 @@ class UMLSConceptExtractor:
         
         concepts = []
         try:
-            matches = self.matcher.match(text)
+            matches = self.matcher.match(text, ignore_syntax=True)
             for match_group in matches:
                 for candidate in match_group:
                     sem_types = candidate.get("semtypes", set())
@@ -210,6 +266,7 @@ def run_medcon_analysis(
     quickumls_path: str,
     output_dir: str,
     configs_to_score: List[str] = None,
+    threshold: float = 1.0,
 ):
     """Run MEDCON analysis on evaluation JSONs."""
     output_path = Path(output_dir)
@@ -220,7 +277,7 @@ def run_medcon_analysis(
         configs_to_score = ["ft_only", "ft_rag", "baseline", "rag_only", "teacher"]
     
     # Initialize extractor
-    extractor = UMLSConceptExtractor(quickumls_path)
+    extractor = UMLSConceptExtractor(quickumls_path, threshold=threshold)
     
     all_results = {}
     
@@ -262,6 +319,13 @@ def run_medcon_analysis(
             raw_outputs = config_data.get("raw_outputs", [])
             if not raw_outputs:
                 continue
+
+            if len(raw_outputs) != len(ref_cuis_list):
+                logger.warning(
+                    f"  [{config_name}] raw_outputs length ({len(raw_outputs)}) != "
+                    f"references length ({len(ref_cuis_list)}). "
+                    f"Only {min(len(raw_outputs), len(ref_cuis_list))} samples will be scored."
+                )
             
             logger.info(f"\n  Config: {config_name} ({len(raw_outputs)} samples)")
             
@@ -306,6 +370,13 @@ def run_medcon_analysis(
             raw_outputs = rag_data.get("raw_outputs", [])
             if not raw_outputs:
                 continue
+
+            if len(raw_outputs) != len(ref_cuis_list):
+                logger.warning(
+                    f"  [rag_{rag_name}] raw_outputs length ({len(raw_outputs)}) != "
+                    f"references length ({len(ref_cuis_list)}). "
+                    f"Only {min(len(raw_outputs), len(ref_cuis_list))} samples will be scored."
+                )
             
             logger.info(f"\n  RAG config: {rag_name} ({len(raw_outputs)} samples)")
             
@@ -427,8 +498,8 @@ Example (from WSL):
     parser.add_argument("--quickumls-path", required=True,
                         help="Path to QuickUMLS installation data")
     parser.add_argument("--output-dir", default="./medcon_results")
-    parser.add_argument("--threshold", type=float, default=0.7,
-                        help="QuickUMLS similarity threshold (default 0.7)")
+    parser.add_argument("--threshold", type=float, default=1.0,
+                        help="QuickUMLS similarity threshold (default 1.0, exact match, matching ACI-Bench)")
     parser.add_argument("--configs", nargs="+",
                         default=["ft_only", "ft_rag", "baseline", "rag_only", "teacher"],
                         help="Which configs to score")
@@ -448,6 +519,7 @@ Example (from WSL):
         quickumls_path=args.quickumls_path,
         output_dir=args.output_dir,
         configs_to_score=args.configs,
+        threshold=args.threshold,
     )
     
     print(f"\nMEDCON analysis complete! Results in {args.output_dir}")

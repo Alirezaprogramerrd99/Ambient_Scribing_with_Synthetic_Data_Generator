@@ -1,0 +1,12 @@
+# Student Model Evaluation Report
+**Date:** 2026-04-13T16:07:05.823685
+**Test Samples:** 2
+**Student Model:** clinical-scribe
+**Judge Model:** gpt-4o-mini
+
+## 1. Comparative Experiment Results
+
+| Configuration | ROUGE-L | BERTScore-F1 | Avg Time (s) | Judge Overall | Judge Safety | Judge Halluc |
+|---|---|---|---|---|---|---|
+| Fine-tuned Llama-3.2-1B + RAG | 0.550 | N/A | 8.7 | 4.00 | 4.50 | 3.50 |
+| Teacher (gpt-4o-mini + RAG) | 0.410 | N/A | 4.6 | 4.75 | 5.00 | 5.00 |

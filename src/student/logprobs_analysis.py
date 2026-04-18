@@ -793,7 +793,7 @@ def _generate_plots(all_results: Dict, labels: List[str], output_dir: Path):
             
             ax.set_xlabel("Confidence", fontsize=10)
             if i == 0:
-                ax.set_ylabel("Non-hallucination Rate", fontsize=10)
+                ax.set_ylabel("Accuracy", fontsize=10)
             ax.set_title(f"{label}\nECE = {ece_data['ece']:.4f}", fontsize=11, fontweight="bold")
             ax.set_xlim(0, 1)
             ax.set_ylim(0, 1)

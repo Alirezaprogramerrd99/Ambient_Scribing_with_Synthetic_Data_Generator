@@ -1,0 +1,170 @@
+{
+  "Phi-3.5 (3.8B)": {
+    "ft_rag": {
+      "medcon_precision": 0.800216085838209,
+      "medcon_recall": 0.7486191758226058,
+      "medcon_f1": 0.7685216988666412,
+      "avg_generated_concepts": 64.9,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 51.68,
+      "num_samples": 50
+    },
+    "teacher": {
+      "medcon_precision": 0.7426368760873688,
+      "medcon_recall": 0.5966515445478734,
+      "medcon_f1": 0.6592802978410249,
+      "avg_generated_concepts": 55.88,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 41.22,
+      "num_samples": 50
+    },
+    "rag_dense_only": {
+      "medcon_precision": 0.8462125259378367,
+      "medcon_recall": 0.6766331656728896,
+      "medcon_f1": 0.7443199462719637,
+      "avg_generated_concepts": 55.7,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 46.76,
+      "num_samples": 50
+    },
+    "rag_dense_rerank": {
+      "medcon_precision": 0.7987815466426007,
+      "medcon_recall": 0.7663991992934471,
+      "medcon_f1": 0.7803389599580722,
+      "avg_generated_concepts": 66.44,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 52.96,
+      "num_samples": 50
+    },
+    "rag_dense_rerank_qe": {
+      "medcon_precision": 0.7934577194100823,
+      "medcon_recall": 0.7506207817853341,
+      "medcon_f1": 0.763950442120559,
+      "avg_generated_concepts": 65.58,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 51.76,
+      "num_samples": 50
+    },
+    "rag_full_medical": {
+      "medcon_precision": 0.7956287571713823,
+      "medcon_recall": 0.763837927602044,
+      "medcon_f1": 0.7778901252108156,
+      "avg_generated_concepts": 66.52,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 52.84,
+      "num_samples": 50
+    }
+  },
+  "Llama-3.2 (3B)": {
+    "ft_rag": {
+      "medcon_precision": 0.8016468904987731,
+      "medcon_recall": 0.789287716299324,
+      "medcon_f1": 0.793688615516229,
+      "avg_generated_concepts": 68.26,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 54.64,
+      "num_samples": 50
+    },
+    "teacher": {
+      "medcon_precision": 0.736649527158355,
+      "medcon_recall": 0.5956040358824486,
+      "medcon_f1": 0.656016224003756,
+      "avg_generated_concepts": 56.08,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 41.1,
+      "num_samples": 50
+    },
+    "rag_dense_only": {
+      "medcon_precision": 0.8071247809217471,
+      "medcon_recall": 0.7957448119368989,
+      "medcon_f1": 0.7994180696114458,
+      "avg_generated_concepts": 68.4,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 55.02,
+      "num_samples": 50
+    },
+    "rag_dense_rerank": {
+      "medcon_precision": 0.7987955050692637,
+      "medcon_recall": 0.7884165986508174,
+      "medcon_f1": 0.7919040613199109,
+      "avg_generated_concepts": 68.52,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 54.58,
+      "num_samples": 50
+    },
+    "rag_dense_rerank_qe": {
+      "medcon_precision": 0.8026516052393589,
+      "medcon_recall": 0.7921556006846991,
+      "medcon_f1": 0.7953861147412259,
+      "avg_generated_concepts": 68.46,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 54.8,
+      "num_samples": 50
+    },
+    "rag_full_medical": {
+      "medcon_precision": 0.8057056816556271,
+      "medcon_recall": 0.7922706450181516,
+      "medcon_f1": 0.7972888632581658,
+      "avg_generated_concepts": 68.22,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 54.86,
+      "num_samples": 50
+    }
+  },
+  "Llama-3.2 (1B)": {
+    "ft_rag": {
+      "medcon_precision": 0.7803609189657815,
+      "medcon_recall": 0.7722240288887826,
+      "medcon_f1": 0.77414135961443,
+      "avg_generated_concepts": 68.6,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 53.28,
+      "num_samples": 50
+    },
+    "teacher": {
+      "medcon_precision": 0.7458790395875442,
+      "medcon_recall": 0.5981257602677743,
+      "medcon_f1": 0.6609413665979283,
+      "avg_generated_concepts": 55.8,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 41.32,
+      "num_samples": 50
+    },
+    "rag_dense_only": {
+      "medcon_precision": 0.7891335696053033,
+      "medcon_recall": 0.7694729806583325,
+      "medcon_f1": 0.776753126567599,
+      "avg_generated_concepts": 67.64,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 53.1,
+      "num_samples": 50
+    },
+    "rag_dense_rerank": {
+      "medcon_precision": 0.7780180207966936,
+      "medcon_recall": 0.7688904066123093,
+      "medcon_f1": 0.7714574602064481,
+      "avg_generated_concepts": 68.5,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 53.06,
+      "num_samples": 50
+    },
+    "rag_dense_rerank_qe": {
+      "medcon_precision": 0.7805557531764441,
+      "medcon_recall": 0.7699373525957576,
+      "medcon_f1": 0.7727452285814297,
+      "avg_generated_concepts": 68.42,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 53.08,
+      "num_samples": 50
+    },
+    "rag_full_medical": {
+      "medcon_precision": 0.7797155773135094,
+      "medcon_recall": 0.7633265287572361,
+      "medcon_f1": 0.7696034748069893,
+      "avg_generated_concepts": 67.82,
+      "avg_reference_concepts": 69.38,
+      "avg_overlap_concepts": 52.68,
+      "num_samples": 50
+    }
+  }
+}

@@ -29,3 +29,11 @@ evaluation_results_phi_more_tokenize/
 
 benchmark
 benchmark/
+
+notebooks/logprobs_analysis_output/*.png
+notebooks/smile_results/*.png
+
+medcon_results/
+final_eval_phi
+final_eval_llama3b
+final_eval_llama1b
