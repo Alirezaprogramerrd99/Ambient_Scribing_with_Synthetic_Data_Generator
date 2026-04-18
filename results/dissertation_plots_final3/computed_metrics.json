@@ -1,0 +1,728 @@
+{
+  "Phi-3.5 (3.8B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.5196042984436305,
+        "rouge2": 0.25295683578691697,
+        "rougeL": 0.36587276402448743
+      },
+      "bleu": {
+        "avg_bleu1": 0.3179980884800228,
+        "avg_bleu2": 0.20028932910777178,
+        "avg_bleu3": 0.13363770324406066,
+        "avg_bleu4": 0.08721627743667221
+      },
+      "bertscore": {
+        "precision": 0.8826432824134827,
+        "recall": 0.857475757598877,
+        "f1": 0.8698002696037292
+      },
+      "meteor": 0.29167803246893126,
+      "medcon_f1": 0.6420804121148115,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.8,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.6,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.9,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.32,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.7676,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.5274506161357079,
+        "rouge2": 0.25875788260828203,
+        "rougeL": 0.3666528094205407
+      },
+      "bleu": {
+        "avg_bleu1": 0.32789102578477264,
+        "avg_bleu2": 0.20795970835621766,
+        "avg_bleu3": 0.1407710147566639,
+        "avg_bleu4": 0.09421557509418163
+      },
+      "bertscore": {
+        "precision": 0.882669985294342,
+        "recall": 0.8581122756004333,
+        "f1": 0.8701392412185669
+      },
+      "meteor": 0.29786368114613593,
+      "medcon_f1": 0.6393188077102837,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.78,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.54,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.92,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.32,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.756400000000001,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.708510484165523,
+        "rouge2": 0.47752183294675155,
+        "rougeL": 0.6116796128302731
+      },
+      "bleu": {
+        "avg_bleu1": 0.5960755352637945,
+        "avg_bleu2": 0.4818417380511444,
+        "avg_bleu3": 0.4072308485090468,
+        "avg_bleu4": 0.3453369586630044
+      },
+      "bertscore": {
+        "precision": 0.9430200457572937,
+        "recall": 0.932234525680542,
+        "f1": 0.9375101327896118
+      },
+      "meteor": 0.689637338446378,
+      "medcon_f1": 0.7658052049943214,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.1,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.2,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.92,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.9,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.9,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.48,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.421400000000001,
+        "min_overall": 3.67,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 1,
+        "samples_with_critical_errors": 1
+      },
+      "num_samples": 50
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.7115682516470685,
+        "rouge2": 0.4847651208400026,
+        "rougeL": 0.6145888245121868
+      },
+      "bleu": {
+        "avg_bleu1": 0.604543579374342,
+        "avg_bleu2": 0.4917760090879934,
+        "avg_bleu3": 0.4186663066046316,
+        "avg_bleu4": 0.35691649914938056
+      },
+      "bertscore": {
+        "precision": 0.9445846676826477,
+        "recall": 0.9334158301353455,
+        "f1": 0.938889741897583
+      },
+      "meteor": 0.6984841873340004,
+      "medcon_f1": 0.7667895084022358,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.14,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.28,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 4.06,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.84,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.88,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.38,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.440599999999998,
+        "min_overall": 3.5,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 1,
+        "samples_with_critical_errors": 1
+      },
+      "num_samples": 50
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.559130085955658,
+        "rouge2": 0.30457862496070376,
+        "rougeL": 0.4176378135616604
+      },
+      "bleu": {
+        "avg_bleu1": 0.40625745412727454,
+        "avg_bleu2": 0.2885789961800285,
+        "avg_bleu3": 0.21819460787336775,
+        "avg_bleu4": 0.16405739206421294
+      },
+      "bertscore": {
+        "precision": 0.8752707839012146,
+        "recall": 0.8762465119361877,
+        "f1": 0.8757356405258179
+      },
+      "meteor": 0.43069558767933713,
+      "medcon_f1": 0.6577030059894514,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.86,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.32,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.96,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.42,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.748599999999999,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    }
+  },
+  "Llama-3.2 (3B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.49574560962860326,
+        "rouge2": 0.2300321782176561,
+        "rougeL": 0.33148608175030514
+      },
+      "bleu": {
+        "avg_bleu1": 0.3952564900090794,
+        "avg_bleu2": 0.2587436760465033,
+        "avg_bleu3": 0.18155552694366744,
+        "avg_bleu4": 0.12611728658748178
+      },
+      "bertscore": {
+        "precision": 0.8680635690689087,
+        "recall": 0.8655359148979187,
+        "f1": 0.8667828440666199
+      },
+      "meteor": 0.43981055257099116,
+      "medcon_f1": 0.6048120577423534,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.4,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.08,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.94,
+        "min_hallucination": 4,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.66,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.94,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.505999999999999,
+        "min_overall": 4.0,
+        "max_overall": 5,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.49714598345377814,
+        "rouge2": 0.23108968226902304,
+        "rougeL": 0.3328569448288875
+      },
+      "bleu": {
+        "avg_bleu1": 0.3938216876131137,
+        "avg_bleu2": 0.25711270066191116,
+        "avg_bleu3": 0.17985006215766883,
+        "avg_bleu4": 0.12497130638669858
+      },
+      "bertscore": {
+        "precision": 0.8672659993171692,
+        "recall": 0.8652080297470093,
+        "f1": 0.866223931312561
+      },
+      "meteor": 0.44061024029480117,
+      "medcon_f1": 0.5975825180863967,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.42,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.08,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.98,
+        "min_hallucination": 4,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.64,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.98,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.513799999999998,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.7243441082127439,
+        "rouge2": 0.4872578807348327,
+        "rougeL": 0.6227547129741332
+      },
+      "bleu": {
+        "avg_bleu1": 0.6259100715381347,
+        "avg_bleu2": 0.5050608298373173,
+        "avg_bleu3": 0.4273082615088322,
+        "avg_bleu4": 0.3626446476598566
+      },
+      "bertscore": {
+        "precision": 0.9374620318412781,
+        "recall": 0.9386375546455383,
+        "f1": 0.9380189776420593
+      },
+      "meteor": 0.728873869701022,
+      "medcon_f1": 0.7958772239467651,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.08,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.28,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.86,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.78,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.98,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.2,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.3682,
+        "min_overall": 3.5,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.7258044590467816,
+        "rouge2": 0.49051324374697763,
+        "rougeL": 0.6247772969077092
+      },
+      "bleu": {
+        "avg_bleu1": 0.6307900467760524,
+        "avg_bleu2": 0.5106287916060012,
+        "avg_bleu3": 0.4331325635954918,
+        "avg_bleu4": 0.36813989628534244
+      },
+      "bertscore": {
+        "precision": 0.937625527381897,
+        "recall": 0.9393904805183411,
+        "f1": 0.9384773969650269
+      },
+      "meteor": 0.7336188657647081,
+      "medcon_f1": 0.7925012097618649,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.02,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.3,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.76,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.8,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.92,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.24,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.3488,
+        "min_overall": 3.5,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 1,
+        "samples_with_critical_errors": 1
+      },
+      "num_samples": 50
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.5594665835558743,
+        "rouge2": 0.303913204578519,
+        "rougeL": 0.4175878355478887
+      },
+      "bleu": {
+        "avg_bleu1": 0.40406474762552547,
+        "avg_bleu2": 0.28704533906166513,
+        "avg_bleu3": 0.21761774001370596,
+        "avg_bleu4": 0.16408777676493197
+      },
+      "bertscore": {
+        "precision": 0.8748059868812561,
+        "recall": 0.8761264085769653,
+        "f1": 0.8754432797431946
+      },
+      "meteor": 0.4318992188679948,
+      "medcon_f1": 0.6566215623169279,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.84,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.36,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.96,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.48,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.7646,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    }
+  },
+  "Llama-3.2 (1B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.4639620389859176,
+        "rouge2": 0.18845005487154476,
+        "rougeL": 0.28434462509391867
+      },
+      "bleu": {
+        "avg_bleu1": 0.34076567326059837,
+        "avg_bleu2": 0.20353472654019417,
+        "avg_bleu3": 0.13087505646747732,
+        "avg_bleu4": 0.08068276295872115
+      },
+      "bertscore": {
+        "precision": 0.8742883801460266,
+        "recall": 0.8583870530128479,
+        "f1": 0.866243302822113
+      },
+      "meteor": 0.411894707998474,
+      "medcon_f1": 0.5959545600638506,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.26,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 4,
+        "avg_completeness": 3.92,
+        "min_completeness": 3,
+        "max_completeness": 4,
+        "avg_hallucination": 2.74,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.08,
+        "min_clinical_safety": 2,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.24,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.62,
+        "min_conciseness": 3,
+        "max_conciseness": 4,
+        "avg_overall": 3.644000000000001,
+        "min_overall": 2.67,
+        "max_overall": 4.5,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 23,
+        "samples_with_critical_errors": 19
+      },
+      "num_samples": 50
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.4599529456961752,
+        "rouge2": 0.1872165203076971,
+        "rougeL": 0.2831252181760412
+      },
+      "bleu": {
+        "avg_bleu1": 0.3371720917399581,
+        "avg_bleu2": 0.2027913151817183,
+        "avg_bleu3": 0.13199612202749983,
+        "avg_bleu4": 0.08283984724129656
+      },
+      "bertscore": {
+        "precision": 0.8740109801292419,
+        "recall": 0.8574293255805969,
+        "f1": 0.8656225800514221
+      },
+      "meteor": 0.4094452395225664,
+      "medcon_f1": 0.5923579460369034,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.28,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 4,
+        "avg_completeness": 3.92,
+        "min_completeness": 3,
+        "max_completeness": 4,
+        "avg_hallucination": 2.84,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.2,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.22,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.66,
+        "min_conciseness": 3,
+        "max_conciseness": 4,
+        "avg_overall": 3.691400000000001,
+        "min_overall": 2.67,
+        "max_overall": 4.5,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 15,
+        "samples_with_critical_errors": 11
+      },
+      "num_samples": 50
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.7042772910299573,
+        "rouge2": 0.45788883342667086,
+        "rougeL": 0.596733262780439
+      },
+      "bleu": {
+        "avg_bleu1": 0.6061124251375081,
+        "avg_bleu2": 0.4813652016613171,
+        "avg_bleu3": 0.40352666694462813,
+        "avg_bleu4": 0.33795686339166
+      },
+      "bertscore": {
+        "precision": 0.9360712170600891,
+        "recall": 0.9356528520584106,
+        "f1": 0.9358375072479248
+      },
+      "meteor": 0.7144703618220946,
+      "medcon_f1": 0.7733195211421331,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.82,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.12,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.34,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.62,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.82,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.2,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.1668,
+        "min_overall": 3.5,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 8,
+        "samples_with_critical_errors": 6
+      },
+      "num_samples": 50
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.7015151630577838,
+        "rouge2": 0.45433824171953374,
+        "rougeL": 0.5919049031145844
+      },
+      "bleu": {
+        "avg_bleu1": 0.5995449212849691,
+        "avg_bleu2": 0.4740758764736446,
+        "avg_bleu3": 0.3967668148481145,
+        "avg_bleu4": 0.3322500186114422
+      },
+      "bertscore": {
+        "precision": 0.9350537061691284,
+        "recall": 0.9348904490470886,
+        "f1": 0.9349479675292969
+      },
+      "meteor": 0.7098818933410375,
+      "medcon_f1": 0.7755592606256329,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.8,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.12,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.2,
+        "min_hallucination": 1,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.54,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.78,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.1,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.102599999999999,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 9,
+        "samples_with_critical_errors": 8
+      },
+      "num_samples": 50
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.5612046056114908,
+        "rouge2": 0.3086972196095378,
+        "rougeL": 0.4204811800760179
+      },
+      "bleu": {
+        "avg_bleu1": 0.4052420870986533,
+        "avg_bleu2": 0.2893176726683001,
+        "avg_bleu3": 0.2188101979606929,
+        "avg_bleu4": 0.16434601934165868
+      },
+      "bertscore": {
+        "precision": 0.8748506307601929,
+        "recall": 0.8762536644935608,
+        "f1": 0.8755302429199219
+      },
+      "meteor": 0.42951513037560285,
+      "medcon_f1": 0.6587352214301245,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.8,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.3,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.96,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.98,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.48,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.7452,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 50,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 50
+    }
+  }
+}

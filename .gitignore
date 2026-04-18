@@ -19,4 +19,21 @@ src/evaluation/__pycache__/
 mlflow.db
 
 data
+unsloth_compiled_cache
+unsloth_compiled_cache/
 
+demographics_patterns.py
+
+evaluation_results_phi/
+evaluation_results_phi_more_tokenize/
+
+benchmark
+benchmark/
+
+notebooks/logprobs_analysis_output/*.png
+notebooks/smile_results/*.png
+
+medcon_results/
+final_eval_phi
+final_eval_llama3b
+final_eval_llama1b

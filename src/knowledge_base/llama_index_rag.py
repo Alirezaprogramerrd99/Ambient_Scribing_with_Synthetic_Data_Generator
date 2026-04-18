@@ -514,8 +514,6 @@ class LlamaIndexRetriever(BaseRetriever):
         # Add reranker if requested
         if self.use_reranker:
             try:
-                from llama_index.postprocessor.cohere_rerank import CohereRerank
-                # Or use sentence-transformer reranker
                 from llama_index.core.postprocessor import SentenceTransformerRerank
                 
                 self._reranker = SentenceTransformerRerank(
@@ -524,7 +522,7 @@ class LlamaIndexRetriever(BaseRetriever):
                 )
                 logger.info(f"Reranker enabled: {self.reranker_model}")
             except ImportError:
-                logger.warning("Reranker not available, continuing without it")
+                logger.warning("llama_index SentenceTransformerRerank not available, continuing without it")
                 self._reranker = None
         else:
             self._reranker = None

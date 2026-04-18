@@ -101,58 +101,73 @@ class ModelExporter:
         self.config = config
     
     def export(self) -> dict:
+
         """
+
         Run the complete export pipeline.
-        
-        Returns:
-            Dictionary with export details and paths.
+
         """
+
         logger.info("=" * 60)
+
         logger.info("Starting Model Export Pipeline")
+
         logger.info("=" * 60)
-        
+
         results = {}
-        
-        # Step 1: Merge LoRA adapters
+
+        # Step 1: Merge LoRA adapters (16-bit safetensors)
+
         logger.info("Step 1: Merging LoRA adapters into base model...")
+
         self._merge_adapters()
-        results["merged_dir"] = self.config.merged_dir
-        
-        # Step 2: Convert to GGUF
-        logger.info(f"Step 2: Converting to GGUF ({self.config.quantisation_method})...")
-        gguf_path = self._convert_to_gguf()
-        results["gguf_path"] = str(gguf_path)
-        
+
+        merged_path = Path("./checkpoints/phi35_clinical_scribe/hf_merged")
+
+        results["merged_dir"] = str(merged_path)
+
+        # Step 2 is skipped: We rely on Ollama for native conversion
+
+        logger.info("Step 2: Skipped (Ollama will handle conversion natively)")
+
         # Step 3: Create Modelfile
+
         logger.info("Step 3: Creating Ollama Modelfile...")
-        modelfile_path = self._create_modelfile(gguf_path)
+
+        modelfile_path = self._create_modelfile(merged_path)
+
         results["modelfile_path"] = str(modelfile_path)
-        
-        # Step 4: Register with Ollama
-        logger.info(f"Step 4: Registering '{self.config.ollama_model_name}' with Ollama...")
+
+        # Step 4: Register with Ollama (Quantization happens here)
+
+        logger.info(f"Step 4: Registering and Quantizing '{self.config.ollama_model_name}' with Ollama...")
+
         registered = self._register_with_ollama(modelfile_path)
+
         results["ollama_registered"] = registered
+
         results["ollama_model_name"] = self.config.ollama_model_name
-        
+
         # Step 5: Verify
+
         if registered:
+
             logger.info("Step 5: Verifying model...")
+
             verified = self._verify_model()
+
             results["verified"] = verified
-        
-        # Save export info
-        info_path = Path(self.config.gguf_dir) / "export_info.json"
-        with open(info_path, "w") as f:
-            json.dump(results, f, indent=2)
-        
+
         logger.info("\n" + "=" * 60)
+
         logger.info("Export complete!")
-        logger.info(f"  Ollama model name: {self.config.ollama_model_name}")
-        logger.info(f"  GGUF path: {gguf_path}")
+
         logger.info(f"  Run with: ollama run {self.config.ollama_model_name}")
+
         logger.info("=" * 60)
-        
+
         return results
+ 
     
     # -------------------------------------------------------------------------
     # Step 1: Merge Adapters
@@ -160,6 +175,21 @@ class ModelExporter:
     
     def _merge_adapters(self):
         """Merge LoRA adapters into base model weights."""
+
+        # ---------------------------------------------------------# 
+        # WINDOWS COMPATIBILITY PATCHES# Bypasses unstable Triton/Dynamo compilers on Windows
+        # ---------------------------------------------------------
+ 
+        import os
+        os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"
+        os.environ["TORCH_COMPILE_DISABLE"] = "1"
+        os.environ["TORCHDYNAMO_DISABLE"] = "1"
+        # Pre-load missing config to prevent Unsloth lazy-load bug
+        import torch._inductor.config
+
+
+
+
         from unsloth import FastLanguageModel
         
         checkpoint = Path(self.config.checkpoint_dir)
@@ -178,7 +208,7 @@ class ModelExporter:
         merged_dir.mkdir(parents=True, exist_ok=True)
         
         model.save_pretrained_merged(
-            str(merged_dir),
+            "./checkpoints/phi35_clinical_scribe/hf_merged",
             tokenizer,
             save_method="merged_16bit",
         )
@@ -227,7 +257,59 @@ class ModelExporter:
     
     def _create_modelfile(self, gguf_path: Path) -> Path:
         """Create an Ollama Modelfile for the exported model."""
-        modelfile_content = f"""# Clinical Scribe - Fine-tuned Phi-3.5-mini
+        
+        # Detect model family from base_model name for correct template
+        base_lower = self.config.base_model.lower()
+        is_qwen = "qwen" in base_lower
+        is_llama = "llama" in base_lower
+        
+        if is_llama:
+            model_label = "Llama-3.2"
+            stop_params = (
+                'PARAMETER stop <|eot_id|>\n'
+                'PARAMETER stop <|end_of_text|>\n'
+                'PARAMETER stop <|start_header_id|>'
+            )
+            template_block = (
+                'TEMPLATE """<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n'
+                '{{ .System }}<|eot_id|>'
+                '<|start_header_id|>user<|end_header_id|>\n\n'
+                '{{ .Prompt }}<|eot_id|>'
+                '<|start_header_id|>assistant<|end_header_id|>\n\n'
+                '"""'
+            )
+        elif is_qwen:
+            model_label = "Qwen2.5-3B"
+            stop_params = (
+                'PARAMETER stop <|im_end|>\n'
+                'PARAMETER stop <|endoftext|>\n'
+                'PARAMETER stop <|im_start|>'
+            )
+            template_block = (
+                'TEMPLATE """<|im_start|>system\n'
+                '{{ .System }}<|im_end|>\n'
+                '<|im_start|>user\n'
+                '{{ .Prompt }}<|im_end|>\n'
+                '<|im_start|>assistant\n'
+                '"""'
+            )
+        else:
+            model_label = "Phi-3.5-mini"
+            stop_params = (
+                'PARAMETER stop <|end|>\n'
+                'PARAMETER stop <|endoftext|>\n'
+                'PARAMETER stop <|user|>'
+            )
+            template_block = (
+                'TEMPLATE """<|system|>\n'
+                '{{ .System }}<|end|>\n'
+                '<|user|>\n'
+                '{{ .Prompt }}<|end|>\n'
+                '<|assistant|>\n'
+                '"""'
+            )
+        
+        modelfile_content = f"""# Clinical Scribe - Fine-tuned {model_label}
 # MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 # Author: Alireza Rashidi
 
@@ -238,20 +320,13 @@ PARAMETER temperature {self.config.default_temperature}
 PARAMETER num_ctx {self.config.default_num_ctx}
 PARAMETER top_p {self.config.default_top_p}
 PARAMETER repeat_penalty {self.config.default_repeat_penalty}
-PARAMETER stop <|end|>
-PARAMETER stop <|endoftext|>
-PARAMETER stop <|user|>
+{stop_params}
 
 # System prompt
 SYSTEM \"\"\"{SYSTEM_PROMPT}\"\"\"
 
-# Template (Phi-3.5 ChatML format)
-TEMPLATE \"\"\"<|system|>
-{{{{ .System }}}}<|end|>
-<|user|>
-{{{{ .Prompt }}}}<|end|>
-<|assistant|>
-\"\"\"
+# Template ({model_label} ChatML format)
+{template_block}
 """
         
         modelfile_path = Path(self.config.gguf_dir) / "Modelfile"
@@ -265,6 +340,39 @@ TEMPLATE \"\"\"<|system|>
     # Step 4: Register with Ollama
     # -------------------------------------------------------------------------
     
+    # def _register_with_ollama(self, modelfile_path: Path) -> bool:
+    #     """Register the model with Ollama."""
+    #     try:
+    #         # Check Ollama is running
+    #         check = subprocess.run(
+    #             ["ollama", "list"],
+    #             capture_output=True, text=True, timeout=10
+    #         )
+    #         if check.returncode != 0:
+    #             logger.error("Ollama is not running. Start it with: ollama serve")
+    #             return False
+            
+    #         # Create the model
+    #         result = subprocess.run(
+    #             ["ollama", "create", self.config.ollama_model_name, "-f", str(modelfile_path)],
+    #             capture_output=True, text=True, timeout=300
+    #         )
+            
+    #         if result.returncode == 0:
+    #             logger.info(f"  ✓ Model '{self.config.ollama_model_name}' registered with Ollama")
+    #             return True
+    #         else:
+    #             logger.error(f"  ✗ Ollama registration failed: {result.stderr}")
+    #             return False
+                
+    #     except FileNotFoundError:
+    #         logger.error("Ollama CLI not found. Install from: https://ollama.ai")
+    #         return False
+    #     except subprocess.TimeoutExpired:
+    #         logger.error("Ollama registration timed out")
+    #         return False
+
+
     def _register_with_ollama(self, modelfile_path: Path) -> bool:
         """Register the model with Ollama."""
         try:
@@ -276,26 +384,31 @@ TEMPLATE \"\"\"<|system|>
             if check.returncode != 0:
                 logger.error("Ollama is not running. Start it with: ollama serve")
                 return False
-            
-            # Create the model
+            # Create the model and apply quantization natively
+            logger.info(f"  (This may take 2-5 minutes as Ollama converts safetensors to {self.config.quantisation_method}...)")
             result = subprocess.run(
-                ["ollama", "create", self.config.ollama_model_name, "-f", str(modelfile_path)],
-                capture_output=True, text=True, timeout=300
+                [
+                    "ollama", "create", self.config.ollama_model_name, 
+                    "-f", str(modelfile_path),
+                    "--quantize", self.config.quantisation_method
+                ],
+                capture_output=True, text=True, timeout=1200 # Increased timeout for quantization
             )
-            
             if result.returncode == 0:
                 logger.info(f"  ✓ Model '{self.config.ollama_model_name}' registered with Ollama")
                 return True
             else:
                 logger.error(f"  ✗ Ollama registration failed: {result.stderr}")
                 return False
-                
         except FileNotFoundError:
             logger.error("Ollama CLI not found. Install from: https://ollama.ai")
             return False
         except subprocess.TimeoutExpired:
             logger.error("Ollama registration timed out")
             return False
+
+
+
     
     # -------------------------------------------------------------------------
     # Step 5: Verify

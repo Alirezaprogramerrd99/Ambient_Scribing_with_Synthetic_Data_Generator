@@ -350,8 +350,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-- Anthropic for Claude
-- Ollama team for local LLM serving
 - LlamaIndex for RAG framework
 - NICE for clinical guidelines
 

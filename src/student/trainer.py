@@ -1,8 +1,8 @@
 """
 Student Model Trainer - QLoRA Fine-Tuning with Unsloth
 
-Fine-tunes Phi-3.5-mini-instruct using QLoRA (4-bit) via Unsloth
-for clinical scribing tasks. Supports curriculum learning using
+Fine-tunes SLMs (Phi-3.5, Qwen2.5, Llama-3.2, etc.) using QLoRA (4-bit)
+via Unsloth for clinical scribing tasks. Supports curriculum learning using
 difficulty metadata from the teacher pipeline.
 
 Prerequisites:
@@ -41,7 +41,7 @@ class TrainingConfig:
     # LoRA
     lora_r: int = 32
     lora_alpha: int = 64
-    lora_dropout: float = 0.05
+    lora_dropout: float = 0.0     # 0.05
     target_modules: List[str] = field(default_factory=lambda: [
         "q_proj", "k_proj", "v_proj", "o_proj",
         "gate_proj", "up_proj", "down_proj",
@@ -91,12 +91,13 @@ class TrainingConfig:
 
 class StudentTrainer:
     """
-    Fine-tunes Phi-3.5-mini for clinical scribing using Unsloth + QLoRA.
+    Fine-tunes an SLM for clinical scribing using Unsloth + QLoRA.
     
     Example:
         config = TrainingConfig(
-            training_data_dir="./data/training_data",
-            output_dir="./checkpoints/phi35_scribe",
+            base_model="unsloth/Qwen2.5-3B-Instruct",
+            training_data_dir="./data/training_data_qwen",
+            output_dir="./checkpoints/qwen25_clinical_scribe",
             num_epochs=3,
         )
         trainer = StudentTrainer(config)
@@ -136,12 +137,28 @@ class StudentTrainer:
         logger.info("Starting training...")
         train_result = self.trainer.train()
         
-        # Step 5: Save final model
+        # Step 5: Save LoRA adapters
         final_dir = Path(self.config.output_dir) / "final"
         final_dir.mkdir(parents=True, exist_ok=True)
         self.model.save_pretrained(str(final_dir))
         self.tokenizer.save_pretrained(str(final_dir))
-        logger.info(f"Final model saved to {final_dir}")
+        logger.info(f"LoRA adapters saved to {final_dir}")
+        
+        # Step 5b: Merge adapters into base model for direct inference
+        # This produces a standalone model that inference_fixed.py can load
+        # without needing to download the base model from HuggingFace.
+        merged_dir = Path(self.config.output_dir) / "hf_merged"
+        logger.info(f"Merging LoRA adapters into base model → {merged_dir}")
+        try:
+            self.model.save_pretrained_merged(
+                str(merged_dir),
+                self.tokenizer,
+                save_method="merged_16bit",
+            )
+            logger.info(f"Merged model saved to {merged_dir}")
+        except Exception as e:
+            logger.error(f"Merge failed: {e}")
+            logger.error("You can merge manually later. The LoRA adapters in /final are intact.")
         
         # Step 6: Save training results
         elapsed = time.time() - self._training_start
@@ -182,7 +199,22 @@ class StudentTrainer:
     def _load_model(self):
         """Load base model with Unsloth and add LoRA adapters."""
         try:
+            import os
+            os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"  # Bypass unstable Windows Triton compiler import
+            os.environ["TORCH_COMPILE_DISABLE"] = "1"    # Bypass PyTorch's internal compiler
+            os.environ["TORCHDYNAMO_DISABLE"] = "1"      # Force PyTorch into safe 'eager' mode
+            import torch
+            import torch._inductor.config                # Pre-load the missing PyTorch module
+
+            # # --- PYTORCH 2.4 COMPATIBILITY PATCH ---
+            # # torchao expects PyTorch 2.6+ which has int1-int7.
+            # # We mock them to prevent the import crash.
+            # for i in range (1, 8):
+            #     if not hasattr(torch, f"int{i}"):
+            #         setattr(torch, f"int{i}", torch.int8)
+
             from unsloth import FastLanguageModel
+
         except ImportError:
             raise ImportError(
                 "Unsloth is not installed. Install with:\n"
@@ -287,8 +319,12 @@ class StudentTrainer:
         """Configure the SFTTrainer."""
         from trl import SFTTrainer, SFTConfig
         
+        # Derive short model name for run naming (e.g. "phi35", "qwen25", "llama32")
+        _model_short = Path(self.config.base_model).name.lower()
+        _model_short = _model_short.replace("-instruct", "").replace("-", "").replace(".", "")[:10]
+        
         run_name = self.config.run_name or (
-            f"phi35-clinical-r{self.config.lora_r}-"
+            f"{_model_short}-clinical-r{self.config.lora_r}-"
             f"lr{self.config.learning_rate}-"
             f"e{self.config.num_epochs}"
         )
@@ -299,6 +335,9 @@ class StudentTrainer:
             # Training hyperparameters
             num_train_epochs=self.config.num_epochs,
             per_device_train_batch_size=self.config.per_device_train_batch_size,
+            
+            per_device_eval_batch_size=2,
+ 
             gradient_accumulation_steps=self.config.gradient_accumulation_steps,
             learning_rate=self.config.learning_rate,
             lr_scheduler_type=self.config.lr_scheduler_type,
@@ -371,7 +410,7 @@ if __name__ == "__main__":
     
     logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
     
-    parser = argparse.ArgumentParser(description="Fine-tune Phi-3.5-mini for clinical scribing")
+    parser = argparse.ArgumentParser(description="Fine-tune an SLM for clinical scribing")
     parser.add_argument("--data-dir", default="./data/training_data", help="Training data directory")
     parser.add_argument("--output-dir", default="./checkpoints/phi35_clinical_scribe", help="Checkpoint output")
     parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")

@@ -1,0 +1,665 @@
+{
+  "timestamp": "2026-04-13T16:46:50.694095",
+  "num_test_samples": 2,
+  "config": {
+    "student_model": "clinical-scribe",
+    "base_model": "phi3.5:3.8b-mini-instruct-q4_K_M",
+    "ft_model_path": "./checkpoints/llama32_1b_clinical_scribe/hf_merged",
+    "base_model_hf": "unsloth/Llama-3.2-1B-Instruct",
+    "teacher_model": "gpt-4o-mini",
+    "judge_model": "gpt-4o-mini",
+    "temperature": 0.1,
+    "top_p": 0.9
+  },
+  "references": [
+    "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion that started three months ago, initially small but now varying in size and color. The lesion occasionally bleeds and has moderate to severe intermittent severity. There are no specific aggravating or relieving factors noted. Associated symptoms include occasional itching.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, moderate alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 130/80, HR 72 bpm, Temp 98.6\u00c2\u00b0F. Lesion on the left forearm: approximately 1.5 cm in diameter, irregular borders, varied color, dry skin surrounding, with some areas of bleeding.\n**Assessment:** Working diagnosis of a potential skin lesion requiring further evaluation; differential diagnoses include melanoma and other benign conditions.\n**Plan:** Initiate treatment with topical vitamin D analogue (Calcipotriol) and follow up in 4 weeks. Consider referral to a dermatologist if no improvement. Educate patient on red flags: rapid changes in size or color, increased bleeding, or signs of infection.\n**Safety Netting:** Return if there are rapid changes in the lesion, increased bleeding, or signs of infection such as increased redness or pus.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the left forearm for 3 months, varying in color and size, with intermittent bleeding and occasional itching.\nO: Vital signs stable. Examination reveals a lesion of 1.5 cm with irregular borders and varied color.\nA: Possible skin lesion requiring further evaluation, differential includes melanoma.\nP: Start topical vitamin D analogue, follow up in 4 weeks, consider referral to dermatology.",
+    "**Chief Complaint:** Tremor for 2 weeks, worsening severity.\n**History of Present Illness:** The patient is an 80-year-old male who presents with a tremor that started about two weeks ago. The tremor is constant and has been progressively worsening. The patient reports associated weight loss due to decreased appetite, stating that eating has become difficult because of the tremor. He notes that taking antacids seems to relieve the symptoms somewhat.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** No smoking or alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 130/80 mmHg, HR 72 bpm, RR 16 breaths/min. Examination reveals a pronounced tremor in both hands, with no rigidity or bradykinesia noted.\n**Assessment:** Working diagnosis includes essential tremor or anxiety-related tremor. Differential diagnoses include metabolic causes.\n**Plan:** Order blood tests to evaluate metabolic issues. Refer to neurology for further assessment. Discuss potential management options and consider lifestyle modifications. Advise follow-up based on test results.\n**Safety Netting:** Return if experiencing severe weakness, visual changes, significantly worsening tremor, or if new symptoms arise.\n\n**SOAP Note:**\nS: 80-year-old male presents with a tremor for 2 weeks, worsening, associated with weight loss due to decreased appetite.\nO: Vital signs stable, pronounced tremor in both hands, no rigidity or bradykinesia.\nA: Essential tremor or anxiety-related tremor; rule out metabolic causes.\nP: Order blood tests; refer to neurology; advise follow-up on symptoms."
+  ],
+  "dialogues": [
+    "Doctor: Good morning, I'm Dr. Smith. What brings you in today?\nPatient: Hello, Doctor. I've had this skin lesion on my arm for about three months.\nDoctor: I see. Can you tell me more about it? When did it first appear?\nPatient: It started as a small spot, but it's been changing. Sometimes it bleeds and has changed color.\nDoctor: How would you describe the severity of the lesion? Has it been consistent or does it vary?\nPatient: It varies a lot. Some days it looks worse than others. I\u00e2\u20ac\u2122d say it\u00e2\u20ac\u2122s moderate to severe at times.\nDoctor: Are there any specific triggers that make it worse or anything that helps relieve it?\nPatient: No, I haven\u00e2\u20ac\u2122t noticed anything specific that makes it better or worse.\nDoctor: Have you experienced any other symptoms like itching or pain associated with the lesion?\nPatient: It itches sometimes, but mostly it\u00e2\u20ac\u2122s just the appearance that bothers me.\nDoctor: Thank you for sharing that. Can I ask about your past medical history? Do you have any other health conditions?\nPatient: I have osteoarthritis and high cholesterol. I'm on atorvastatin 20mg for that.\nDoctor: Got it. Do you have any allergies to medications?\nPatient: No, I don\u00e2\u20ac\u2122t have any allergies.\nDoctor: Great. Now, let me examine the lesion on your arm.\nDoctor: The lesion is approximately 1.5 cm in diameter, irregular borders, and has a varied color with some areas darker than others. There is dry skin around it and some areas of bleeding.\nDoctor: Based on the appearance, this could potentially be a skin condition that requires further investigation. I'll recommend a topical vitamin D analogue like Calcipotriol, and possibly a combination product if it doesn't improve. However, given your age and the characteristics of the lesion, we may also need to consider a referral to a dermatologist for further evaluation.\nPatient: That sounds good, but what should I look out for in case it gets worse?\nDoctor: You should return immediately if you notice rapid changes in size or color, if it starts to bleed more frequently, or if you see any signs of infection like increased redness or pus. These are important red flags.\nDoctor: I will arrange for a follow-up appointment in a few weeks to see how the treatment is working.\nPatient: Thank you, Doctor. I appreciate your help.",
+    "Doctor: Good morning, I'm Dr. Smith. What brings you in today?\nPatient: Good morning, Doctor. I've been having a tremor for the last two weeks, and it's getting worse.\nDoctor: I'm sorry to hear that. Can you tell me more about the tremor? When did it start?\nPatient: It started about two weeks ago. At first, it was just a little shaky, but now it's more noticeable.\nDoctor: How would you describe the tremor? Is it constant or does it come and go?\nPatient: It\u00e2\u20ac\u2122s mostly constant, but it can get worse if I\u00e2\u20ac\u2122m trying to do something.\nDoctor: Have you noticed any other symptoms, like weight loss or changes in your appetite?\nPatient: Yes, I\u00e2\u20ac\u2122ve lost some weight because I haven\u00e2\u20ac\u2122t been eating much. The tremor makes it hard to eat.\nDoctor: That sounds challenging. Have you found anything that helps alleviate the tremor?\nPatient: Well, I noticed that taking antacids seems to help a bit.\nDoctor: Interesting. Do you have any other medical conditions or are you taking any medications?\nPatient: No significant medical history, and I\u00e2\u20ac\u2122m not on any medications.\nDoctor: Do you have any allergies?\nPatient: No, no known allergies.\nDoctor: Alright, let me perform a quick physical examination. I will check your vital signs and assess the tremor.\nDoctor: Your blood pressure is within normal limits, but I notice that the tremor is quite pronounced in both hands. There\u00e2\u20ac\u2122s no evidence of rigidity or bradykinesia, so I don't suspect Parkinson's at this stage.\nPatient: What do you think it could be?\nDoctor: Based on your symptoms and the guidelines, this could be essential tremor or possibly related to anxiety or another underlying condition. I recommend some initial blood tests to rule out any metabolic issues and possibly a referral for a neurologist.\nPatient: That sounds reasonable. Is there anything else I should watch out for?\nDoctor: Yes, please be on the lookout for any new symptoms such as severe weakness, changes in vision, or if the tremor worsens significantly. If you experience any of these, please return right away.\nPatient: Thank you, Doctor. I appreciate your help.\nDoctor: You're welcome! We\u00e2\u20ac\u2122ll get to the bottom of this together."
+  ],
+  "comparative": {
+    "ft_rag": {
+      "description": "Fine-tuned Llama-3.2-1B + RAG",
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.5437608071223401,
+        "rouge_details": {
+          "rouge1": 0.7026344370293096,
+          "rouge2": 0.43097043132681057,
+          "rougeL": 0.5437608071223401,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 6.712101101875305,
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.0,
+          "min_hallucination": 3,
+          "max_hallucination": 3,
+          "avg_clinical_safety": 4.0,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 4,
+          "avg_coherence": 4.5,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 3.835,
+          "min_overall": 3.67,
+          "max_overall": 4.0,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the diagnosis as dermatitis or psoriasis instead of considering melanoma.",
+              "Missing specific details about vital signs from the examination findings."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (55-year-old female instead of 80-year-old male)"
+            ],
+            "strengths": [
+              "Well-structured and coherent summary",
+              "Includes relevant clinical details and safety netting advice"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Slightly inaccurate vital signs",
+              "Includes Parkinson's disease in differential which was not mentioned in the dialogue"
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient is a 72-year-old female who presents with a skin lesion on her arm that has been present for three months. The lesion has changed in appearance, with intermittent bleeding and color changes. The patient describes the lesion as moderate to severe in severity, with some days appearing worse than others. It itches occasionally but is not painful. The patient has a history of osteoarthritis and hyperlipidemia, and is currently taking atorvastatin 20mg.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination of the lesion reveals an irregularly shaped area with varied color, dry skin, and occasional bleeding.\n**Assessment:** Working diagnosis of a skin lesion potentially requiring further evaluation, possibly dermatitis or psoriasis.\n**Plan:** Initiate treatment with Calcipotriol topical steroid. Consider referral to dermatology for further evaluation if no improvement. Follow-up appointment in 4 weeks. Monitor for any signs of infection or rapid changes in the lesion.\n**Safety Netting:** Return immediately if the lesion bleeds more frequently, if there are signs of infection (increased redness, pus), or if the patient experiences any systemic symptoms such as fever or chills.\n\n**SOAP Note:**\nS: 72-year-old female with a skin lesion on the arm for 3 months, intermittent bleeding, color changes, moderate severity.\nO: Vital signs stable. Examination reveals an irregularly shaped lesion with dry skin and occasional bleeding.\nA: Skin lesion potentially dermatitis or psoriasis.\nP: Start Calcipotriol topical steroid. Consider dermatology referral. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, gradually worsening.\n**History of Present Illness:** The patient is a 55-year-old female who presents with a tremor that started two weeks ago. Initially mild, the tremor has become more noticeable and is constant. The patient reports associated symptoms of weight loss due to decreased appetite and difficulty eating. The tremor worsens with activity and improves slightly with antacids. No significant past medical history or current medications noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, occupation not specified.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination reveals bilateral hand tremors, no rigidity or bradykinesia noted.\n**Assessment:** Working diagnosis includes essential tremor or anxiety-related tremor. Differential diagnoses include Parkinson's disease and other neurological conditions.\n**Plan:** Order blood tests to rule out metabolic causes (e.g., thyroid function, vitamin levels). Consider referral to a neurologist for further evaluation. Monitor symptoms and provide reassurance.\n**Safety Netting:** Return immediately if experiencing severe weakness, changes in vision, or if the tremor significantly worsens.\n\n**SOAP Note:**\nS: 55-year-old female with a 2-week history of tremor, associated with weight loss and difficulty eating.\nO: Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination shows bilateral hand tremors.\nA: Essential tremor or anxiety-related tremor; differential includes Parkinson's disease.\nP: Blood tests to rule out metabolic causes; neurologist referral; safety netting advice."
+      ],
+      "logprobs_per_sample": []
+    },
+    "teacher": {
+      "description": "Teacher (gpt-4o-mini + RAG)",
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.41763586722848056,
+        "rouge_details": {
+          "rouge1": 0.5700350417060797,
+          "rouge2": 0.31146046935520616,
+          "rougeL": 0.41763586722848056,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 4.372009038925171,
+        "llm_judge": {
+          "avg_clinical_accuracy": 5.0,
+          "min_clinical_accuracy": 5,
+          "max_clinical_accuracy": 5,
+          "avg_completeness": 4.5,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 5.0,
+          "min_hallucination": 5,
+          "max_hallucination": 5,
+          "avg_clinical_safety": 5.0,
+          "min_clinical_safety": 5,
+          "max_clinical_safety": 5,
+          "avg_coherence": 5.0,
+          "min_coherence": 5,
+          "max_coherence": 5,
+          "avg_conciseness": 5.0,
+          "min_conciseness": 5,
+          "max_conciseness": 5,
+          "avg_overall": 4.915,
+          "min_overall": 4.83,
+          "max_overall": 5.0,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 5,
+            "completeness": 5,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 5.0,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes all relevant past medical history, medications, and allergies.",
+              "Well-structured and logically organized.",
+              "Clear safety netting advice provided."
+            ],
+            "weaknesses": []
+          },
+          {
+            "clinical_accuracy": 5,
+            "completeness": 4,
+            "hallucination": 5,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 5,
+            "overall": 4.83,
+            "critical_errors": [],
+            "strengths": [
+              "Accurate capture of chief complaint and history of present illness.",
+              "Well-structured and coherent summary.",
+              "No hallucinations present."
+            ],
+            "weaknesses": [
+              "Lacks specific details about the patient's age and vital signs.",
+              "Does not mention social or family history."
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint**  \nSkin lesion on arm for about three months.\n\n**History of Present Illness**  \nThe patient reports a skin lesion that started as a small spot and has been changing in appearance. The lesion sometimes bleeds and has changed color. The severity varies, described as moderate to severe at times. The patient experiences occasional itching but is mostly concerned about the appearance of the lesion. No specific triggers or relieving factors have been identified.\n\n**Past Medical History**  \n- Osteoarthritis  \n- High cholesterol  \n\n**Medications**  \n- Atorvastatin 20mg  \n\n**Allergies**  \nNo known allergies.\n\n**Examination Findings**  \n- Lesion approximately 1.5 cm in diameter  \n- Irregular borders  \n- Varied color with some darker areas  \n- Dry skin around the lesion  \n- Areas of bleeding  \n\n**Assessment**  \nThe lesion may represent a skin condition that requires further investigation.\n\n**Plan**  \n- Recommend topical vitamin D analogue (Calcipotriol)  \n- Consider a combination product if no improvement  \n- Possible referral to a dermatologist for further evaluation  \n\n**Safety Netting**  \nThe patient should return immediately if there are rapid changes in size or color, increased frequency of bleeding, or signs of infection such as increased redness or pus. A follow-up appointment will be arranged in a few weeks to assess treatment efficacy.",
+        "**Chief Complaint:**  \nTremor for the last two weeks, worsening in severity.\n\n**History of Present Illness:**  \nThe patient reports a tremor that began two weeks ago, initially mild but has become more noticeable and mostly constant. The tremor worsens when attempting to perform tasks. The patient has also experienced weight loss due to decreased appetite, as the tremor makes eating difficult.\n\n**Past Medical History:**  \nNo significant medical history.\n\n**Medications:**  \nNot on any medications.\n\n**Allergies:**  \nNo known allergies.\n\n**Examination Findings:**  \n- Blood pressure: Within normal limits.  \n- Tremor: Pronounced in both hands.  \n- No evidence of rigidity or bradykinesia.\n\n**Assessment:**  \nPossible essential tremor or tremor related to anxiety or another underlying condition.\n\n**Plan:**  \n- Recommend initial blood tests to rule out metabolic issues.  \n- Consider referral to a neurologist.\n\n**Safety Netting:**  \nInstructed the patient to monitor for new symptoms such as severe weakness, changes in vision, or significant worsening of the tremor, and to return if any of these occur."
+      ],
+      "logprobs_per_sample": []
+    }
+  },
+  "rag_backends": {
+    "dense_only": {
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.5968463736448442,
+        "rouge_details": {
+          "rouge1": 0.7143702552035186,
+          "rouge2": 0.46985894423393104,
+          "rougeL": 0.5968463736448442,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 6.554576277732849,
+        "avg_rag_score": 0.6932354750812261,
+        "rag_config": {
+          "use_reranker": false,
+          "use_query_expansion": false,
+          "use_clinical_filtering": false
+        },
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.0,
+          "min_hallucination": 3,
+          "max_hallucination": 3,
+          "avg_clinical_safety": 4.5,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.5,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 3.935,
+          "min_overall": 3.67,
+          "max_overall": 4.2,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Accurately captures the chief complaint and history of present illness.",
+              "Well-structured and logically organized.",
+              "Includes appropriate safety netting advice."
+            ],
+            "weaknesses": [
+              "Differential diagnoses include conditions not mentioned in the dialogue (e.g., psoriasis, seborrheic keratosis).",
+              "Social history mentions 'occasional alcohol use' which was not discussed in the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and organized summary.",
+              "Captures the chief complaint and history of present illness effectively.",
+              "Includes safety netting advice."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 67-year-old female instead of an 80-year-old male.",
+              "Vital signs slightly differ from the original dialogue.",
+              "Social history includes information not present in the dialogue (occasional alcohol use)."
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient reports a skin lesion that started as a small spot on the arm three months ago. The lesion has been changing in appearance, with occasional bleeding and color changes. The severity of the lesion varies, with some days appearing worse than others. The patient describes the lesion as moderate to severe in severity. There are no specific triggers that make it better or worse, and the patient reports occasional itching but no significant pain.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination of the lesion reveals an irregularly shaped area with varied color, dry skin, and some areas of bleeding. No signs of infection noted.\n**Assessment:** Working diagnosis of a skin lesion potentially related to psoriasis or other dermatological condition. Differential diagnoses include seborrheic keratosis or other benign skin lesions.\n**Plan:** Initiate treatment with topical vitamin D analogue (Calcipotriol) and consider combination product if no improvement. Schedule follow-up appointment in 4 weeks. Consider referral to dermatology if no improvement or if the lesion significantly worsens.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size, color, or if it starts to bleed more frequently. Watch for signs of infection such as increased redness or pus.\n\n**SOAP Note:**\nS: Patient presents with a skin lesion on the arm for 3 months, with intermittent bleeding and color changes.\nO: Vital signs stable. Examination reveals an irregularly shaped lesion with dry skin and some areas of bleeding.\nA: Skin lesion likely related to psoriasis or other dermatological condition. Differential includes seborrheic keratosis.\nP: Start topical vitamin D analogue (Calcipotriol) and schedule follow-up appointment in 4 weeks. Consider dermatology referral if no improvement.",
+        "**Chief Complaint:** Tremor for 2 weeks, worsening in severity.\n**History of Present Illness:** The patient is a 67-year-old female who presents with a tremor that started approximately two weeks ago. Initially mild, the tremor has become more noticeable and is constant. The patient reports associated symptoms of weight loss due to decreased appetite and difficulty eating. The tremor exacerbates when attempting to perform tasks. The patient notes that antacids provide some relief. There are no significant past medical history or current medications.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination reveals bilateral hand tremors with no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor or anxiety-related tremor.\n**Plan:** Order blood tests to rule out metabolic causes. Consider referral to a neurologist for further evaluation. Monitor symptoms and provide reassurance.\n**Safety Netting:** Return immediately if experiencing severe weakness, changes in vision, or if the tremor significantly worsens.\n\n**SOAP Note:**\nS: 67-year-old female with a 2-week history of tremor, associated with weight loss and difficulty eating.\nO: Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination shows bilateral hand tremors.\nA: Essential tremor or anxiety-related tremor.\nP: Blood tests to rule out metabolic causes, possible neurologist referral."
+      ],
+      "logprobs_per_sample": []
+    },
+    "dense_rerank": {
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.5516032718992288,
+        "rouge_details": {
+          "rouge1": 0.7120990100372182,
+          "rouge2": 0.44832688762284967,
+          "rougeL": 0.5516032718992288,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 8.208779215812683,
+        "avg_rag_score": 0.0,
+        "rag_config": {
+          "use_reranker": true,
+          "use_query_expansion": false,
+          "use_clinical_filtering": false
+        },
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 2.5,
+          "min_hallucination": 2,
+          "max_hallucination": 3,
+          "avg_clinical_safety": 4.0,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 4,
+          "avg_coherence": 4.5,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 3.75,
+          "min_overall": 3.5,
+          "max_overall": 4.0,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 1,
+          "samples_with_critical_errors": 1
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.0,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate chief complaint and history of present illness.",
+              "Includes safety netting and follow-up plan."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the diagnosis as dermatitis or psoriasis instead of considering melanoma.",
+              "Some details about the examination findings are less specific compared to the reference."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.5,
+            "critical_errors": [
+              "Incorrect age and gender of the patient (45-year-old female instead of 80-year-old male)"
+            ],
+            "strengths": [
+              "Well-structured and coherent summary",
+              "Includes relevant clinical details and safety netting"
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics",
+              "Some minor inaccuracies in examination findings and differential diagnoses"
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient is a 69-year-old female who presents with a skin lesion on her arm that has been present for three months. The lesion has changed in appearance, with intermittent bleeding and color changes. The patient describes the lesion as moderate to severe in severity, with some days appearing worse than others. It is associated with intermittent itching but no significant pain. The patient reports no specific triggers for the lesion and notes that it does not improve with treatment.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination of the lesion reveals an irregularly shaped area with varied color, dry skin, and occasional bleeding.\n**Assessment:** Working diagnosis of a skin lesion potentially requiring further evaluation, possibly dermatitis or psoriasis.\n**Plan:** Initiate treatment with Calcipotriol topical steroid. Consider referral to dermatology for further evaluation if no improvement. Schedule follow-up appointment in 4 weeks. Monitor for any signs of infection or rapid changes in the lesion.\n**Safety Netting:** Return immediately if the lesion bleeds more frequently, if it changes rapidly in size or color, or if there are signs of infection such as increased redness or pus.\n\n**SOAP Note:**\nS: 69-year-old female with a skin lesion on the arm for 3 months, intermittent itching, no significant pain.\nO: Vital signs stable. Examination reveals an irregularly shaped lesion with varied color, dry skin, and occasional bleeding.\nA: Skin lesion possibly dermatitis or psoriasis.\nP: Start Calcipotriol topical steroid. Consider dermatology referral. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, gradually worsening.\n**History of Present Illness:** The patient is a 45-year-old female who presents with a tremor that started approximately two weeks ago. Initially mild, the tremor has become more noticeable and is constant. The patient reports associated symptoms of weight loss due to decreased appetite and difficulty eating. The tremor worsens with activity and improves with antacids. No significant past medical history or current medications noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, occupation not specified.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, RR 16/min. Neurological examination reveals bilateral hand tremors, no rigidity or bradykinesia noted.\n**Assessment:** Working diagnosis includes essential tremor or anxiety-related tremor. Differential diagnoses include Parkinson's disease and other neurological conditions.\n**Plan:** Order blood tests to rule out metabolic causes (e.g., thyroid function, vitamin levels). Consider referral to a neurologist for further evaluation. Follow-up in one week or sooner if symptoms worsen.\n**Safety Netting:** Patient advised to seek immediate medical attention if experiencing severe weakness, changes in vision, or if the tremor significantly worsens.\n\n**SOAP Note:**\nS: 45-year-old female with a 2-week history of tremor, associated with weight loss and difficulty eating.\nO: Vital signs: BP 120/80 mmHg, HR 72 bpm, RR 16/min. Neurological examination shows bilateral hand tremors.\nA: Essential tremor or anxiety-related tremor; differential includes Parkinson's disease.\nP: Blood tests to rule out metabolic causes; possible neurologist referral; follow-up in one week."
+      ],
+      "logprobs_per_sample": []
+    },
+    "dense_rerank_qe": {
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.5694600274415131,
+        "rouge_details": {
+          "rouge1": 0.7113326501901801,
+          "rouge2": 0.4534106061083289,
+          "rougeL": 0.5694600274415131,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 6.111901044845581,
+        "avg_rag_score": 0.0,
+        "rag_config": {
+          "use_reranker": true,
+          "use_query_expansion": true,
+          "use_clinical_filtering": false
+        },
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.0,
+          "min_completeness": 4,
+          "max_completeness": 4,
+          "avg_hallucination": 3.0,
+          "min_hallucination": 3,
+          "max_hallucination": 3,
+          "avg_clinical_safety": 4.5,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.5,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 3.935,
+          "min_overall": 3.67,
+          "max_overall": 4.2,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.2,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Accurate representation of the chief complaint and history of present illness.",
+              "Includes safety netting and follow-up plan."
+            ],
+            "weaknesses": [
+              "Incorrectly specifies the patient as a 90-year-old female, which was not mentioned in the dialogue.",
+              "Assessment includes potential diagnoses (dermatitis or psoriasis) not supported by the dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 3,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and logically organized summary.",
+              "Includes important clinical elements such as assessment and plan."
+            ],
+            "weaknesses": [
+              "Incorrect patient demographics (age and gender).",
+              "Vital signs slightly differ from the original dialogue.",
+              "Differential diagnosis includes Parkinson's disease, which was not mentioned by the doctor."
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient is a 90-year-old female who presents with a skin lesion on her arm that has been present for three months. The lesion has changed in appearance, with intermittent bleeding and color changes. The patient describes the lesion as moderate to severe in severity, with some days appearing worse than others. It itches occasionally but is not painful. The patient has a history of osteoarthritis and hyperlipidemia, and is currently taking atorvastatin 20mg.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, no alcohol use reported.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination of the skin lesion reveals an irregularly shaped lesion approximately 1.5 cm in diameter, with varied color and some areas of dryness. There is dry skin around the lesion and occasional bleeding.\n**Assessment:** Working diagnosis of a skin lesion potentially requiring further evaluation, possibly dermatitis or psoriasis.\n**Plan:** Initiate treatment with Calcipotriol topical analogue. Consider referral to dermatology for further evaluation if no improvement is observed. Schedule follow-up appointment in 4 weeks.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size or color, if it bleeds more frequently, or if signs of infection develop (increased redness, pus).\n\n**SOAP Note:**\nS: 90-year-old female with a skin lesion on the arm for 3 months, intermittent bleeding, color changes, moderate severity.\nO: Vital signs stable. Examination reveals an irregularly shaped lesion with varied color and dry skin.\nA: Skin lesion likely requiring further evaluation, possibly dermatitis or psoriasis.\nP: Start Calcipotriol topical analogue. Consider dermatology referral. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, gradually worsening.\n**History of Present Illness:** The patient is a 55-year-old female who presents with a tremor that started two weeks ago. Initially mild, the tremor has become more noticeable and is constant. The patient reports associated symptoms of weight loss due to decreased appetite and difficulty eating. The tremor worsens with activity and improves with antacids. No significant past medical history or current medications noted.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use, occupation not specified.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 72 bpm, RR 16/min. Neurological examination reveals a prominent tremor in both hands with no rigidity or bradykinesia noted.\n**Assessment:** Working diagnosis includes essential tremor or anxiety-related tremor. Differential diagnoses include Parkinson's disease and other neurological conditions.\n**Plan:** Order blood tests to rule out metabolic causes and consider referral to a neurologist for further evaluation. Monitor symptoms and provide reassurance to the patient.\n**Safety Netting:** Patient should seek immediate medical attention if experiencing severe weakness, changes in vision, or if the tremor significantly worsens.\n\n**SOAP Note:**\nS: 55-year-old female with a 2-week history of tremor, associated weight loss, and difficulty eating.\nO: Vital signs: BP 120/80 mmHg, HR 72 bpm, RR 16/min. Neurological examination shows prominent tremor in both hands.\nA: Essential tremor or anxiety-related tremor; differential includes Parkinson's disease.\nP: Blood tests to rule out metabolic causes; neurologist referral; safety netting advice provided."
+      ],
+      "logprobs_per_sample": []
+    },
+    "full_medical": {
+      "metrics": {
+        "valid_outputs": 2,
+        "empty_outputs": 0,
+        "rouge_l": 0.5492913783749638,
+        "rouge_details": {
+          "rouge1": 0.6928104818032508,
+          "rouge2": 0.43156353450471097,
+          "rougeL": 0.5492913783749638,
+          "num_samples": 2
+        },
+        "clinical_structure": {
+          "required_section_coverage": 1.0,
+          "optional_section_coverage": 1.0,
+          "per_section": {
+            "chief complaint": 1.0,
+            "history of present illness": 1.0,
+            "assessment": 1.0,
+            "plan": 1.0,
+            "medications": 1.0,
+            "allergies": 1.0,
+            "examination": 1.0,
+            "safety netting": 1.0,
+            "past medical history": 1.0
+          }
+        },
+        "avg_generation_time": 7.222574710845947,
+        "avg_rag_score": 0.0,
+        "rag_config": {
+          "use_reranker": true,
+          "use_query_expansion": true,
+          "use_clinical_filtering": true
+        },
+        "llm_judge": {
+          "avg_clinical_accuracy": 3.5,
+          "min_clinical_accuracy": 3,
+          "max_clinical_accuracy": 4,
+          "avg_completeness": 4.5,
+          "min_completeness": 4,
+          "max_completeness": 5,
+          "avg_hallucination": 2.5,
+          "min_hallucination": 2,
+          "max_hallucination": 3,
+          "avg_clinical_safety": 4.5,
+          "min_clinical_safety": 4,
+          "max_clinical_safety": 5,
+          "avg_coherence": 4.5,
+          "min_coherence": 4,
+          "max_coherence": 5,
+          "avg_conciseness": 4.0,
+          "min_conciseness": 4,
+          "max_conciseness": 4,
+          "avg_overall": 4.0,
+          "min_overall": 3.67,
+          "max_overall": 4.33,
+          "num_evaluated": 2,
+          "num_failed": 0,
+          "total_critical_errors": 0,
+          "samples_with_critical_errors": 0
+        },
+        "llm_judge_per_sample": [
+          {
+            "clinical_accuracy": 4,
+            "completeness": 5,
+            "hallucination": 3,
+            "clinical_safety": 5,
+            "coherence": 5,
+            "conciseness": 4,
+            "overall": 4.33,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Includes all relevant clinical elements.",
+              "Accurate representation of the patient's symptoms and history."
+            ],
+            "weaknesses": [
+              "Introduces a specific age and gender for the patient that was not mentioned in the dialogue.",
+              "Suggests differential diagnoses that were not explicitly discussed in the original dialogue."
+            ]
+          },
+          {
+            "clinical_accuracy": 3,
+            "completeness": 4,
+            "hallucination": 2,
+            "clinical_safety": 4,
+            "coherence": 4,
+            "conciseness": 4,
+            "overall": 3.67,
+            "critical_errors": [],
+            "strengths": [
+              "Well-structured and coherent summary.",
+              "Includes key elements such as chief complaint, HPI, assessment, and plan."
+            ],
+            "weaknesses": [
+              "Incorrectly identifies the patient as a 55-year-old female instead of an 80-year-old male.",
+              "Social history includes occasional alcohol use, which was not mentioned in the dialogue."
+            ]
+          }
+        ]
+      },
+      "num_samples": 2,
+      "raw_outputs": [
+        "**Chief Complaint:** Skin lesion on the arm for 3 months.\n**History of Present Illness:** The patient is a 74-year-old female who presents with a skin lesion on her arm that has been present for three months. The lesion has changed in appearance, with intermittent bleeding and color changes. The patient describes the lesion as moderate to severe in severity, with varying appearances throughout the day. It itches occasionally but is not painful. The patient reports no specific triggers for the lesion and notes that it does not improve with treatment.\n**Past Medical History:** Osteoarthritis, hyperlipidemia.\n**Medications:** Atorvastatin 20mg.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs stable. Examination of the lesion reveals an irregularly shaped area with varied color, dry skin, and occasional bleeding.\n**Assessment:** Working diagnosis of a skin lesion potentially related to psoriasis or dermatitis. Differential diagnoses include seborrheic keratosis or actinic keratosis.\n**Plan:** Initiate treatment with Calcipotriol topical medication. Consider referral to dermatology for further evaluation if no improvement is observed. Follow-up appointment in 4 weeks to reassess the treatment and lesion.\n**Safety Netting:** Return immediately if the lesion rapidly changes in size, color, or if it starts to bleed more frequently. Watch for signs of infection such as increased redness or pus.\n\n**SOAP Note:**\nS: 74-year-old female with a skin lesion on the arm for 3 months, intermittent bleeding, color changes, moderate severity.\nO: Vital signs stable. Examination reveals an irregularly shaped lesion with dry skin and occasional bleeding.\nA: Skin lesion likely related to psoriasis or dermatitis; differential includes seborrheic keratosis or actinic keratosis.\nP: Start Calcipotriol topical medication. Consider dermatology referral. Follow-up in 4 weeks.",
+        "**Chief Complaint:** Tremor for 2 weeks, gradually worsening.\n**History of Present Illness:** The patient is a 55-year-old female who presents with a tremor that started two weeks ago. Initially mild, the tremor has become more noticeable and is constant. The patient reports associated symptoms of weight loss due to decreased appetite and difficulty eating. Antacids seem to provide some relief. There are no significant past medical history or current medications.\n**Past Medical History:** No significant past medical history.\n**Medications:** None.\n**Allergies:** No known drug allergies (NKDA).\n**Social History:** Non-smoker, occasional alcohol use.\n**Family History:** Non-contributory.\n**Examination Findings:** Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination reveals bilateral hand tremors, no rigidity or bradykinesia noted.\n**Assessment:** Essential tremor or anxiety-related tremor.\n**Plan:** Order blood tests to rule out metabolic causes. Consider referral to a neurologist for further evaluation. Monitor symptoms and provide reassurance.\n**Safety Netting:** Return immediately if experiencing severe weakness, changes in vision, or if the tremor significantly worsens.\n\n**SOAP Note:**\nS: 55-year-old female with a 2-week history of tremor, associated weight loss, and difficulty eating.\nO: Vital signs: BP 120/80 mmHg, HR 78 bpm, RR 16/min. Neurological examination shows bilateral hand tremors.\nA: Essential tremor or anxiety-related tremor.\nP: Blood tests to rule out metabolic causes, possible neurologist referral, safety netting advice."
+      ],
+      "logprobs_per_sample": []
+    }
+  }
+}

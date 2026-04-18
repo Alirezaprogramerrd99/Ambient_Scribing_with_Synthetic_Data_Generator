@@ -1,0 +1,180 @@
+# Post-Evaluation Metrics Comparison Report
+**Generated:** 2026-03-12 13:31
+
+## Configuration: baseline
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.3732 | 0.3290 | 0.2839 |
+| Avg Time (s) | 10.0942 | 9.9218 | 5.0898 |
+| Judge Overall | 4.75/5 | 4.65/5 | 3.69/5 |
+| Accuracy | 4.74/5 | 4.68/5 | 3.32/5 |
+| Completeness | 4.56/5 | 4.44/5 | 3.96/5 |
+| Hallucination | 5.00/5 | 4.92/5 | 2.72/5 |
+| Safety | 4.96/5 | 4.96/5 | 4.10/5 |
+| Coherence | 4.88/5 | 4.92/5 | 4.32/5 |
+| Conciseness | 4.34/5 | 3.98/5 | 3.62/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.3305 | 0.5569 | 0.5007 |
+| BLEU-4 | 0.1152 | 0.2862 | 0.1983 |
+| MEDCON-F1 | 0.7457 | 0.7398 | 0.6944 |
+| MEDCON-P | 0.8208 | 0.7848 | 0.7916 |
+| MEDCON-R | 0.7057 | 0.7195 | 0.6402 |
+
+## Configuration: rag_only
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.3195 | 0.3213 | 0.2740 |
+| Avg Time (s) | 29.6159 | 10.7009 | 5.4932 |
+| Judge Overall | 4.30/5 | 4.50/5 | 3.43/5 |
+| Accuracy | 4.50/5 | 4.40/5 | 3.04/5 |
+| Completeness | 4.32/5 | 4.46/5 | 3.68/5 |
+| Hallucination | 4.02/5 | 4.52/5 | 2.48/5 |
+| Safety | 4.74/5 | 4.82/5 | 3.70/5 |
+| Coherence | 4.12/5 | 4.88/5 | 4.10/5 |
+| Conciseness | 3.86/5 | 3.92/5 | 3.38/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.3613 | 0.5294 | 0.4723 |
+| BLEU-4 | 0.1147 | 0.2484 | 0.1717 |
+| MEDCON-F1 | 0.7593 | 0.7331 | 0.6738 |
+| MEDCON-P | 0.7997 | 0.7769 | 0.7736 |
+| MEDCON-R | 0.7446 | 0.7185 | 0.6252 |
+
+## Configuration: ft_only
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.6307 | 0.6228 | 0.5927 |
+| Avg Time (s) | 13.0463 | 9.9392 | 5.5335 |
+| Judge Overall | 4.40/5 | 4.34/5 | 4.09/5 |
+| Accuracy | 4.08/5 | 4.06/5 | 3.76/5 |
+| Completeness | 4.20/5 | 4.28/5 | 4.10/5 |
+| Hallucination | 4.02/5 | 3.68/5 | 3.08/5 |
+| Safety | 4.80/5 | 4.84/5 | 4.54/5 |
+| Coherence | 4.94/5 | 4.94/5 | 4.76/5 |
+| Conciseness | 4.32/5 | 4.20/5 | 4.16/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.7615 | 0.7567 | 0.7497 |
+| BLEU-4 | 0.5590 | 0.5495 | 0.5325 |
+| MEDCON-F1 | 0.8616 | 0.8564 | 0.8466 |
+| MEDCON-P | 0.9003 | 0.8923 | 0.8821 |
+| MEDCON-R | 0.8472 | 0.8414 | 0.8335 |
+
+## Configuration: ft_rag
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.5864 | 0.6192 | 0.5942 |
+| Avg Time (s) | 14.7910 | 10.1596 | 5.6578 |
+| Judge Overall | 4.35/5 | 4.33/5 | 4.17/5 |
+| Accuracy | 4.06/5 | 4.06/5 | 3.90/5 |
+| Completeness | 4.18/5 | 4.30/5 | 4.18/5 |
+| Hallucination | 3.86/5 | 3.70/5 | 3.40/5 |
+| Safety | 4.82/5 | 4.70/5 | 4.58/5 |
+| Coherence | 4.82/5 | 4.92/5 | 4.80/5 |
+| Conciseness | 4.30/5 | 4.26/5 | 4.12/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.6815 | 0.7524 | 0.7552 |
+| BLEU-4 | 0.5031 | 0.5435 | 0.5354 |
+| MEDCON-F1 | 0.8354 | 0.8521 | 0.8489 |
+| MEDCON-P | 0.8778 | 0.8686 | 0.8758 |
+| MEDCON-R | 0.8298 | 0.8608 | 0.8403 |
+
+## Configuration: teacher
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.4202 | 0.4233 | 0.4215 |
+| Avg Time (s) | 5.5737 | 6.2998 | 5.7082 |
+| Judge Overall | 4.88/5 | 4.90/5 | 4.90/5 |
+| Accuracy | 4.94/5 | 4.98/5 | 4.98/5 |
+| Completeness | 4.68/5 | 4.72/5 | 4.68/5 |
+| Hallucination | 4.98/5 | 5.00/5 | 5.00/5 |
+| Safety | 5.00/5 | 5.00/5 | 5.00/5 |
+| Coherence | 5.00/5 | 5.00/5 | 5.00/5 |
+| Conciseness | 4.68/5 | 4.74/5 | 4.72/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.5068 | 0.5071 | 0.5052 |
+| BLEU-4 | 0.2958 | 0.2967 | 0.2954 |
+| MEDCON-F1 | 0.7717 | 0.7765 | 0.7860 |
+| MEDCON-P | 0.8076 | 0.8079 | 0.8228 |
+| MEDCON-R | 0.7515 | 0.7597 | 0.7658 |
+
+## RAG Backend Comparison
+
+### Backend: hybrid
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.5864 | 0.6192 | 0.5942 |
+| Avg Time (s) | 15.4321 | 10.6609 | 5.6069 |
+| Judge Overall | 4.36/5 | 4.31/5 | 4.18/5 |
+| Accuracy | 4.08/5 | 4.04/5 | 3.88/5 |
+| Completeness | 4.18/5 | 4.28/5 | 4.16/5 |
+| Hallucination | 3.90/5 | 3.64/5 | 3.42/5 |
+| Safety | 4.82/5 | 4.68/5 | 4.58/5 |
+| Coherence | 4.84/5 | 4.90/5 | 4.82/5 |
+| Conciseness | 4.28/5 | 4.26/5 | 4.14/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.6815 | 0.7524 | 0.7552 |
+| BLEU-4 | 0.5031 | 0.5435 | 0.5354 |
+| MEDCON-F1 | 0.8354 | 0.8521 | 0.8489 |
+| MEDCON-P | 0.8778 | 0.8686 | 0.8758 |
+| MEDCON-R | 0.8298 | 0.8608 | 0.8403 |
+
+### Backend: llama_index
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.5864 | 0.6192 | 0.5942 |
+| Avg Time (s) | 15.0028 | 10.4073 | 5.6299 |
+| Judge Overall | 4.33/5 | 4.30/5 | 4.21/5 |
+| Accuracy | 4.06/5 | 4.02/5 | 3.92/5 |
+| Completeness | 4.16/5 | 4.22/5 | 4.20/5 |
+| Hallucination | 3.82/5 | 3.68/5 | 3.44/5 |
+| Safety | 4.80/5 | 4.64/5 | 4.60/5 |
+| Coherence | 4.84/5 | 4.92/5 | 4.86/5 |
+| Conciseness | 4.24/5 | 4.26/5 | 4.14/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.6815 | 0.7524 | 0.7552 |
+| BLEU-4 | 0.5031 | 0.5435 | 0.5354 |
+| MEDCON-F1 | 0.8354 | 0.8521 | 0.8489 |
+| MEDCON-P | 0.8778 | 0.8686 | 0.8758 |
+| MEDCON-R | 0.8298 | 0.8608 | 0.8403 |
+
+### Backend: manual
+
+| Metric | Phi-3.5 (3.8B) | Llama-3.2 (3B) | Llama-3.2 (1B) |
+|---|---|---|---|
+| ROUGE-L | 0.6307 | 0.6228 | 0.5927 |
+| Avg Time (s) | 14.3252 | 10.5041 | 5.5988 |
+| Judge Overall | 4.38/5 | 4.33/5 | 4.10/5 |
+| Accuracy | 4.04/5 | 4.02/5 | 3.74/5 |
+| Completeness | 4.26/5 | 4.26/5 | 4.08/5 |
+| Hallucination | 3.92/5 | 3.64/5 | 3.18/5 |
+| Safety | 4.74/5 | 4.82/5 | 4.54/5 |
+| Coherence | 4.92/5 | 4.92/5 | 4.74/5 |
+| Conciseness | 4.40/5 | 4.28/5 | 4.12/5 |
+| BERTScore-F1 | — | — | — |
+| BERTScore-P | — | — | — |
+| BERTScore-R | — | — | — |
+| BLEU-1 | 0.7615 | 0.7567 | 0.7497 |
+| BLEU-4 | 0.5590 | 0.5495 | 0.5325 |
+| MEDCON-F1 | 0.8616 | 0.8564 | 0.8466 |
+| MEDCON-P | 0.9003 | 0.8923 | 0.8821 |
+| MEDCON-R | 0.8472 | 0.8414 | 0.8335 |

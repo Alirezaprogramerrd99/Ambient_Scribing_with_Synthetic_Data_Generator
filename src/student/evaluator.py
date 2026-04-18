@@ -11,6 +11,13 @@ Comprehensive evaluation framework for the fine-tuned student model:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import patch_torch  # Must be first — patches torch.int1-int7 for Windows
+
+import os
+# CRITICAL: Unsloth/patch_torch sets HF_HUB_ENABLE_HF_TRANSFER=1 at import time,
+# which breaks model downloads (including the RAG embedding model) when hf_transfer
+# is buggy or incompatible. Force it off immediately after import.
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 
 import json
 import logging
@@ -20,6 +27,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import defaultdict
+from dotenv import load_dotenv
+load_dotenv()  # Load OPENAI_API_KEY from .env file
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +50,17 @@ class EvaluationConfig:
     teacher_model: str = "gpt-4o-mini"
     teacher_provider: str = "openai"
     
+    # Model paths for native PyTorch inference (used by inference_fixed.py)
+    ft_model_path: str = "./checkpoints/phi35_clinical_scribe/hf_merged"
+    base_model_hf: str = "unsloth/Phi-3.5-mini-instruct"  # HuggingFace ID for base model
+    
+    # Generation parameters (for temperature/sampling experiments)
+    temperature: float = 0.3
+    top_p: float = 0.9
+    
+    # Logprobs for uncertainty quantification (Kadavath et al., 2022)
+    return_logprobs: bool = False
+    
     # LLM-as-a-Judge
     judge_model: str = "gpt-4o-mini"
     judge_provider: str = "openai"
@@ -48,11 +68,24 @@ class EvaluationConfig:
     
     # Metrics
     compute_rouge: bool = True
-    compute_bertscore: bool = False  # Slow
+    compute_bertscore: bool = True  # Enabled for dissertation comparison
     compute_clinical_accuracy: bool = True
     
-    # RAG backends to compare
-    rag_backends: List[str] = field(default_factory=lambda: ["llama_index", "manual", "hybrid"])
+    # RAG ablation configs to compare
+    # Options: dense_only, dense_rerank, dense_rerank_qe, full_medical
+    # Legacy names (llama_index, hybrid) are auto-mapped
+    rag_backends: List[str] = field(default_factory=lambda: [
+        "dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"
+    ])
+    
+    # Which experiment configs to run (default: all 5)
+    # Options: baseline, rag_only, ft_only, ft_rag, teacher
+    configs_to_run: List[str] = field(default_factory=lambda: [
+        "baseline", "rag_only", "ft_only", "ft_rag", "teacher"
+    ])
+    
+    # Whether to run RAG backend comparison experiment
+    run_rag_comparison: bool = True
     
     # Output
     output_dir: str = "./evaluation_results"
@@ -133,11 +166,20 @@ class LLMJudge:
         self,
         model: str = "gpt-4o-mini",
         provider: str = "openai",
+        api_key: Optional[str] = None,
         temperature: float = 0.1,  # Low temp for consistent scoring
         max_retries: int = 2,
     ):
         self.model = model
         self.provider = provider
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+
+        if not self.api_key:
+            raise ValueError(
+                "API key for LLM A Judge is required. Set OPENAI_API_KEY environment " \
+                "variable or pass api_key parameter."
+            )
+
         self.temperature = temperature
         self.max_retries = max_retries
         self._client = None
@@ -148,7 +190,7 @@ class LLMJudge:
         if self.provider == "openai":
             try:
                 import openai
-                self._client = openai.OpenAI()
+                self._client = openai.OpenAI(api_key=self.api_key)
             except ImportError:
                 raise ImportError("Install openai: pip install openai")
         elif self.provider == "anthropic":
@@ -324,11 +366,30 @@ def load_test_data(path: str, max_samples: Optional[int] = None) -> List[Dict]:
 
 
 def extract_dialogue_from_chatml(chatml_text: str) -> str:
-    """Extract the dialogue text from a ChatML formatted string."""
-    # Find content between <|user|> and SUMMARY_INSTRUCTION
+    """
+    Extract the dialogue text from a chat-template formatted string.
+    
+    Supports all template formats:
+        - Phi-3.5:  <|user|>\n...<|end|>
+        - Qwen2.5:  <|im_start|>user\n...<|im_end|>
+        - Llama 3:  <|start_header_id|>user<|end_header_id|>\n\n...<|eot_id|>
+    """
     import re
     
+    # Try Phi format: <|user|>\n...<|end|>
     user_match = re.search(r"<\|user\|>\n(.*?)(?:<\|end\|>)", chatml_text, re.DOTALL)
+    
+    # Try Qwen format: <|im_start|>user\n...<|im_end|>
+    if not user_match:
+        user_match = re.search(r"<\|im_start\|>user\n(.*?)(?:<\|im_end\|>)", chatml_text, re.DOTALL)
+    
+    # Try Llama format: <|start_header_id|>user<|end_header_id|>\n\n...<|eot_id|>
+    if not user_match:
+        user_match = re.search(
+            r"<\|start_header_id\|>user<\|end_header_id\|>\n\n(.*?)(?:<\|eot_id\|>)",
+            chatml_text, re.DOTALL
+        )
+    
     if not user_match:
         return ""
     
@@ -337,6 +398,8 @@ def extract_dialogue_from_chatml(chatml_text: str) -> str:
     # Remove RAG context prefix if present
     if "Summarise the following clinical consultation:" in user_content:
         dialogue_part = user_content.split("Summarise the following clinical consultation:")[-1]
+    elif "Summarize the following clinical consultation:" in user_content:
+        dialogue_part = user_content.split("Summarize the following clinical consultation:")[-1]
     else:
         dialogue_part = user_content
     
@@ -348,13 +411,36 @@ def extract_dialogue_from_chatml(chatml_text: str) -> str:
 
 
 def extract_reference_from_chatml(chatml_text: str) -> str:
-    """Extract the reference summary from a ChatML formatted string."""
+    """
+    Extract the reference summary (assistant response) from a chat-template string.
+    
+    Supports all template formats:
+        - Phi-3.5:  <|assistant|>\n...<|end|>
+        - Qwen2.5:  <|im_start|>assistant\n...<|im_end|>
+        - Llama 3:  <|start_header_id|>assistant<|end_header_id|>\n\n...<|eot_id|>
+    """
     import re
     
+    # Try Phi format
     assistant_match = re.search(
         r"<\|assistant\|>\n(.*?)(?:<\|end\|>|$)", 
         chatml_text, re.DOTALL
     )
+    
+    # Try Qwen format
+    if not assistant_match:
+        assistant_match = re.search(
+            r"<\|im_start\|>assistant\n(.*?)(?:<\|im_end\|>|$)",
+            chatml_text, re.DOTALL
+        )
+    
+    # Try Llama format
+    if not assistant_match:
+        assistant_match = re.search(
+            r"<\|start_header_id\|>assistant<\|end_header_id\|>\n\n(.*?)(?:<\|eot_id\|>|$)",
+            chatml_text, re.DOTALL
+        )
+    
     if assistant_match:
         return assistant_match.group(1).strip()
     return ""
@@ -419,37 +505,60 @@ class StudentEvaluator:
             "config": {
                 "student_model": self.config.student_model,
                 "base_model": self.config.base_model,
+                "ft_model_path": self.config.ft_model_path,
+                "base_model_hf": self.config.base_model_hf,
                 "teacher_model": self.config.teacher_model,
                 "judge_model": self.config.judge_model,
+                "temperature": self.config.temperature,
+                "top_p": self.config.top_p,
             },
+            "references": references,
+            "dialogues": dialogues,
         }
         
         # ---- Experiment 1: Five-way comparison ----
-        logger.info("\n--- Experiment 1: Five-Way Comparison ---")
-        results["comparative"] = self._run_comparative_experiment(
-            dialogues, references
-        )
+        logger.info(f"\n--- Experiment 1: Comparative ({', '.join(self.config.configs_to_run)}) ---")
+        try:
+            results["comparative"] = self._run_comparative_experiment(
+                dialogues, references
+            )
+        except Exception as e:
+            logger.error(f"Experiment 1 (comparative) failed: {e}")
+            results["comparative"] = {"error": str(e)}
         
         # ---- Experiment 2: RAG backend comparison ----
-        logger.info("\n--- Experiment 2: RAG Backend Comparison ---")
-        results["rag_backends"] = self._run_rag_backend_comparison(
-            dialogues, references
-        )
+        if self.config.run_rag_comparison:
+            logger.info("\n--- Experiment 2: RAG Backend Comparison ---")
+            try:
+                results["rag_backends"] = self._run_rag_backend_comparison(
+                    dialogues, references
+                )
+            except Exception as e:
+                logger.error(f"Experiment 2 (RAG backends) failed: {e}")
+                results["rag_backends"] = {"error": str(e)}
+        else:
+            logger.info("\n--- Experiment 2: RAG Backend Comparison (SKIPPED) ---")
+            results["rag_backends"] = {}
         
-        # Save results
+        # Save results — ALWAYS, even if experiments partially failed
         output_dir = Path(self.config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         
         results_path = output_dir / f"evaluation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(results_path, "w") as f:
-            json.dump(results, f, indent=2, default=str)
+        try:
+            with open(results_path, "w") as f:
+                json.dump(results, f, indent=2, default=str)
+            logger.info(f"\nResults saved to {results_path}")
+        except Exception as e:
+            logger.error(f"Failed to save results JSON: {e}")
         
         # Generate report
-        report_path = self._generate_report(results, output_dir)
-        results["report_path"] = str(report_path)
-        
-        logger.info(f"\nResults saved to {results_path}")
-        logger.info(f"Report saved to {report_path}")
+        try:
+            report_path = self._generate_report(results, output_dir)
+            results["report_path"] = str(report_path)
+            logger.info(f"Report saved to {report_path}")
+        except Exception as e:
+            logger.error(f"Report generation failed: {e}")
         
         return results
     
@@ -466,91 +575,210 @@ class StudentEvaluator:
         Run all 5 configurations and compare.
         
         Configurations:
-            1. baseline:    Base Phi-3.5 (no fine-tuning, no RAG)
-            2. rag_only:    Base Phi-3.5 + RAG
-            3. ft_only:     Fine-tuned Phi-3.5 (no RAG)
-            4. ft_rag:      Fine-tuned Phi-3.5 + RAG  (expected best)
-            5. teacher:     GPT-4o-mini + RAG          (upper bound)
+            1. baseline:    Base model (no fine-tuning, no RAG)
+            2. rag_only:    Base model + RAG
+            3. ft_only:     Fine-tuned model (no RAG)
+            4. ft_rag:      Fine-tuned model + RAG  (expected best)
+            5. teacher:     GPT-4o-mini + RAG       (upper bound)
         """
-        from .inference import ClinicalScribeInference, InferenceConfig
-        
-        configurations = {
-            "baseline": {
-                "model_name": self.config.base_model,
-                "use_rag": False,
-                "description": "Base Phi-3.5-mini (no fine-tuning, no RAG)",
-            },
-            "rag_only": {
-                "model_name": self.config.base_model,
-                "use_rag": True,
-                "description": "Base Phi-3.5-mini + RAG",
-            },
-            "ft_only": {
-                "model_name": self.config.student_model,
-                "use_rag": False,
-                "description": "Fine-tuned Phi-3.5-mini (no RAG)",
-            },
-            "ft_rag": {
-                "model_name": self.config.student_model,
-                "use_rag": True,
-                "description": "Fine-tuned Phi-3.5-mini + RAG",
-            },
-        }
+        from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
-        for config_name, cfg in configurations.items():
-            logger.info(f"\nEvaluating: {cfg['description']}")
-            
-            inf_config = InferenceConfig(
-                model_name=cfg["model_name"],
-                use_rag=cfg["use_rag"],
-                ollama_base_url=self.config.ollama_base_url,
-            )
+        # Derive a short model name for descriptions and logs
+        _model_name = Path(self.config.base_model_hf).name  # e.g. "Phi-3.5-mini-instruct"
+        _short_name = _model_name.replace("-instruct", "").replace("-Instruct", "")
+        
+        _run = self.config.configs_to_run  # Shorthand
+        
+        # ---- Step 1: Load fine-tuned model (needed for ft_only and ft_rag) ----
+        scribe = None
+        if "ft_only" in _run or "ft_rag" in _run:
+            logger.info(f"\nLoading fine-tuned model: {self.config.ft_model_path}")
+            ft_model_path = self.config.ft_model_path
             
             try:
-                scribe = ClinicalScribeInference(inf_config)
-                
-                if not scribe.is_model_available():
-                    logger.warning(f"  Model '{cfg['model_name']}' not available in Ollama. Skipping.")
-                    all_results[config_name] = {"error": "Model not available"}
-                    continue
-                
-                # Generate summaries
-                outputs = scribe.batch_inference(dialogues, use_rag=cfg["use_rag"])
+                ft_config_no_rag = InferenceConfig(
+                    model_path=ft_model_path,
+                    use_rag=False,
+                    temperature=self.config.temperature,
+                    top_p=self.config.top_p,
+                    return_logprobs=self.config.return_logprobs,
+                )
+                scribe = ClinicalScribeInference(ft_config_no_rag)
+            except Exception as e:
+                logger.error(f"Failed to load fine-tuned model: {e}")
+                if "ft_only" in _run:
+                    all_results["ft_only"] = {"error": str(e)}
+                if "ft_rag" in _run:
+                    all_results["ft_rag"] = {"error": str(e)}
+        
+        # ---- Step 2: FT-only (no RAG) ----
+        if "ft_only" in _run and scribe:
+            logger.info(f"\nEvaluating: Fine-tuned {_short_name} (no RAG)")
+            try:
+                outputs = scribe.batch_inference(dialogues, use_rag=False)
                 candidates = [o.get("raw_output", "") for o in outputs]
                 gen_times = [o.get("generation_time", 0) for o in outputs]
                 
-                # Compute metrics
                 metrics = self._compute_metrics(references, candidates)
                 metrics["avg_generation_time"] = (
                     sum(gen_times) / len(gen_times) if gen_times else 0
                 )
                 
-                # LLM judge
                 if self.judge:
-                    logger.info(f"  Running LLM judge on {config_name}...")
+                    logger.info("  Running LLM judge on ft_only...")
                     judge_scores = self.judge.evaluate_batch(
                         dialogues, references, candidates
                     )
                     metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
                     metrics["llm_judge_per_sample"] = judge_scores
                 
-                all_results[config_name] = {
-                    "description": cfg["description"],
+                all_results["ft_only"] = {
+                    "description": f"Fine-tuned {_short_name} (no RAG)",
                     "metrics": metrics,
                     "num_samples": len(candidates),
+                    "raw_outputs": candidates,
+                    "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
                 }
+            except Exception as e:
+                logger.error(f"  ft_only failed: {e}")
+                all_results["ft_only"] = {"error": str(e)}
+        
+        # ---- Step 3: FT+RAG (add RAG to the same model) ----
+        if "ft_rag" in _run and scribe:
+            logger.info(f"\nEvaluating: Fine-tuned {_short_name} + RAG")
+            try:
+                # Initialise RAG on the existing model instance
+                scribe.config.use_rag = True
+                scribe.config.rag_backend = "llama_index"
+                scribe._init_rag()
+                
+                outputs = scribe.batch_inference(dialogues, use_rag=True)
+                candidates = [o.get("raw_output", "") for o in outputs]
+                gen_times = [o.get("generation_time", 0) for o in outputs]
+                
+                metrics = self._compute_metrics(references, candidates)
+                metrics["avg_generation_time"] = (
+                    sum(gen_times) / len(gen_times) if gen_times else 0
+                )
+                
+                if self.judge:
+                    logger.info("  Running LLM judge on ft_rag...")
+                    judge_scores = self.judge.evaluate_batch(
+                        dialogues, references, candidates
+                    )
+                    metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                    metrics["llm_judge_per_sample"] = judge_scores
+                
+                all_results["ft_rag"] = {
+                    "description": f"Fine-tuned {_short_name} + RAG",
+                    "metrics": metrics,
+                    "num_samples": len(candidates),
+                    "raw_outputs": candidates,
+                    "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
+                }
+            except Exception as e:
+                logger.error(f"  ft_rag failed: {e}")
+                all_results["ft_rag"] = {"error": str(e)}
+        
+        # ---- Step 4: Free the fine-tuned model ----
+        if scribe is not None:
+            del scribe
+        import torch, gc
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+        
+        # ---- Step 5: Baseline (un-fine-tuned, no RAG) ----
+        if "baseline" in _run or "rag_only" in _run:
+            logger.info(f"\nEvaluating: Base model (no fine-tuning, no RAG)")
+            try:
+                base_config = InferenceConfig(
+                    model_path=self.config.base_model_hf,
+                    use_rag=False,
+                    temperature=self.config.temperature,
+                    top_p=self.config.top_p,
+                    return_logprobs=self.config.return_logprobs,
+                )
+                base_scribe = ClinicalScribeInference(base_config)
+                
+                if "baseline" in _run:
+                    outputs = base_scribe.batch_inference(dialogues, use_rag=False)
+                    candidates = [o.get("raw_output", "") for o in outputs]
+                    gen_times = [o.get("generation_time", 0) for o in outputs]
+                    
+                    metrics = self._compute_metrics(references, candidates)
+                    metrics["avg_generation_time"] = (
+                        sum(gen_times) / len(gen_times) if gen_times else 0
+                    )
+                    
+                    if self.judge:
+                        logger.info("  Running LLM judge on baseline...")
+                        judge_scores = self.judge.evaluate_batch(
+                            dialogues, references, candidates
+                        )
+                        metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                        metrics["llm_judge_per_sample"] = judge_scores
+                    
+                    all_results["baseline"] = {
+                        "description": f"Base {_short_name} (no fine-tuning, no RAG)",
+                        "metrics": metrics,
+                        "num_samples": len(candidates),
+                        "raw_outputs": candidates,
+                        "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
+                    }
+                
+                if "rag_only" in _run:
+                    # ---- Step 6: RAG-only (same base model + RAG) ----
+                    logger.info(f"\nEvaluating: Base {_short_name} + RAG (no fine-tuning)")
+                    base_scribe.config.use_rag = True
+                    base_scribe.config.rag_backend = "llama_index"
+                    base_scribe._init_rag()
+                    
+                    outputs = base_scribe.batch_inference(dialogues, use_rag=True)
+                    candidates = [o.get("raw_output", "") for o in outputs]
+                    gen_times = [o.get("generation_time", 0) for o in outputs]
+                    
+                    metrics = self._compute_metrics(references, candidates)
+                    metrics["avg_generation_time"] = (
+                        sum(gen_times) / len(gen_times) if gen_times else 0
+                    )
+                    
+                    if self.judge:
+                        logger.info("  Running LLM judge on rag_only...")
+                        judge_scores = self.judge.evaluate_batch(
+                            dialogues, references, candidates
+                        )
+                        metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                        metrics["llm_judge_per_sample"] = judge_scores
+                    
+                    all_results["rag_only"] = {
+                        "description": f"Base {_short_name} + RAG (no fine-tuning)",
+                        "metrics": metrics,
+                        "num_samples": len(candidates),
+                        "raw_outputs": candidates,
+                        "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
+                    }
+                
+                del base_scribe
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                gc.collect()
                 
             except Exception as e:
-                logger.error(f"  Failed: {e}")
-                all_results[config_name] = {"error": str(e)}
+                logger.error(f"  Baseline evaluation failed: {e}")
+                if "baseline" in _run:
+                    all_results["baseline"] = {"error": str(e)}
+                if "rag_only" in _run:
+                    all_results["rag_only"] = {"error": str(e)}
         
         # Teacher evaluation (via API, not Ollama)
-        logger.info(f"\nEvaluating: Teacher model ({self.config.teacher_model})")
-        teacher_results = self._evaluate_teacher(dialogues, references)
-        if teacher_results:
-            all_results["teacher"] = teacher_results
+        if "teacher" in _run:
+            logger.info(f"\nEvaluating: Teacher model ({self.config.teacher_model})")
+            teacher_results = self._evaluate_teacher(dialogues, references)
+            if teacher_results:
+                all_results["teacher"] = teacher_results
         
         return all_results
     
@@ -568,7 +796,7 @@ class StudentEvaluator:
                 logger.warning("Teacher evaluation only supports OpenAI provider currently")
                 return None
             
-            from .inference import SYSTEM_PROMPT, SUMMARY_INSTRUCTION
+            from .inference_fixed import SYSTEM_PROMPT, SUMMARY_INSTRUCTION
             
             candidates = []
             gen_times = []
@@ -617,6 +845,8 @@ class StudentEvaluator:
                 "description": f"Teacher ({self.config.teacher_model} + RAG)",
                 "metrics": metrics,
                 "num_samples": len(candidates),
+                "raw_outputs": candidates,
+                "logprobs_per_sample": [],  # Teacher (API) has no logprobs
             }
             
         except Exception as e:
@@ -632,28 +862,93 @@ class StudentEvaluator:
         dialogues: List[str],
         references: List[str],
     ) -> Dict[str, Dict]:
-        """Compare RAG backends with the fine-tuned model."""
-        from .inference import ClinicalScribeInference, InferenceConfig
+        """
+        RAG Ablation Study: Compare RAG configurations progressively.
+        
+        Tests the contribution of each RAG component:
+        - dense_only: BGE embeddings + ChromaDB (baseline retrieval)
+        - dense_rerank: + Cross-encoder reranking (Nogueira & Cho, 2019)
+        - dense_rerank_qe: + Medical query expansion
+        - full_medical: + Clinical relevance filtering
+        
+        CRITICAL: We load the model ONCE and swap only the RAG retriever 
+        for each config. Reloading the model causes CUDA memory corruption 
+        on Windows (illegal memory access after the first unload/reload cycle).
+        """
+        from .inference_fixed import ClinicalScribeInference, InferenceConfig
         
         all_results = {}
         
-        for backend in self.config.rag_backends:
-            logger.info(f"\nEvaluating RAG backend: {backend}")
-            
+        # Define ablation configurations
+        # Each is a dict of overrides passed to _init_rag(rag_overrides=...)
+        rag_ablation_configs = {
+            "dense_only": {
+                "use_reranker": False,
+                "use_query_expansion": False,
+                "use_clinical_filtering": False,
+            },
+            "dense_rerank": {
+                "use_reranker": True,
+                "use_query_expansion": False,
+                "use_clinical_filtering": False,
+            },
+            "dense_rerank_qe": {
+                "use_reranker": True,
+                "use_query_expansion": True,
+                "use_clinical_filtering": False,
+            },
+            "full_medical": {
+                "use_reranker": True,
+                "use_query_expansion": True,
+                "use_clinical_filtering": True,
+            },
+        }
+        
+        # Filter to only requested backends
+        configs_to_run = {}
+        for name in self.config.rag_backends:
+            if name in rag_ablation_configs:
+                configs_to_run[name] = rag_ablation_configs[name]
+            else:
+                # Legacy support: map old names to new
+                legacy_map = {
+                    "llama_index": "dense_only",
+                    "hybrid": "full_medical",
+                }
+                mapped = legacy_map.get(name)
+                if mapped and mapped in rag_ablation_configs:
+                    configs_to_run[mapped] = rag_ablation_configs[mapped]
+                else:
+                    logger.warning(f"Unknown RAG config: {name}, skipping")
+        
+        if not configs_to_run:
+            logger.warning("No valid RAG configs to run")
+            return {}
+        
+        # Load model once with RAG disabled — we'll init RAG manually per config
+        logger.info("\nLoading model for RAG ablation study...")
+        try:
             inf_config = InferenceConfig(
-                model_name=self.config.student_model,
-                use_rag=True,
-                rag_backend=backend,
-                ollama_base_url=self.config.ollama_base_url,
+                model_path=self.config.ft_model_path,
+                use_rag=False,
+                temperature=self.config.temperature,
+                top_p=self.config.top_p,
+                return_logprobs=self.config.return_logprobs,
             )
+            scribe = ClinicalScribeInference(inf_config)
+        except Exception as e:
+            logger.error(f"Failed to load model for RAG ablation: {e}")
+            return {name: {"error": str(e)} for name in configs_to_run}
+        
+        for config_name, rag_overrides in configs_to_run.items():
+            logger.info(f"\nRAG Ablation: {config_name} ({rag_overrides})")
             
             try:
-                scribe = ClinicalScribeInference(inf_config)
-                
-                if not scribe.is_model_available():
-                    logger.warning(f"  Student model not available. Skipping.")
-                    all_results[backend] = {"error": "Model not available"}
-                    continue
+                # Swap the retriever without reloading the model
+                scribe.config.use_rag = True
+                scribe.config.rag_backend = "llama_index"
+                scribe._retriever = None  # Clear old retriever
+                scribe._init_rag(rag_overrides=rag_overrides)
                 
                 outputs = scribe.batch_inference(dialogues, use_rag=True)
                 candidates = [o.get("raw_output", "") for o in outputs]
@@ -671,21 +966,38 @@ class StudentEvaluator:
                 metrics["avg_rag_score"] = (
                     sum(rag_scores) / len(rag_scores) if rag_scores else 0
                 )
+                metrics["rag_config"] = rag_overrides
                 
                 if self.judge:
+                    logger.info(f"  Running LLM judge on {config_name}...")
                     judge_scores = self.judge.evaluate_batch(
                         dialogues, references, candidates
                     )
                     metrics["llm_judge"] = self._aggregate_judge_scores(judge_scores)
+                    metrics["llm_judge_per_sample"] = judge_scores
                 
-                all_results[backend] = {
+                all_results[config_name] = {
                     "metrics": metrics,
                     "num_samples": len(candidates),
+                    "raw_outputs": candidates,
+                    "logprobs_per_sample": [o.get("logprobs") for o in outputs] if self.config.return_logprobs else [],
                 }
                 
             except Exception as e:
                 logger.error(f"  Failed: {e}")
-                all_results[backend] = {"error": str(e)}
+                import traceback
+                traceback.print_exc()
+                all_results[config_name] = {"error": str(e)}
+        
+        # Clean up after all configs are done
+        try:
+            del scribe
+            import torch, gc
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            gc.collect()
+        except Exception:
+            pass
         
         return all_results
     
@@ -736,9 +1048,13 @@ class StudentEvaluator:
                         r2.append(scores['rouge2'].fmeasure)
                         rl.append(scores['rougeL'].fmeasure)
                     
-                    metrics["rouge_1"] = sum(r1) / len(r1)
-                    metrics["rouge_2"] = sum(r2) / len(r2)
                     metrics["rouge_l"] = sum(rl) / len(rl)
+                    metrics["rouge_details"] = {
+                        "rouge1": sum(r1) / len(r1),
+                        "rouge2": sum(r2) / len(r2),
+                        "rougeL": sum(rl) / len(rl),
+                        "num_samples": len(rl),
+                    }
                 except ImportError:
                     logger.warning("rouge-score not available")
         
@@ -746,7 +1062,10 @@ class StudentEvaluator:
         if self.config.compute_bertscore:
             try:
                 from bert_score import score as bert_score
-                P, R, F1 = bert_score(cands, refs, lang="en", verbose=False)
+                # P, R, F1 = bert_score(cands, refs, lang="en", verbose=False)
+                
+                P, R, F1 = bert_score(cands, refs, model_type="microsoft/deberta-xlarge-mnli", verbose=False)
+                
                 metrics["bertscore_f1"] = F1.mean().item()
                 metrics["bertscore_precision"] = P.mean().item()
                 metrics["bertscore_recall"] = R.mean().item()
@@ -854,8 +1173,8 @@ class StudentEvaluator:
             # Build comparison table
             configs = [k for k in comp if not comp[k].get("error")]
             if configs:
-                header = "| Configuration | ROUGE-L | Avg Time (s) |"
-                separator = "|---|---|---|"
+                header = "| Configuration | ROUGE-L | BERTScore-F1 | Avg Time (s) |"
+                separator = "|---|---|---|---|"
                 
                 # Add judge columns if available
                 has_judge = any(
@@ -880,8 +1199,10 @@ class StudentEvaluator:
                     
                     rouge_str = f"{rouge:.3f}" if isinstance(rouge, float) else str(rouge)
                     time_str = f"{gen_time:.1f}" if isinstance(gen_time, float) else str(gen_time)
+                    bert_f1 = m.get("bertscore_f1", "N/A")
+                    bert_str = f"{bert_f1:.3f}" if isinstance(bert_f1, float) else str(bert_f1)
                     
-                    row = f"| {desc} | {rouge_str} | {time_str} |"
+                    row = f"| {desc} | {rouge_str} | {bert_str} | {time_str} |"
                     
                     if has_judge:
                         judge = m.get("llm_judge", {})
@@ -928,16 +1249,17 @@ class StudentEvaluator:
                     rag_score = m.get("avg_rag_score", "N/A")
                     gen_time = m.get("avg_generation_time", "N/A")
                     
-                    row = (
-                        f"| {b} | "
-                        f"{rouge:.3f if isinstance(rouge, float) else rouge} | "
-                        f"{rag_score:.3f if isinstance(rag_score, float) else rag_score} | "
-                        f"{gen_time:.1f if isinstance(gen_time, float) else gen_time} |"
-                    )
+                    rouge_str = f"{rouge:.3f}" if isinstance(rouge, float) else str(rouge)
+                    rag_str = f"{rag_score:.3f}" if isinstance(rag_score, float) else str(rag_score)
+                    time_str = f"{gen_time:.1f}" if isinstance(gen_time, float) else str(gen_time)
+                    
+                    row = f"| {b} | {rouge_str} | {rag_str} | {time_str} |"
                     
                     judge = m.get("llm_judge", {})
                     if judge and "avg_overall" in judge:
-                        row += f" {judge['avg_overall']:.2f} |"
+                        overall = judge["avg_overall"]
+                        overall_str = f"{overall:.2f}" if isinstance(overall, float) else str(overall)
+                        row += f" {overall_str} |"
                     
                     lines.append(row)
                 
@@ -965,10 +1287,30 @@ if __name__ == "__main__":
     parser.add_argument("--test-data", default="./data/training_data/test.jsonl")
     parser.add_argument("--student-model", default="clinical-scribe")
     parser.add_argument("--base-model", default="phi3.5:3.8b-mini-instruct-q4_K_M")
+    parser.add_argument("--ft-model-path", default="./checkpoints/phi35_clinical_scribe/hf_merged",
+                        help="Path to fine-tuned merged model directory")
+    parser.add_argument("--base-model-hf", default="unsloth/Phi-3.5-mini-instruct",
+                        help="HuggingFace model ID for the un-fine-tuned base model")
     parser.add_argument("--output-dir", default="./evaluation_results")
     parser.add_argument("--no-judge", action="store_true", help="Disable LLM judge")
+    parser.add_argument("--no-bertscore", action="store_true", help="Disable BERTScore (faster)")
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--judge-model", default="gpt-4o-mini")
+    parser.add_argument("--temperature", type=float, default=0.3,
+                        help="Generation temperature (0=greedy, >0=sampling)")
+    parser.add_argument("--top-p", type=float, default=0.9,
+                        help="Top-p (nucleus) sampling parameter")
+    parser.add_argument("--configs", nargs="+",
+                        default=["baseline", "rag_only", "ft_only", "ft_rag", "teacher"],
+                        help="Which configs to run (e.g. --configs ft_rag teacher)")
+    parser.add_argument("--skip-rag-comparison", action="store_true",
+                        help="Skip RAG backend comparison experiment")
+    parser.add_argument("--rag-configs", nargs="+",
+                        default=["dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"],
+                        help="RAG ablation configs to compare. "
+                             "Options: dense_only, dense_rerank, dense_rerank_qe, full_medical")
+    parser.add_argument("--return-logprobs", action="store_true",
+                        help="Compute per-token logprobs for uncertainty quantification")
     
     args = parser.parse_args()
     
@@ -976,10 +1318,19 @@ if __name__ == "__main__":
         test_data_path=args.test_data,
         student_model=args.student_model,
         base_model=args.base_model,
+        ft_model_path=args.ft_model_path,
+        base_model_hf=args.base_model_hf,
         output_dir=args.output_dir,
         enable_llm_judge=not args.no_judge,
+        compute_bertscore=not args.no_bertscore,
         judge_model=args.judge_model,
         max_samples=args.max_samples,
+        temperature=args.temperature,
+        top_p=args.top_p,
+        configs_to_run=args.configs,
+        run_rag_comparison=not args.skip_rag_comparison,
+        rag_backends=args.rag_configs,
+        return_logprobs=args.return_logprobs,
     )
     
     evaluator = StudentEvaluator(config)

@@ -1,12 +1,23 @@
 """
-Data Preparation for Student Model Fine-Tuning
+Data Preparation for Student Model Fine-Tuning (Multi-Model Support)
 
 Loads synthetic data from the teacher pipeline, applies quality filters,
-converts to ChatML instruction format for Phi-3.5-mini, and creates
+converts to model-specific chat template format, and creates
 stratified train/val/test splits.
+
+Supported models:
+    - Phi-3.5-mini-instruct  (ChatML: <|system|>...<|end|>)
+    - Qwen2.5-3B-Instruct    (ChatML: <|im_start|>...<|im_end|>)
+    - Generic HuggingFace     (uses tokenizer.apply_chat_template)
 
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
+
+Changes (March 2026):
+    - Added model_type parameter for multi-SLM comparison
+    - Template auto-detection from model name
+    - Qwen2.5 <|im_start|>/<|im_end|> template support
+    - Generic apply_chat_template fallback
 """
 
 import json
@@ -23,6 +34,122 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
+# Chat Template Registry
+# =============================================================================
+
+# Phi-3.5 uses: <|system|>\n{content}<|end|>\n<|user|>\n{content}<|end|>\n<|assistant|>\n{content}<|end|>
+# Qwen2.5 uses: <|im_start|>system\n{content}<|im_end|>\n<|im_start|>user\n{content}<|im_end|>\n<|im_start|>assistant\n{content}<|im_end|>
+
+CHAT_TEMPLATES = {
+    "phi3": {
+        "system_prefix": "<|system|>\n",
+        "system_suffix": "<|end|>\n",
+        "user_prefix": "<|user|>\n",
+        "user_suffix": "<|end|>\n",
+        "assistant_prefix": "<|assistant|>\n",
+        "assistant_suffix": "<|end|>",
+    },
+    "qwen2": {
+        "system_prefix": "<|im_start|>system\n",
+        "system_suffix": "<|im_end|>\n",
+        "user_prefix": "<|im_start|>user\n",
+        "user_suffix": "<|im_end|>\n",
+        "assistant_prefix": "<|im_start|>assistant\n",
+        "assistant_suffix": "<|im_end|>",
+    },
+    "llama3": {
+        "system_prefix": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n",
+        "system_suffix": "<|eot_id|>",
+        "user_prefix": "<|start_header_id|>user<|end_header_id|>\n\n",
+        "user_suffix": "<|eot_id|>",
+        "assistant_prefix": "<|start_header_id|>assistant<|end_header_id|>\n\n",
+        "assistant_suffix": "<|eot_id|>",
+    },
+}
+
+# Map model names to template keys
+MODEL_TEMPLATE_MAP = {
+    "phi-3.5": "phi3",
+    "phi3.5": "phi3",
+    "phi-3": "phi3",
+    "phi3": "phi3",
+    "unsloth/Phi-3.5-mini-instruct": "phi3",
+    "microsoft/Phi-3.5-mini-instruct": "phi3",
+    "qwen2.5": "qwen2",
+    "qwen2": "qwen2",
+    "qwen": "qwen2",
+    "unsloth/Qwen2.5-3B-Instruct": "qwen2",
+    "Qwen/Qwen2.5-3B-Instruct": "qwen2",
+    "llama-3": "llama3",
+    "llama3": "llama3",
+    "llama-3.2": "llama3",
+    "llama3.2": "llama3",
+    "unsloth/Llama-3.2-3B-Instruct": "llama3",
+    "unsloth/Llama-3.2-1B-Instruct": "llama3",
+    "meta-llama/Llama-3.2-3B-Instruct": "llama3",
+    "meta-llama/Llama-3.2-1B-Instruct": "llama3",
+}
+
+
+def detect_template(model_name: str) -> str:
+    """
+    Detect the chat template key from a model name.
+    
+    Args:
+        model_name: HuggingFace model name or short alias.
+    
+    Returns:
+        Template key (e.g., 'phi3', 'qwen2').
+    
+    Raises:
+        ValueError if model cannot be mapped to a known template.
+    """
+    model_lower = model_name.lower()
+    
+    # Exact match first
+    if model_name in MODEL_TEMPLATE_MAP:
+        return MODEL_TEMPLATE_MAP[model_name]
+    
+    # Substring match
+    for key, template in MODEL_TEMPLATE_MAP.items():
+        if key in model_lower:
+            return template
+    
+    raise ValueError(
+        f"Cannot auto-detect chat template for '{model_name}'. "
+        f"Known models: {list(MODEL_TEMPLATE_MAP.keys())}. "
+        f"Set model_type explicitly in DataPrepConfig."
+    )
+
+
+def format_chat_template(
+    system_msg: str,
+    user_msg: str,
+    assistant_msg: str,
+    template_key: str,
+) -> str:
+    """
+    Format a conversation into the model-specific chat template.
+    
+    Args:
+        system_msg: System prompt text.
+        user_msg: User message text.
+        assistant_msg: Assistant response text.
+        template_key: One of 'phi3', 'qwen2', 'llama3'.
+    
+    Returns:
+        Formatted string ready for tokenization and training.
+    """
+    tmpl = CHAT_TEMPLATES[template_key]
+    
+    return (
+        f"{tmpl['system_prefix']}{system_msg}{tmpl['system_suffix']}"
+        f"{tmpl['user_prefix']}{user_msg}{tmpl['user_suffix']}"
+        f"{tmpl['assistant_prefix']}{assistant_msg}{tmpl['assistant_suffix']}"
+    )
+
+
+# =============================================================================
 # Configuration
 # =============================================================================
 
@@ -31,10 +158,20 @@ class DataPrepConfig:
     """Configuration for data preparation."""
     
     # Input
-    raw_data_dirs: List[str] = field(default_factory=lambda: ["./data/synthetic_output_llama_index"])
+    raw_data_dirs: List[str] = field(default_factory=lambda: [
+        "./data/batch_1", "./data/batch_2", "./data/batch_3",
+        "./data/batch_4", "./data/batch_5", "./data/batch_6",
+        "./data/batch_7", "./data/batch_8", "./data/batch_9",
+        "./data/synthetic_output_llama_index",
+    ])
     
     # Output
     output_dir: str = "./data/training_data"
+    
+    # Model template selection
+    # Options: "phi3", "qwen2", or "auto" (auto-detect from base_model)
+    model_type: str = "auto"
+    base_model: str = "unsloth/Phi-3.5-mini-instruct"
     
     # Filtering thresholds
     min_dialogue_turns: int = 8
@@ -123,8 +260,6 @@ def _load_samples_from_dir(data_dir: str) -> List[Dict[str, Any]]:
     intermediate_files = sorted(data_path.glob("**/intermediate_*.jsonl"))
     
     if intermediate_files:
-        # Use only the latest (highest number) intermediate file
-        # as it contains all previous samples plus new ones
         latest = intermediate_files[-1]
         count = _load_jsonl_samples(latest, samples)
         logger.debug(f"    Loaded {count} samples from latest intermediate: {latest.name}")
@@ -135,7 +270,6 @@ def _load_samples_from_dir(data_dir: str) -> List[Dict[str, Any]]:
     # --- Strategy 3: Try any .jsonl file that contains sample data ---
     jsonl_files = sorted(data_path.glob("**/*.jsonl"))
     for jf in jsonl_files:
-        # Skip known non-sample files
         if any(skip in jf.name for skip in ["scenario", "benchmark"]):
             continue
         _load_jsonl_samples(jf, samples)
@@ -146,7 +280,6 @@ def _load_samples_from_dir(data_dir: str) -> List[Dict[str, Any]]:
     # --- Strategy 4: Try .json files (legacy format support) ---
     json_files = sorted(data_path.glob("**/*.json"))
     for jf in json_files:
-        # Skip benchmark, summary, and report files
         if any(skip in jf.name for skip in ["benchmark", "summary", "report"]):
             continue
         try:
@@ -184,7 +317,6 @@ def _load_jsonl_samples(filepath: Path, samples_list: List[Dict]) -> int:
                     continue
                 try:
                     data = json.loads(line)
-                    # Only accept entries that look like synthetic samples
                     if isinstance(data, dict) and "dialogue" in data and "summary" in data:
                         samples_list.append(data)
                         count += 1
@@ -193,8 +325,6 @@ def _load_jsonl_samples(filepath: Path, samples_list: List[Dict]) -> int:
     except Exception as e:
         logger.warning(f"Failed to read {filepath}: {e}")
     return count
-    
-    return samples
 
 
 def _extract_dialogue_text(sample: Dict) -> str:
@@ -214,7 +344,6 @@ def _extract_summary_text(sample: Dict) -> str:
     
     sections = []
     
-    # Map fields to section headers
     field_map = [
         ("chief_complaint", "Chief Complaint"),
         ("history_of_present_illness", "History of Present Illness"),
@@ -290,7 +419,6 @@ def _sample_id(sample: Dict) -> str:
     """Get or generate a unique ID for the sample."""
     if "id" in sample:
         return sample["id"]
-    # Generate deterministic hash from dialogue content
     content = json.dumps(sample.get("dialogue", []), sort_keys=True)
     return hashlib.md5(content.encode()).hexdigest()[:12]
 
@@ -306,15 +434,26 @@ class TrainingDataPreparator:
     Pipeline:
         1. Load raw synthetic samples from teacher pipeline output
         2. Apply quality filters (validation, clinical, structural)
-        3. Format as ChatML instruction-tuning examples
+        3. Format as model-specific chat template instruction-tuning examples
         4. Create stratified train/val/test splits
         5. Export as HuggingFace-compatible dataset
     
-    Example:
-        config = DataPrepConfig(raw_data_dirs=["./data/batch_1", "./data/batch_2"])
+    Example (Phi-3.5):
+        config = DataPrepConfig(
+            raw_data_dirs=["./data/batch_1"],
+            base_model="unsloth/Phi-3.5-mini-instruct",
+        )
         prep = TrainingDataPreparator(config)
         stats = prep.run()
-        print(f"Training samples: {stats['train_count']}")
+    
+    Example (Qwen2.5):
+        config = DataPrepConfig(
+            raw_data_dirs=["./data/batch_1"],
+            base_model="unsloth/Qwen2.5-3B-Instruct",
+            output_dir="./data/training_data_qwen",
+        )
+        prep = TrainingDataPreparator(config)
+        stats = prep.run()
     """
     
     def __init__(self, config: DataPrepConfig):
@@ -323,6 +462,20 @@ class TrainingDataPreparator:
         self.filtered_samples: List[Dict] = []
         self.formatted_examples: List[Dict] = []
         self.splits: Dict[str, List[Dict]] = {}
+        
+        # Resolve template
+        if config.model_type == "auto":
+            self.template_key = detect_template(config.base_model)
+        else:
+            self.template_key = config.model_type
+        
+        if self.template_key not in CHAT_TEMPLATES:
+            raise ValueError(
+                f"Unknown model_type '{self.template_key}'. "
+                f"Supported: {list(CHAT_TEMPLATES.keys())}"
+            )
+        
+        logger.info(f"Using chat template: {self.template_key} (model: {config.base_model})")
     
     def run(self) -> Dict[str, Any]:
         """
@@ -333,6 +486,8 @@ class TrainingDataPreparator:
         """
         logger.info("=" * 60)
         logger.info("Starting Data Preparation Pipeline")
+        logger.info(f"  Model: {self.config.base_model}")
+        logger.info(f"  Template: {self.template_key}")
         logger.info("=" * 60)
         
         # Step 1: Load
@@ -377,18 +532,15 @@ class TrainingDataPreparator:
                 logger.warning(f"  Directory not found: {data_dir}")
                 continue
             
-            # Check if this is a parent directory containing batch_N subdirectories
             batch_dirs = sorted(data_path.glob("batch_*"))
             
             if batch_dirs:
-                # Parent directory with batch subdirectories
                 logger.info(f"  Found {len(batch_dirs)} batch directories in {data_dir}")
                 for batch_dir in batch_dirs:
                     dir_samples = _load_samples_from_dir(str(batch_dir))
                     logger.info(f"    {batch_dir.name}: {len(dir_samples)} samples")
                     all_samples.extend(dir_samples)
             else:
-                # Direct data directory (single batch or flat structure)
                 dir_samples = _load_samples_from_dir(data_dir)
                 logger.info(f"  Loaded {len(dir_samples)} samples from {data_dir}")
                 all_samples.extend(dir_samples)
@@ -434,7 +586,7 @@ class TrainingDataPreparator:
                     filter_stats["failed_clinical"] += 1
                     continue
             
-            # Filter 3: Hallucination check (via validation errors)
+            # Filter 3: Hallucination check
             validation = sample.get("validation", {})
             errors = validation.get("errors", [])
             has_hallucination = any(
@@ -442,7 +594,6 @@ class TrainingDataPreparator:
                 for e in errors
             )
             if has_hallucination:
-                # Check severity - only reject major/critical
                 halluc_errors = [
                     e for e in errors 
                     if "hallucination" in e.get("error_type", "").lower()
@@ -477,7 +628,6 @@ class TrainingDataPreparator:
             filter_stats["passed"] += 1
             passed.append(sample)
         
-        # Log filter breakdown
         logger.info("  Filter results:")
         for key, count in sorted(filter_stats.items()):
             logger.info(f"    {key}: {count}")
@@ -485,15 +635,16 @@ class TrainingDataPreparator:
         return passed
     
     # -------------------------------------------------------------------------
-    # Step 3: Format
+    # Step 3: Format (multi-model support)
     # -------------------------------------------------------------------------
     
     def format_all(self, samples: List[Dict]) -> List[Dict]:
         """
-        Format all samples as ChatML instruction-tuning examples.
+        Format all samples as chat template instruction-tuning examples.
         
         Uses config.rag_context_ratio to decide which samples include 
-        RAG context in the user message.
+        RAG context in the user message. Uses self.template_key to 
+        select the correct chat template.
         """
         random.seed(self.config.seed)
         
@@ -526,14 +677,14 @@ class TrainingDataPreparator:
         include_rag_context: bool = False
     ) -> Optional[Dict]:
         """
-        Format a single sample as a ChatML instruction-tuning example.
+        Format a single sample using the selected chat template.
         
         Args:
             sample: Raw synthetic sample dict.
             include_rag_context: Whether to include RAG context in the user message.
         
         Returns:
-            Dictionary with 'text' (full ChatML string) and metadata fields,
+            Dictionary with 'text' (full chat template string) and metadata,
             or None if the sample cannot be formatted.
         """
         dialogue_text = _extract_dialogue_text(sample)
@@ -559,11 +710,12 @@ class TrainingDataPreparator:
         
         user_message = "\n".join(user_parts)
         
-        # Build ChatML formatted text (Phi-3.5 format)
-        chatml_text = (
-            f"<|system|>\n{SYSTEM_PROMPT}<|end|>\n"
-            f"<|user|>\n{user_message}<|end|>\n"
-            f"<|assistant|>\n{summary_text}<|end|>"
+        # Build formatted text using the model-specific template
+        chatml_text = format_chat_template(
+            system_msg=SYSTEM_PROMPT,
+            user_msg=user_message,
+            assistant_msg=summary_text,
+            template_key=self.template_key,
         )
         
         # Extract metadata
@@ -579,6 +731,7 @@ class TrainingDataPreparator:
             "has_rag_context": include_rag_context,
             "num_turns": len(sample.get("dialogue", [])),
             "urgency": scenario.get("urgency", "routine"),
+            "model_template": self.template_key,
         }
     
     # -------------------------------------------------------------------------
@@ -589,14 +742,9 @@ class TrainingDataPreparator:
         self, 
         examples: List[Dict]
     ) -> Dict[str, List[Dict]]:
-        """
-        Create stratified train/val/test splits.
-        
-        Stratifies by specialty to ensure balanced representation.
-        """
+        """Create stratified train/val/test splits."""
         random.seed(self.config.seed)
         
-        # Group by specialty
         by_specialty: Dict[str, List[Dict]] = {}
         for ex in examples:
             spec = ex.get("specialty", "General Practice")
@@ -612,7 +760,6 @@ class TrainingDataPreparator:
             n_train = n - n_val - n_test
             
             if n_train < 1:
-                # Too few samples for this specialty, put all in train
                 train.extend(spec_examples)
                 continue
             
@@ -620,7 +767,6 @@ class TrainingDataPreparator:
             val.extend(spec_examples[n_train:n_train + n_val])
             test.extend(spec_examples[n_train + n_val:])
         
-        # Shuffle each split
         random.shuffle(train)
         random.shuffle(val)
         random.shuffle(test)
@@ -646,10 +792,12 @@ class TrainingDataPreparator:
                     f.write(json.dumps(example, ensure_ascii=False) + "\n")
             logger.info(f"  Exported {len(split_data)} examples to {filepath}")
         
-        # Also export as a single JSON for convenience
+        # Export metadata
         metadata = {
             "created_at": datetime.now().isoformat(),
             "config": {
+                "base_model": self.config.base_model,
+                "model_template": self.template_key,
                 "rag_context_ratio": self.config.rag_context_ratio,
                 "max_seq_length": self.config.max_seq_length,
                 "seed": self.config.seed,
@@ -661,12 +809,7 @@ class TrainingDataPreparator:
             json.dump(metadata, f, indent=2)
     
     def export_to_huggingface_dataset(self):
-        """
-        Export splits as a HuggingFace Dataset object.
-        
-        Returns:
-            DatasetDict with train/val/test splits.
-        """
+        """Export splits as a HuggingFace Dataset object."""
         try:
             from datasets import Dataset, DatasetDict
         except ImportError:
@@ -692,31 +835,28 @@ class TrainingDataPreparator:
                 1 - len(self.filtered_samples) / len(self.raw_samples)
                 if self.raw_samples else 0
             ),
+            "model_template": self.template_key,
+            "base_model": self.config.base_model,
         }
         
-        # Split counts
         for split_name, split_data in self.splits.items():
             stats[f"{split_name}_count"] = len(split_data)
         
-        # Specialty distribution
         specialty_counts = Counter(
             ex.get("specialty", "Unknown") 
             for ex in self.formatted_examples
         )
         stats["specialty_distribution"] = dict(specialty_counts)
         
-        # Difficulty distribution
         difficulty_counts = Counter(
             ex.get("difficulty_level", "unknown") 
             for ex in self.formatted_examples
         )
         stats["difficulty_distribution"] = dict(difficulty_counts)
         
-        # RAG context ratio (actual)
         with_rag = sum(1 for ex in self.formatted_examples if ex.get("has_rag_context"))
         stats["actual_rag_ratio"] = with_rag / len(self.formatted_examples) if self.formatted_examples else 0
         
-        # Token length estimates (rough: 1 token ≈ 4 chars)
         lengths = [len(ex["text"]) / 4 for ex in self.formatted_examples]
         if lengths:
             stats["token_stats"] = {
@@ -733,10 +873,10 @@ class TrainingDataPreparator:
         with open(output_dir / "preparation_stats.json", "w") as f:
             json.dump(stats, f, indent=2, default=str)
         
-        # Print summary
         logger.info("\n" + "=" * 60)
         logger.info("Dataset Statistics")
         logger.info("=" * 60)
+        logger.info(f"  Model template:       {stats['model_template']}")
         logger.info(f"  Raw samples loaded:   {stats['raw_count']}")
         logger.info(f"  After filtering:      {stats['filtered_count']}")
         logger.info(f"  Filter rejection rate: {stats['filter_rate']:.1%}")
@@ -764,6 +904,18 @@ if __name__ == "__main__":
     parser.add_argument("--rag-ratio", type=float, default=0.5, help="Fraction of examples with RAG context")
     parser.add_argument("--min-turns", type=int, default=8, help="Minimum dialogue turns")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument(
+        "--model", 
+        default="unsloth/Phi-3.5-mini-instruct",
+        help="Base model name (determines chat template). E.g.: "
+             "unsloth/Phi-3.5-mini-instruct, unsloth/Qwen2.5-3B-Instruct"
+    )
+    parser.add_argument(
+        "--model-type",
+        default="auto",
+        choices=["auto", "phi3", "qwen2", "llama3"],
+        help="Chat template type (auto-detected from --model if 'auto')"
+    )
     
     args = parser.parse_args()
     
@@ -773,10 +925,13 @@ if __name__ == "__main__":
         rag_context_ratio=args.rag_ratio,
         min_dialogue_turns=args.min_turns,
         seed=args.seed,
+        base_model=args.model,
+        model_type=args.model_type,
     )
     
     prep = TrainingDataPreparator(config)
     stats = prep.run()
     
     print(f"\n✓ Data preparation complete. Output: {args.output_dir}")
+    print(f"  Template: {prep.template_key}")
     print(f"  Train: {stats['train_count']}, Val: {stats['val_count']}, Test: {stats['test_count']}")

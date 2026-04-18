@@ -11,12 +11,15 @@ This module implements the Student side of the Teacher-Student pipeline:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
+import patch_torch
+
 
 from .data_prep import TrainingDataPreparator, DataPrepConfig
 from .trainer import StudentTrainer, TrainingConfig
 from .exporter import ModelExporter, ExportConfig
-from .inference import ClinicalScribeInference, InferenceConfig
+from .inference_fixed import ClinicalScribeInference, InferenceConfig
 from .evaluator import StudentEvaluator, EvaluationConfig, LLMJudge
+
 
 __all__ = [
     "TrainingDataPreparator",

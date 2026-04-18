@@ -272,4 +272,4 @@ if __name__ == "__main__":
         
         build_llama_index_knowledge_base()
         # Use a different seed for the main run to ensure variability
-        run_pipeline_with_llama_index(num_scenarios=250, output_dir="./data/batch_9", scenario_seed=50)
+        run_pipeline_with_llama_index(num_scenarios=250, output_dir="./data/batch_8", scenario_seed=49)
