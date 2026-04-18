@@ -195,6 +195,157 @@ git commit -m "Lock working environment (March 2026)"
 ```
 
 
+## MEDCON / QuickUMLS Setup (Clinical Concept Evaluation)
+
+To complement ROUGE and BERTScore, a clinical concept–level evaluation pipeline was added using **QuickUMLS**. This was used to approximate **MEDCON-style evaluation**, where generated notes are compared against reference notes based on overlap of extracted UMLS medical concepts rather than only surface text similarity.
+
+Because QuickUMLS and its dependencies (`leveldb`, `simstring`) are difficult to install reliably on native Windows, the MEDCON environment was set up separately using **Windows Subsystem for Linux (WSL2)** with Ubuntu 24.04 LTS.
+
+---
+
+### Why a Separate Environment Was Needed
+
+QuickUMLS depends on older native libraries that often fail to compile on Windows. Initial installation attempts produced multiple build errors, so the concept-evaluation stack was isolated inside Linux for stability and reproducibility.
+
+Final split setup:
+
+| Component | Platform |
+|---|---|
+| Model training / inference / CUDA workloads | Windows 11 |
+| BERTScore / ROUGE | Windows Conda |
+| MEDCON / QuickUMLS | WSL Ubuntu |
+
+---
+
+### Step 1: Install WSL + Ubuntu
+
+```powershell
+wsl --install
+```
+
+### Step 2: Install Python 3.10 + Build Tools
+
+```bash
+sudo apt install software-properties-common -y
+sudo add-apt-repository universe -y
+sudo apt install python3.10 python3.10-venv python3.10-dev build-essential -y
+```
+if did't work, try:
+```bash
+sudo apt update
+sudo apt install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install python3.10 python3.10-venv python3.10-distutils -y
+```
+
+### Step 3: Create Virtual Environment
+```bash
+
+python3.10 -m venv quickumls_env_310
+source quickumls_env_310/bin/activate
+```
+
+### Step 4: Install Required Native Libraries
+```bash
+sudo apt install libleveldb-dev build-essential -y
+```
+
+### Step 5: Install QuickUMLS
+```bash
+pip install quickumls
+pip install --upgrade pip setuptools wheel
+```
+
+### Step 6: Download UMLS Data
+```bash
+python -m spacy download en_core_web_sm
+```
+
+## Step 7: Download Official UMLS Database
+
+To use MEDCON-style concept extraction, official **UMLS terminology files** were required.
+
+The UMLS release was downloaded manually from the **U.S. National Library of Medicine (NIH)** after creating a licensed UMLS account.
+
+### Typical Process
+
+1. Register for a **UMLS Terminology Services** account  
+2. Accept the **Metathesaurus License Agreement**  
+3. Download the latest release (e.g., `2025AB`)  
+4. Extract the downloaded archive files  
+
+### Important Extracted Files
+
+After extraction, the `META/` folder contained source files such as:
+
+- `MRCONSO.RRF`
+- `MRSTY.RRF`
+- `MRDEF.RRF`
+
+These files are required by QuickUMLS to build the searchable concept database.
+
+
+
+### Step 8: Build QuickUMLS Index
+After downloading an official UMLS release from NIH:
+```bash
+
+python -m quickumls.install <UMLS_META_PATH> quickumls_data/
+```
+Example:
+```bash
+
+python -m quickumls.install ~/UMLS/2025AB/META quickumls_data/
+
+```
+During this step, QuickUMLS processed the terminology files and built local databases containing:
+
+concept strings
+semantic types
+approximate string matching indexes
+
+This indexing step is performed once and reused later.
+
+
+### Step 9: Verify Installation
+```bash
+python -c "from quickumls import QuickUMLS; matcher = QuickUMLS('quickumls_data/'); print(matcher.match('Patient has diabetes and hypertension', best_match=True))"
+````
+Or interactively:
+
+```bash
+python
+>>> from quickumls import QuickUMLS
+>>> matcher = QuickUMLS("quickumls_data/")
+```   
+
+## How MEDCON Was Used
+
+QuickUMLS was used to extract UMLS Concept Unique Identifiers (CUIs) from:
+
+- reference clinical notes
+- generated model outputs
+
+Then concept overlap metrics such as Precision, Recall, and F1 were calculated.
+```
+pred_cuis = extract_cuis(prediction)
+ref_cuis = extract_cuis(reference)
+
+precision = overlap / predicted
+recall = overlap / reference
+f1 = 2 * precision * recall / (precision + recall)
+
+```
+### Why This Metric Was Important?
+
+Two summaries may appear similar in wording but differ clinically. Concept-level evaluation helps determine whether key medical content was preserved, such as:
+
+diagnoses
+symptoms
+medications
+procedures
+anatomical findings
 
 ---
 
