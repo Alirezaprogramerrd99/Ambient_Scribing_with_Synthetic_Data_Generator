@@ -22,12 +22,12 @@ try:
     load_dotenv()  # This loads OPENAI_API_KEY from .env file
     print("✓ Loaded environment variables from .env")
 except ImportError:
-    print("⚠ python-dotenv not installed. Make sure OPENAI_API_KEY is set manually.")
-    print("  Install with: pip install python-dotenv")
+    print("python-dotenv not installed. Make sure OPENAI_API_KEY is set manually!")
+    print("Install with: pip install python-dotenv")
 
 # Verify API key is available
 if not os.getenv("OPENAI_API_KEY"):
-    print("⚠ WARNING: OPENAI_API_KEY not found in environment!")
+    print("WARNING: OPENAI_API_KEY not found in environment!")
     print("  Options:")
     print("  1. Create a .env file with: OPENAI_API_KEY=sk-...")
     print("  2. Set environment variable: export OPENAI_API_KEY=sk-...")

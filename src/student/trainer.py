@@ -24,9 +24,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
 # Configuration
-# =============================================================================
 
 @dataclass
 class TrainingConfig:
@@ -34,7 +32,8 @@ class TrainingConfig:
     
     # Model
     base_model: str = "unsloth/Phi-3.5-mini-instruct"
-    max_seq_length: int = 4096
+
+    max_seq_length: int = 4096 # Phi-3.5 supports up to 4096 tokens, Qwen2.5 up to 8192, Llama-3.2 up to 4096.
     load_in_4bit: bool = True
     dtype: Optional[str] = None  # Auto-detect (bf16 on Ampere+, fp16 otherwise)
     
@@ -42,6 +41,9 @@ class TrainingConfig:
     lora_r: int = 32
     lora_alpha: int = 64
     lora_dropout: float = 0.0     # 0.05
+    
+    # Target modules for LoRA - these are the standard projection layers in transformer blocks.
+    # field(default_factory=...) is used to avoid mutable default arguments. what it does is it creates a new list each time the dataclass is instantiated, rather than sharing the same list across all instances.
     target_modules: List[str] = field(default_factory=lambda: [
         "q_proj", "k_proj", "v_proj", "o_proj",
         "gate_proj", "up_proj", "down_proj",
@@ -49,13 +51,13 @@ class TrainingConfig:
     
     # Training
     num_epochs: int = 3
-    per_device_train_batch_size: int = 4
+    per_device_train_batch_size: int = 4 # Phi-3.5 is 6GB in 4-bit, so batch size 4 = 24GB which fits in 40GB A100 with some room for optimizer states. Qwen2.5 is larger, so batch size 2 or 4 with gradient accumulation works well.
     gradient_accumulation_steps: int = 4  # Effective batch = 16
     learning_rate: float = 2e-4
     lr_scheduler_type: str = "cosine"
-    warmup_ratio: float = 0.05
-    weight_decay: float = 0.01
-    max_grad_norm: float = 1.0
+    warmup_ratio: float = 0.05 # 5% warmup is common for fine-tuning
+    weight_decay: float = 0.01 # Commonly used weight decay for regularization
+    max_grad_norm: float = 1.0 # Gradient clipping to prevent exploding gradients
     
     # Evaluation & Saving
     eval_steps: int = 50
@@ -68,13 +70,13 @@ class TrainingConfig:
     
     # Optimisation
     gradient_checkpointing: bool = True
-    optim: str = "adamw_8bit"
+    optim: str = "adamw_8bit" # 8-bit AdamW optimizer for memory efficiency
     
     # Data
     training_data_dir: str = "./data/training_data"
     output_dir: str = "./checkpoints/phi35_clinical_scribe"
     
-    # Curriculum learning
+    # Curriculum learning; not used for now, but can be enabled if the training data includes a "difficulty" field (1-10) for each example.
     use_curriculum: bool = False
     
     # Tracking
@@ -160,8 +162,13 @@ class StudentTrainer:
             logger.error(f"Merge failed: {e}")
             logger.error("You can merge manually later. The LoRA adapters in /final are intact.")
         
+        
+        
+        
         # Step 6: Save training results
         elapsed = time.time() - self._training_start
+        
+        # save a comprehensive results file with training metrics and config details for reproducibility and analysis
         results = {
             "train_loss": train_result.training_loss,
             "train_runtime": train_result.metrics.get("train_runtime", elapsed),
@@ -198,6 +205,8 @@ class StudentTrainer:
     
     def _load_model(self):
         """Load base model with Unsloth and add LoRA adapters."""
+        
+        # using lazy imports here to speed up the initial loading time of the script, especially if the user just wants to check the config or something else before actually loading the model and its dependencies. Unsloth and PyTorch are large libraries, so we delay their import until we actually need them.
         try:
             import os
             os.environ["UNSLOTH_COMPILE_DISABLE"] = "1"  # Bypass unstable Windows Triton compiler import
@@ -388,6 +397,8 @@ class StudentTrainer:
         logger.info(f"  Learning rate: {self.config.learning_rate}")
         logger.info(f"  Epochs: {self.config.num_epochs}")
         logger.info(f"  Scheduler: {self.config.lr_scheduler_type}")
+    
+    
     
     def _supports_bf16(self) -> bool:
         """Check if GPU supports bf16 (Ampere+ architecture)."""

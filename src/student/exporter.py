@@ -488,5 +488,5 @@ if __name__ == "__main__":
     if results.get("ollama_registered"):
         print(f"\n✓ Model ready! Run with: ollama run {args.model_name}")
     else:
-        print("\n⚠ Export completed but Ollama registration failed.")
+        print("\nExport completed but Ollama registration failed!")
         print(f"  Register manually: ollama create {args.model_name} -f {results.get('modelfile_path')}")
