@@ -552,11 +552,12 @@ class LlamaIndexRetriever(BaseRetriever):
         # needs a larger candidate pool to be effective — Nogueira et al., 2019).
         fetch_k = max(top_k * 2, 10) if (score_threshold > 0 or self.use_reranker) else top_k
         
-        # Update top_k if different from default
+        # Update top_k if different from current setting
         if fetch_k != self.similarity_top_k:
             self._retriever = self.indexer.get_index().as_retriever(
                 similarity_top_k=fetch_k
             )
+            self.similarity_top_k = fetch_k
         
         # Retrieve nodes
         nodes = self._retriever.retrieve(query)

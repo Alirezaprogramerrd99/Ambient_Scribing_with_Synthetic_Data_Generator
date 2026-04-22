@@ -380,16 +380,29 @@ class RAGFactory:
         # Load existing index
         indexer.load_index()
         
-        # Create base retriever
+        # Create base retriever.
+        # When wrapped by HybridMedicalRetriever, the hybrid layer calls retrieve()
+        # with top_k * 2 so the clinical filter has a meaningful pool to work with.
+        # Set reranker_top_n accordingly so the reranker doesn't collapse those
+        # extra candidates back to similarity_top_k before the hybrid layer sees them.
+        use_hybrid = (
+            self.config.backend == RAGBackend.HYBRID
+            or self.config.use_query_expansion
+            or self.config.use_clinical_filtering
+        )
+        reranker_top_n = (
+            self.config.similarity_top_k * 2 if use_hybrid
+            else self.config.similarity_top_k
+        )
         base_retriever = LlamaIndexRetriever(
             indexer=indexer,
             similarity_top_k=self.config.similarity_top_k,
             use_reranker=self.config.use_reranker,
-            reranker_top_n=self.config.similarity_top_k
+            reranker_top_n=reranker_top_n,
         )
         
         # Wrap with hybrid medical retriever if configured
-        if self.config.backend == RAGBackend.HYBRID or self.config.use_query_expansion or self.config.use_clinical_filtering:
+        if use_hybrid:
             return HybridMedicalRetriever(
                 llama_retriever=base_retriever,
                 use_query_expansion=self.config.use_query_expansion,
@@ -574,6 +587,8 @@ def main():
     
     else:
         parser.print_help()
+
+
 
 
 if __name__ == "__main__":

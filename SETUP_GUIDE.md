@@ -187,14 +187,6 @@ pip install torch==2.6.0+cu126 --index-url https://download.pytorch.org/whl/cu12
 pip install evaluate bert-score rouge-score nltk
 ```
 
-**Commit this file to git.** It is your insurance policy against machine wipes.
-
-```powershell
-git add requirements_lock_working.txt
-git commit -m "Lock working environment (March 2026)"
-```
-
-
 ## MEDCON / QuickUMLS Setup (Clinical Concept Evaluation)
 
 To complement ROUGE and BERTScore, a clinical concept–level evaluation pipeline was added using **QuickUMLS**. This was used to approximate **MEDCON-style evaluation**, where generated notes are compared against reference notes based on overlap of extracted UMLS medical concepts rather than only surface text similarity.
@@ -248,6 +240,7 @@ source quickumls_env_310/bin/activate
 
 ### Step 4: Install Required Native Libraries
 ```bash
+sudo apt install python3.10-dev build-essential -y
 sudo apt install libleveldb-dev build-essential -y
 ```
 
