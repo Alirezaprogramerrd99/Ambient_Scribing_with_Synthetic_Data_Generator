@@ -10,8 +10,6 @@ Fixes applied:
 Author: Alireza Rashidi
 MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
-
-# I've written this patch for bypassing the windwows compatibility issues with PyTorch 2.5.1 and bitsandbytes, which are required for running the fine-tuned model on Windows. This patch should be imported before any other ML libraries to ensure that the necessary torch attributes are available for bitsandbytes and torchao, which expect them to be present in PyTorch 2.6.
 import patch_torch
 
 import os
@@ -38,7 +36,9 @@ from unsloth import FastLanguageModel
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
 # Configuration
+# =============================================================================
 
 @dataclass
 class InferenceConfig:
@@ -63,8 +63,6 @@ class InferenceConfig:
     knowledge_base_path: str = "./medical_knowledge/sample"
     rag_persist_dir: str = "./data/llama_index_chroma_db"
     rag_top_k: int = 5
-    
-    
     rag_max_context_chars: int = 3000  # Limit RAG context to prevent overflow
     
     # Logprobs for uncertainty quantification (Kadavath et al., 2022)
@@ -102,7 +100,9 @@ SUMMARY_INSTRUCTION = (
 )
 
 
-#------------------------------------------- Summary Parser 
+# =============================================================================
+# Summary Parser
+# =============================================================================
 
 def parse_structured_summary(text: str) -> Dict[str, str]:
     """Parse the structured summary output into a dictionary."""
@@ -121,8 +121,6 @@ def parse_structured_summary(text: str) -> Dict[str, str]:
         ("Assessment", "assessment"),
         ("Plan", "plan"),
     ]
-    
-    
 
     pattern_parts = "|".join(re.escape(name) for name, _ in section_names)
     pattern = rf"\*?\*?({pattern_parts})\*?\*?\s*:\s*"
@@ -303,6 +301,7 @@ class ClinicalScribeInference:
                 # showing cross-encoder reranking improves ROUGE-L by up to 18%
                 use_reranker=overrides.get("use_reranker", True),
                 use_query_expansion=use_qe,
+                use_clinical_filtering=use_cf,
             )
 
             factory = RAGFactory(rag_config)
@@ -384,8 +383,6 @@ class ClinicalScribeInference:
             result["logprobs"] = self._last_logprobs
         
         return result
-  
-  
   
 
     def batch_inference(
@@ -584,8 +581,9 @@ class ClinicalScribeInference:
         return response
 
 
-#------------------ CLI Entry Point
-
+# =============================================================================
+# CLI Entry Point
+# =============================================================================
 
 if __name__ == "__main__":
     import argparse

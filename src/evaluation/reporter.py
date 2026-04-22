@@ -381,7 +381,7 @@ class BenchmarkReporter:
                 )
         
         if not recommendations:
-            recommendations.append("All metrics are within acceptable ranges. Good job! 🎉")
+            recommendations.append("All metrics are within acceptable ranges. Good job!")
         
         return recommendations
     

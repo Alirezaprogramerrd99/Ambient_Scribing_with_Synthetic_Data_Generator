@@ -37,3 +37,5 @@ medcon_results/
 final_eval_phi
 final_eval_llama3b
 final_eval_llama1b
+
+results/dissertation_plots_final/rag_architecture_diagram.md

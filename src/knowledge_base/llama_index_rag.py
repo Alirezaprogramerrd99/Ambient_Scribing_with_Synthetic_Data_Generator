@@ -25,9 +25,7 @@ from .document_processor import DocumentType, DocumentMetadata
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
-# LlamaIndex Imports (Lazy Loading)
-# =============================================================================
+# LlamaIndex Imports (with Lazy Loading)
 
 def _check_llama_index_installed():
     """Check if LlamaIndex is installed"""
@@ -56,6 +54,8 @@ def _get_llama_index_modules():
     from llama_index.core.query_engine import RetrieverQueryEngine
     from llama_index.core.postprocessor import SimilarityPostprocessor
     
+    
+    
     return {
         "VectorStoreIndex": VectorStoreIndex,
         "SimpleDirectoryReader": SimpleDirectoryReader,
@@ -71,9 +71,9 @@ def _get_llama_index_modules():
     }
 
 
-# =============================================================================
 # LlamaIndex Settings Configuration
-# =============================================================================
+
+
 
 class LlamaIndexSettings:
     """
@@ -176,9 +176,8 @@ class LlamaIndexSettings:
                 logger.warning("llama-index-llms-anthropic not installed")
 
 
-# =============================================================================
 # LlamaIndex Document Loader
-# =============================================================================
+
 
 class LlamaIndexDocumentLoader:
     """
@@ -549,8 +548,9 @@ class LlamaIndexRetriever(BaseRetriever):
         import time
         start_time = time.time()
         
-        # Fetch extra results if we'll be filtering by score
-        fetch_k = max(top_k * 2, 10) if score_threshold > 0 else top_k
+        # Over-fetch when filtering by score OR when reranking (cross-encoder
+        # needs a larger candidate pool to be effective — Nogueira et al., 2019).
+        fetch_k = max(top_k * 2, 10) if (score_threshold > 0 or self.use_reranker) else top_k
         
         # Update top_k if different from default
         if fetch_k != self.similarity_top_k:
@@ -831,9 +831,9 @@ class HybridMedicalRetriever(BaseRetriever):
         return [result for _, result in scored_results]
 
 
-# =============================================================================
 # Knowledge Base Builder (LlamaIndex Version)
-# =============================================================================
+
+
 
 class LlamaIndexKnowledgeBaseBuilder:
     """
@@ -883,6 +883,8 @@ class LlamaIndexKnowledgeBaseBuilder:
         # Load documents
         documents = self.loader.load_directory(directory)
         
+        
+        
         if not documents:
             raise ValueError(f"No documents found in {directory}")
         
@@ -901,9 +903,7 @@ class LlamaIndexKnowledgeBaseBuilder:
         return LlamaIndexRetriever(self.indexer)
 
 
-# =============================================================================
 # Factory Function
-# =============================================================================
 
 def create_llama_index_retriever(
     persist_dir: str = "./llama_index_store",
@@ -967,10 +967,13 @@ def create_llama_index_retriever(
             use_clinical_filtering=True,
         )
     
+    
     return base_retriever
 
 
 if __name__ == "__main__":
+    
+    
     print("LlamaIndex RAG Module")
     print("=" * 60)
     print()

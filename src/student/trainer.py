@@ -34,7 +34,7 @@ class TrainingConfig:
     base_model: str = "unsloth/Phi-3.5-mini-instruct"
 
     max_seq_length: int = 4096 # Phi-3.5 supports up to 4096 tokens, Qwen2.5 up to 8192, Llama-3.2 up to 4096.
-    load_in_4bit: bool = True
+    load_in_4bit: bool = True  # QLoRA uses 4-bit quantisation for memory efficiency. Unsloth handles this automatically based on the model and hardware.
     dtype: Optional[str] = None  # Auto-detect (bf16 on Ampere+, fp16 otherwise)
     
     # LoRA
