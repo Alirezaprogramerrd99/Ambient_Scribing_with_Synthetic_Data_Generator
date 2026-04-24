@@ -34,6 +34,38 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
+# RAG Ablation Config Registry  (shared by Experiment 1 and Experiment 2)
+# =============================================================================
+
+# Single source of truth for all RAG ablation override dicts.
+# Used by both _run_comparative_experiment (Experiment 1) and
+# _run_rag_backend_comparison (Experiment 2) so the definitions
+# never drift out of sync.
+_RAG_ABLATION_CONFIGS: dict = {
+    "dense_only": {
+        "use_reranker": False,
+        "use_query_expansion": False,
+        "use_clinical_filtering": False,
+    },
+    "dense_rerank": {
+        "use_reranker": True,
+        "use_query_expansion": False,
+        "use_clinical_filtering": False,
+    },
+    "dense_rerank_qe": {
+        "use_reranker": True,
+        "use_query_expansion": True,
+        "use_clinical_filtering": False,
+    },
+    "full_medical": {
+        "use_reranker": True,
+        "use_query_expansion": True,
+        "use_clinical_filtering": True,
+    },
+}
+
+
+# =============================================================================
 # Configuration
 # =============================================================================
 
@@ -71,12 +103,17 @@ class EvaluationConfig:
     compute_bertscore: bool = True  # Enabled for dissertation comparison
     compute_clinical_accuracy: bool = True
     
-    # RAG ablation configs to compare
+    # RAG ablation configs to compare (Experiment 2: ablation study table)
     # Options: dense_only, dense_rerank, dense_rerank_qe, full_medical
     # Legacy names (llama_index, hybrid) are auto-mapped
     rag_backends: List[str] = field(default_factory=lambda: [
         "dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"
     ])
+    
+    # RAG config to use for ft_rag and rag_only in Experiment 1 (five-way comparison).
+    # This is independent of rag_backends (Experiment 2).
+    # Options: dense_only, dense_rerank, dense_rerank_qe, full_medical
+    comparative_rag_config: str = "dense_rerank"
     
     # Which experiment configs to run (default: all 5)
     # Options: baseline, rag_only, ft_only, ft_rag, teacher
@@ -647,12 +684,14 @@ class StudentEvaluator:
         
         # ---- Step 3: FT+RAG (add RAG to the same model) ----
         if "ft_rag" in _run and scribe:
-            logger.info(f"\nEvaluating: Fine-tuned {_short_name} + RAG")
+            logger.info(f"\nEvaluating: Fine-tuned {_short_name} + RAG ({self.config.comparative_rag_config})")
             try:
-                # Initialise RAG on the existing model instance
+                # Initialise RAG on the existing model instance using the
+                # configured RAG config (controlled by --comparative-rag-config).
                 scribe.config.use_rag = True
                 scribe.config.rag_backend = "llama_index"
-                scribe._init_rag()
+                scribe._retriever = None  # Clear any cached retriever
+                scribe._init_rag(rag_overrides=_RAG_ABLATION_CONFIGS[self.config.comparative_rag_config])
                 
                 outputs = scribe.batch_inference(dialogues, use_rag=True)
                 candidates = [o.get("raw_output", "") for o in outputs]
@@ -731,10 +770,11 @@ class StudentEvaluator:
                 
                 if "rag_only" in _run:
                     # ---- Step 6: RAG-only (same base model + RAG) ----
-                    logger.info(f"\nEvaluating: Base {_short_name} + RAG (no fine-tuning)")
+                    logger.info(f"\nEvaluating: Base {_short_name} + RAG, no fine-tuning ({self.config.comparative_rag_config})")
                     base_scribe.config.use_rag = True
                     base_scribe.config.rag_backend = "llama_index"
-                    base_scribe._init_rag()
+                    base_scribe._retriever = None  # Clear any cached retriever
+                    base_scribe._init_rag(rag_overrides=_RAG_ABLATION_CONFIGS[self.config.comparative_rag_config])
                     
                     outputs = base_scribe.batch_inference(dialogues, use_rag=True)
                     candidates = [o.get("raw_output", "") for o in outputs]
@@ -879,30 +919,8 @@ class StudentEvaluator:
         
         all_results = {}
         
-        # Define ablation configurations
-        # Each is a dict of overrides passed to _init_rag(rag_overrides=...)
-        rag_ablation_configs = {
-            "dense_only": {
-                "use_reranker": False,
-                "use_query_expansion": False,
-                "use_clinical_filtering": False,
-            },
-            "dense_rerank": {
-                "use_reranker": True,
-                "use_query_expansion": False,
-                "use_clinical_filtering": False,
-            },
-            "dense_rerank_qe": {
-                "use_reranker": True,
-                "use_query_expansion": True,
-                "use_clinical_filtering": False,
-            },
-            "full_medical": {
-                "use_reranker": True,
-                "use_query_expansion": True,
-                "use_clinical_filtering": True,
-            },
-        }
+        # Use the module-level registry — same definitions as Experiment 1.
+        rag_ablation_configs = _RAG_ABLATION_CONFIGS
         
         # Filter to only requested backends
         configs_to_run = {}
@@ -1307,8 +1325,14 @@ if __name__ == "__main__":
                         help="Skip RAG backend comparison experiment")
     parser.add_argument("--rag-configs", nargs="+",
                         default=["dense_only", "dense_rerank", "dense_rerank_qe", "full_medical"],
-                        help="RAG ablation configs to compare. "
+                        help="RAG ablation configs to compare in Experiment 2. "
                              "Options: dense_only, dense_rerank, dense_rerank_qe, full_medical")
+    parser.add_argument("--comparative-rag-config", default="dense_rerank",
+                        choices=list(_RAG_ABLATION_CONFIGS.keys()),
+                        help="RAG config to use for ft_rag and rag_only in the five-way "
+                             "comparison (Experiment 1). Does not affect Experiment 2. "
+                             "Options: dense_only, dense_rerank, dense_rerank_qe, full_medical "
+                             "(default: dense_rerank)")
     parser.add_argument("--return-logprobs", action="store_true",
                         help="Compute per-token logprobs for uncertainty quantification")
     
@@ -1330,6 +1354,7 @@ if __name__ == "__main__":
         configs_to_run=args.configs,
         run_rag_comparison=not args.skip_rag_comparison,
         rag_backends=args.rag_configs,
+        comparative_rag_config=args.comparative_rag_config,
         return_logprobs=args.return_logprobs,
     )
     

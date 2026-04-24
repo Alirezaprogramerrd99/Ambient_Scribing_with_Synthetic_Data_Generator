@@ -14,7 +14,7 @@ Metrics computed:
   - LLM Judge scores (from eval JSON, pre-computed by evaluator.py)
 
 Outputs:
-  - Table A: Automated metrics (all models × configs × overall + per-section)
+  - Table A: Automated metrics (all models , configs , overall + per-section)
   - Table B: LLM Judge scores
   - Plots: ROUGE, BLEU, BERTScore, Judge, Radar, Heatmap, Per-Section, Size
 
@@ -25,8 +25,6 @@ Usage:
         --medcon-json ./medcon_results.json \
         --output-dir ./dissertation_final
 
-Author: Alireza Rashidi
-MSc Project: Trustworthy SLMs for Ambient Clinical Scribing
 """
 
 import json
@@ -67,9 +65,9 @@ CONFIG_LABELS = {
 
 RAG_METHOD = {
     "baseline": "None",
-    "rag_only": "Base+RAG",   # evaluator uses rag_backend="llama_index", no reranking
+    "rag_only": "Dense+Rerank+QE",
     "ft_only": "None",
-    "ft_rag": "Dense+Rerank",
+    "ft_rag": "Dense+Rerank+QE",
     "teacher": "None (API)",
 }
 
@@ -444,7 +442,7 @@ def generate_table_a(data: Dict, labels: List[str], output_dir: Path):
     lines = [
         "# Table A: Automated Evaluation Metrics",
         "",
-        "Computed directly from raw model outputs (50-sample test set).",
+        "Computed directly from raw model outputs (100-sample test set).",
         "MEDCON uses QuickUMLS + UMLS 2025AB. METEOR computed via evaluate + nltk (replaces BLEURT).",
         "",
         "| Model | Config | RAG | Scope | ROUGE-1 | ROUGE-L | BLEU-4 | BERTScore | MEDCON-F1 | METEOR |",
@@ -581,6 +579,7 @@ def plot_rouge_variants(data: Dict, labels: List[str], output_dir: Path):
     print("Saved: rouge_variants.png")
 
 
+
 def plot_bleu_variants(data: Dict, labels: List[str], output_dir: Path):
     bleu_keys = [("avg_bleu1", "BLEU-1"), ("avg_bleu2", "BLEU-2"), ("avg_bleu3", "BLEU-3"), ("avg_bleu4", "BLEU-4")]
     cfgs = ["ft_only", "ft_rag"]
@@ -609,6 +608,8 @@ def plot_bleu_variants(data: Dict, labels: List[str], output_dir: Path):
     print("Saved: bleu_variants.png")
 
 
+
+
 def plot_bertscore(data: Dict, labels: List[str], output_dir: Path):
     bert_dims = [("precision", "Precision"), ("recall", "Recall"), ("f1", "F1")]
     cfgs = ["baseline", "ft_only", "ft_rag", "teacher"]
@@ -635,6 +636,8 @@ def plot_bertscore(data: Dict, labels: List[str], output_dir: Path):
     plt.savefig(output_dir / "bertscore.png", dpi=150, bbox_inches="tight")
     plt.close()
     print("Saved: bertscore.png")
+
+
 
 
 def plot_judge_dimensions(data: Dict, labels: List[str], output_dir: Path):
@@ -691,6 +694,8 @@ RADAR_CATEGORIES = [
 ]
 
 
+
+
 def plot_radar(data: Dict, labels: List[str], output_dir: Path):
     n = len(RADAR_CATEGORIES)
     angles = np.linspace(0, 2*np.pi, n, endpoint=False).tolist() + [0]
@@ -704,6 +709,8 @@ def plot_radar(data: Dict, labels: List[str], output_dir: Path):
         closed = vals + [vals[0]]
         ax.plot(angles, closed, "o-", label=label, color=colors[i], linewidth=2)
         ax.fill(angles, closed, alpha=0.1, color=colors[i])
+
+
 
 
 
@@ -750,6 +757,8 @@ def plot_radar(data: Dict, labels: List[str], output_dir: Path):
     print("Saved: radar_multimetric.png")
 
 
+
+
 def plot_heatmap(data: Dict, labels: List[str], output_dir: Path):
     # All values normalised to [0, 1]. Judge scores (1-5) divided by 5.
     metric_defs = [
@@ -762,6 +771,8 @@ def plot_heatmap(data: Dict, labels: List[str], output_dir: Path):
         ("Judge Overall",   lambda m: m.get("llm_judge", {}).get("avg_overall", 0) / 5.0),
         ("Hallucination↑",  lambda m: m.get("llm_judge", {}).get("avg_hallucination", 0) / 5.0),
     ]
+    
+    
     
     row_labels = []
     matrix = []
@@ -796,6 +807,9 @@ def plot_heatmap(data: Dict, labels: List[str], output_dir: Path):
     plt.savefig(output_dir / "metrics_heatmap.png", dpi=150, bbox_inches="tight")
     plt.close()
     print("Saved: metrics_heatmap.png")
+
+
+
 
 
 def plot_per_section_rouge(data: Dict, labels: List[str], output_dir: Path, config="ft_rag"):
@@ -935,6 +949,10 @@ if __name__ == "__main__":
                 "medcon_f1": float(m.get("medcon_f1", 0)),
                 "llm_judge": m.get("llm_judge", {}),
                 "num_samples": m.get("num_samples", 0),
+                "per_section": {
+                    key: {k: float(v) for k, v in secs.items()}
+                    for key, secs in cd.get("per_section", {}).items()
+                },
             }
     with open(output_dir / "computed_metrics.json", "w") as f:
         json.dump(save_data, f, indent=2)

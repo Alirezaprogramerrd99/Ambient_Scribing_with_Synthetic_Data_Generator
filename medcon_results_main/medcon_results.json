@@ -1,0 +1,143 @@
+{
+  "Phi-3.5 (3.8B)": {
+    "ft_only": {
+      "medcon_precision": 0.8017413011459817,
+      "medcon_recall": 0.7719317813874842,
+      "medcon_f1": 0.7845792890477041,
+      "avg_generated_concepts": 67.56,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 54.1,
+      "num_samples": 100
+    },
+    "ft_rag": {
+      "medcon_precision": 0.8019882876818835,
+      "medcon_recall": 0.7684266513049962,
+      "medcon_f1": 0.7828008687329563,
+      "avg_generated_concepts": 67.26,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 53.81,
+      "num_samples": 100
+    },
+    "baseline": {
+      "medcon_precision": 0.7399756469538987,
+      "medcon_recall": 0.5812034550990834,
+      "medcon_f1": 0.6480592770464285,
+      "avg_generated_concepts": 55.44,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 40.68,
+      "num_samples": 100
+    },
+    "rag_only": {
+      "medcon_precision": 0.7425338499261908,
+      "medcon_recall": 0.5699247732287884,
+      "medcon_f1": 0.6417327149745812,
+      "avg_generated_concepts": 53.94,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 39.88,
+      "num_samples": 100
+    },
+    "teacher": {
+      "medcon_precision": 0.7523976984853818,
+      "medcon_recall": 0.5941534235786586,
+      "medcon_f1": 0.6611628110713894,
+      "avg_generated_concepts": 55.57,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 41.6,
+      "num_samples": 100
+    }
+  },
+  "Llama-3.2 (3B)": {
+    "ft_only": {
+      "medcon_precision": 0.8093675553630095,
+      "medcon_recall": 0.7890465988386375,
+      "medcon_f1": 0.7973664818885708,
+      "avg_generated_concepts": 68.54,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 55.38,
+      "num_samples": 100
+    },
+    "ft_rag": {
+      "medcon_precision": 0.8057987867141679,
+      "medcon_recall": 0.7861764425739257,
+      "medcon_f1": 0.7939762583680634,
+      "avg_generated_concepts": 68.58,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 55.16,
+      "num_samples": 100
+    },
+    "baseline": {
+      "medcon_precision": 0.6148936462862102,
+      "medcon_recall": 0.5832373382892421,
+      "medcon_f1": 0.5965781180596952,
+      "avg_generated_concepts": 66.52,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 40.8,
+      "num_samples": 100
+    },
+    "rag_only": {
+      "medcon_precision": 0.6178084960708077,
+      "medcon_recall": 0.5834911601601355,
+      "medcon_f1": 0.5978641425528762,
+      "avg_generated_concepts": 66.49,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 40.84,
+      "num_samples": 100
+    },
+    "teacher": {
+      "medcon_precision": 0.7543774916193052,
+      "medcon_recall": 0.5961606830981037,
+      "medcon_f1": 0.6634382618613663,
+      "avg_generated_concepts": 55.6,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 41.74,
+      "num_samples": 100
+    }
+  },
+  "Llama-3.2 (1B)": {
+    "ft_only": {
+      "medcon_precision": 0.7861938528948794,
+      "medcon_recall": 0.7729219179887113,
+      "medcon_f1": 0.7775014085301528,
+      "avg_generated_concepts": 69.0,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 54.09,
+      "num_samples": 100
+    },
+    "ft_rag": {
+      "medcon_precision": 0.7873397197306563,
+      "medcon_recall": 0.7778717347353408,
+      "medcon_f1": 0.7806190429377707,
+      "avg_generated_concepts": 69.42,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 54.48,
+      "num_samples": 100
+    },
+    "baseline": {
+      "medcon_precision": 0.6899132667720282,
+      "medcon_recall": 0.5279808979828784,
+      "medcon_f1": 0.5953355589254867,
+      "avg_generated_concepts": 53.81,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 36.94,
+      "num_samples": 100
+    },
+    "rag_only": {
+      "medcon_precision": 0.686470635316408,
+      "medcon_recall": 0.5239998895176117,
+      "medcon_f1": 0.5919951851316763,
+      "avg_generated_concepts": 53.52,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 36.62,
+      "num_samples": 100
+    },
+    "teacher": {
+      "medcon_precision": 0.7519447992483765,
+      "medcon_recall": 0.5968127998893452,
+      "medcon_f1": 0.662980477344998,
+      "avg_generated_concepts": 55.84,
+      "avg_reference_concepts": 70.31,
+      "avg_overlap_concepts": 41.79,
+      "num_samples": 100
+    }
+  }
+}

@@ -1,0 +1,1568 @@
+{
+  "Phi-3.5 (3.8B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.523849559583887,
+        "rouge2": 0.2602288929665293,
+        "rougeL": 0.3738404494719058
+      },
+      "bleu": {
+        "avg_bleu1": 0.3163242992634079,
+        "avg_bleu2": 0.20343694247253485,
+        "avg_bleu3": 0.13858373034569216,
+        "avg_bleu4": 0.09329837498321825
+      },
+      "bertscore": {
+        "precision": 0.8821356296539307,
+        "recall": 0.8573700189590454,
+        "f1": 0.8694971203804016
+      },
+      "meteor": 0.2898450412435078,
+      "medcon_f1": 0.6480592770464285,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.72,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.47,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.93,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.98,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.84,
+        "min_coherence": 2,
+        "max_coherence": 5,
+        "avg_conciseness": 4.26,
+        "min_conciseness": 1,
+        "max_conciseness": 5,
+        "avg_overall": 4.6963,
+        "min_overall": 2.67,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.41784392722890956,
+          "rougeL": 0.4013779678221699,
+          "bleu4": 0.07046615322496967,
+          "bertscore": 0.8844041228294373
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.3823755196142676,
+          "rougeL": 0.29508696613388463,
+          "bleu4": 0.048502301450298935,
+          "bertscore": 0.8810508847236633
+        },
+        "past_medical_history": {
+          "rouge1": 0.4308497805084493,
+          "rougeL": 0.4300164471751159,
+          "bleu4": 0.09637748423484364,
+          "bertscore": 0.8842713832855225
+        },
+        "medications": {
+          "rouge1": 0.49987256491358656,
+          "rougeL": 0.497519623737116,
+          "bleu4": 0.048050913291751325,
+          "bertscore": 0.8821378946304321
+        },
+        "allergies": {
+          "rouge1": 0.2711973228617654,
+          "rougeL": 0.2695739462383888,
+          "bleu4": 0.024129765168683523,
+          "bertscore": 0.8379362225532532
+        },
+        "physical_examination": {
+          "rouge1": 0.5472592058501524,
+          "rougeL": 0.500518877285093,
+          "bleu4": 0.1299419505245848,
+          "bertscore": 0.9009503126144409
+        },
+        "assessment": {
+          "rouge1": 0.35908559458753947,
+          "rougeL": 0.31020897688907273,
+          "bleu4": 0.057741807589123756,
+          "bertscore": 0.8831179141998291
+        },
+        "plan": {
+          "rouge1": 0.41738119416495034,
+          "rougeL": 0.36051034291291606,
+          "bleu4": 0.08894200766306337,
+          "bertscore": 0.8910208344459534
+        },
+        "safety_netting": {
+          "rouge1": 0.21431226784019125,
+          "rougeL": 0.15638052488408227,
+          "bleu4": 0.017671596426983068,
+          "bertscore": 0.8462677001953125
+        }
+      }
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.5276734519182922,
+        "rouge2": 0.2639990985535692,
+        "rougeL": 0.3751387706931506
+      },
+      "bleu": {
+        "avg_bleu1": 0.3198492925768692,
+        "avg_bleu2": 0.20600884463055494,
+        "avg_bleu3": 0.14061872662752373,
+        "avg_bleu4": 0.09484434280389088
+      },
+      "bertscore": {
+        "precision": 0.8838678002357483,
+        "recall": 0.8578131198883057,
+        "f1": 0.8705725073814392
+      },
+      "meteor": 0.2919152931676921,
+      "medcon_f1": 0.6417327149745812,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.7,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.5,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.98,
+        "min_hallucination": 3,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.99,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.9,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.27,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.7221,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.4330338940261451,
+          "rougeL": 0.41175988243766914,
+          "bleu4": 0.07322954133963087,
+          "bertscore": 0.8862573504447937
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.38302169584437623,
+          "rougeL": 0.29760984967451626,
+          "bleu4": 0.05713960302407143,
+          "bertscore": 0.8833981156349182
+        },
+        "past_medical_history": {
+          "rouge1": 0.46931746968202076,
+          "rougeL": 0.46931746968202076,
+          "bleu4": 0.11250550039189086,
+          "bertscore": 0.887471079826355
+        },
+        "medications": {
+          "rouge1": 0.45947410595939997,
+          "rougeL": 0.4583629948482889,
+          "bleu4": 0.04901456449387834,
+          "bertscore": 0.8826399445533752
+        },
+        "allergies": {
+          "rouge1": 0.2820485554956606,
+          "rougeL": 0.2799056983528035,
+          "bleu4": 0.024521812504834,
+          "bertscore": 0.8397606611251831
+        },
+        "physical_examination": {
+          "rouge1": 0.5368248180625996,
+          "rougeL": 0.4838811027854273,
+          "bleu4": 0.11766115438057353,
+          "bertscore": 0.9012563824653625
+        },
+        "assessment": {
+          "rouge1": 0.34629369529522613,
+          "rougeL": 0.3010825029839646,
+          "bleu4": 0.05931472466374114,
+          "bertscore": 0.8835790753364563
+        },
+        "plan": {
+          "rouge1": 0.41712799923816535,
+          "rougeL": 0.3544271874239724,
+          "bleu4": 0.08569961872374435,
+          "bertscore": 0.8918713331222534
+        },
+        "safety_netting": {
+          "rouge1": 0.21960282270303635,
+          "rougeL": 0.16321410093614844,
+          "bleu4": 0.020258705261842713,
+          "bertscore": 0.8483495712280273
+        }
+      }
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.7216357788236045,
+        "rouge2": 0.48841639627581657,
+        "rougeL": 0.6240775102575127
+      },
+      "bleu": {
+        "avg_bleu1": 0.6155912371291385,
+        "avg_bleu2": 0.4989759109291211,
+        "avg_bleu3": 0.4238907492241061,
+        "avg_bleu4": 0.360575316057744
+      },
+      "bertscore": {
+        "precision": 0.9445834159851074,
+        "recall": 0.9348934888839722,
+        "f1": 0.9396841526031494
+      },
+      "meteor": 0.7047163021967244,
+      "medcon_f1": 0.7845792890477041,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.16,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.2,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.91,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.89,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.92,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.36,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.413999999999999,
+        "min_overall": 3.5,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 2,
+        "samples_with_critical_errors": 2
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8114612411899732,
+          "rougeL": 0.7958758792732072,
+          "bleu4": 0.5854345001996727,
+          "bertscore": 0.970602810382843
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.547648319573376,
+          "rougeL": 0.4765158033626098,
+          "bleu4": 0.1998747741830741,
+          "bertscore": 0.9274110198020935
+        },
+        "past_medical_history": {
+          "rouge1": 0.8553612498612501,
+          "rougeL": 0.8513612498612502,
+          "bleu4": 0.5184396437218934,
+          "bertscore": 0.9786800146102905
+        },
+        "medications": {
+          "rouge1": 0.8758419913419914,
+          "rougeL": 0.8758419913419914,
+          "bleu4": 0.22755344670745623,
+          "bertscore": 0.9830845594406128
+        },
+        "allergies": {
+          "rouge1": 0.777833970063853,
+          "rougeL": 0.7770117478416309,
+          "bleu4": 0.5374222316422352,
+          "bertscore": 0.9701008796691895
+        },
+        "physical_examination": {
+          "rouge1": 0.7101733396389417,
+          "rougeL": 0.6852548918846466,
+          "bleu4": 0.3503840926960059,
+          "bertscore": 0.9509615898132324
+        },
+        "assessment": {
+          "rouge1": 0.5628382107469562,
+          "rougeL": 0.5092290632371772,
+          "bleu4": 0.2304741179901469,
+          "bertscore": 0.9337577223777771
+        },
+        "plan": {
+          "rouge1": 0.5647336557099406,
+          "rougeL": 0.5021402672689247,
+          "bleu4": 0.19544306445013415,
+          "bertscore": 0.9294694066047668
+        },
+        "safety_netting": {
+          "rouge1": 0.6590317198921103,
+          "rougeL": 0.5901163314915094,
+          "bleu4": 0.2737221252120182,
+          "bertscore": 0.9369972944259644
+        }
+      }
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.7247321915768421,
+        "rouge2": 0.49466564158854326,
+        "rougeL": 0.6305928498341931
+      },
+      "bleu": {
+        "avg_bleu1": 0.6194000379811808,
+        "avg_bleu2": 0.504777908724553,
+        "avg_bleu3": 0.4293707534956225,
+        "avg_bleu4": 0.36506957034878795
+      },
+      "bertscore": {
+        "precision": 0.9445421695709229,
+        "recall": 0.9364097714424133,
+        "f1": 0.9404405355453491
+      },
+      "meteor": 0.7102595985257285,
+      "medcon_f1": 0.7828008687329563,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.13,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.2,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.93,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.8,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.92,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.31,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.384499999999997,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 3,
+        "samples_with_critical_errors": 3
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8201141109828685,
+          "rougeL": 0.8089302171632228,
+          "bleu4": 0.5862674191433175,
+          "bertscore": 0.9697050452232361
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.5680647950280098,
+          "rougeL": 0.49838060660465855,
+          "bleu4": 0.22740210508752,
+          "bertscore": 0.9314860701560974
+        },
+        "past_medical_history": {
+          "rouge1": 0.8664182484182484,
+          "rougeL": 0.8606000666000666,
+          "bleu4": 0.5319824267680907,
+          "bertscore": 0.9810256361961365
+        },
+        "medications": {
+          "rouge1": 0.8796341991341992,
+          "rougeL": 0.8779675324675325,
+          "bleu4": 0.21317871042099676,
+          "bertscore": 0.9843515753746033
+        },
+        "allergies": {
+          "rouge1": 0.7745303965197463,
+          "rougeL": 0.7739748409641909,
+          "bleu4": 0.5418247223701559,
+          "bertscore": 0.9698315262794495
+        },
+        "physical_examination": {
+          "rouge1": 0.7211443693753042,
+          "rougeL": 0.6928454013186716,
+          "bleu4": 0.34692294046744654,
+          "bertscore": 0.9512984752655029
+        },
+        "assessment": {
+          "rouge1": 0.5419489597136721,
+          "rougeL": 0.49029646616198463,
+          "bleu4": 0.18261796588868642,
+          "bertscore": 0.9295971393585205
+        },
+        "plan": {
+          "rouge1": 0.5873679222513774,
+          "rougeL": 0.5251578006726701,
+          "bleu4": 0.20852825308205172,
+          "bertscore": 0.9320020079612732
+        },
+        "safety_netting": {
+          "rouge1": 0.6663110165979971,
+          "rougeL": 0.5942610481956884,
+          "bleu4": 0.2731245006769962,
+          "bertscore": 0.9369714260101318
+        }
+      }
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.5580535632160815,
+        "rouge2": 0.3054597915202073,
+        "rougeL": 0.4223175264116751
+      },
+      "bleu": {
+        "avg_bleu1": 0.39864719801460746,
+        "avg_bleu2": 0.28372037145366397,
+        "avg_bleu3": 0.21465620013402822,
+        "avg_bleu4": 0.16157470757297918
+      },
+      "bertscore": {
+        "precision": 0.8749620914459229,
+        "recall": 0.8753700852394104,
+        "f1": 0.8751423358917236
+      },
+      "meteor": 0.42587561958405373,
+      "medcon_f1": 0.6611628110713894,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.8,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.34,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.99,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.93,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.49,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.7518,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.5253043396919558,
+          "rougeL": 0.5225265619141779,
+          "bleu4": 0.2266626953495644,
+          "bertscore": 0.8953503370285034
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.49369298300268694,
+          "rougeL": 0.4017325547458818,
+          "bleu4": 0.15505456390560357,
+          "bertscore": 0.9096948504447937
+        },
+        "past_medical_history": {
+          "rouge1": 0.5021783134306355,
+          "rougeL": 0.5005116467639688,
+          "bleu4": 0.1581980562826932,
+          "bertscore": 0.8831571340560913
+        },
+        "medications": {
+          "rouge1": 0.5126727161727161,
+          "rougeL": 0.5114962455844808,
+          "bleu4": 0.08852125185374625,
+          "bertscore": 0.8995916843414307
+        },
+        "allergies": {
+          "rouge1": 0.3011477672487377,
+          "rougeL": 0.3011477672487377,
+          "bleu4": 0.04544047075327301,
+          "bertscore": 0.8395208120346069
+        },
+        "physical_examination": {
+          "rouge1": 0.5498727709604652,
+          "rougeL": 0.50331983928053,
+          "bleu4": 0.09108405649585319,
+          "bertscore": 0.8910534381866455
+        },
+        "assessment": {
+          "rouge1": 0.4239360896769343,
+          "rougeL": 0.3742387608899824,
+          "bleu4": 0.11685632283563413,
+          "bertscore": 0.8934359550476074
+        },
+        "plan": {
+          "rouge1": 0.4747699122256275,
+          "rougeL": 0.42003797732739473,
+          "bleu4": 0.11034120174385281,
+          "bertscore": 0.8949565291404724
+        },
+        "safety_netting": {
+          "rouge1": 0.2542277899149128,
+          "rougeL": 0.19540197351310767,
+          "bleu4": 0.01980284209231061,
+          "bertscore": 0.8565630912780762
+        }
+      }
+    }
+  },
+  "Llama-3.2 (3B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.49423394115617547,
+        "rouge2": 0.2296787016342285,
+        "rougeL": 0.3346412010721651
+      },
+      "bleu": {
+        "avg_bleu1": 0.39282495750841706,
+        "avg_bleu2": 0.25640411780921907,
+        "avg_bleu3": 0.18045349999022978,
+        "avg_bleu4": 0.1254578553944341
+      },
+      "bertscore": {
+        "precision": 0.8675007820129395,
+        "recall": 0.8649969696998596,
+        "f1": 0.866233766078949
+      },
+      "meteor": 0.44198283620619444,
+      "medcon_f1": 0.5965781180596952,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.49,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.09,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.99,
+        "min_hallucination": 4,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.99,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.6,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.94,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.514299999999999,
+        "min_overall": 4.0,
+        "max_overall": 5,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.3256599385228713,
+          "rougeL": 0.30722406059948265,
+          "bleu4": 0.06415561239520474,
+          "bertscore": 0.8946789503097534
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.42247084748095903,
+          "rougeL": 0.32819221533095927,
+          "bleu4": 0.1015252270382153,
+          "bertscore": 0.9026644825935364
+        },
+        "past_medical_history": {
+          "rouge1": 0.3363055481203856,
+          "rougeL": 0.3344836019506134,
+          "bleu4": 0.08956406459160625,
+          "bertscore": 0.8965559601783752
+        },
+        "medications": {
+          "rouge1": 0.5731878695779625,
+          "rougeL": 0.5701878695779624,
+          "bleu4": 0.03177897914182426,
+          "bertscore": 0.9095324873924255
+        },
+        "allergies": {
+          "rouge1": 0.1514788372425337,
+          "rougeL": 0.1484351712645687,
+          "bleu4": 0.02025631952109233,
+          "bertscore": 0.8427671790122986
+        },
+        "physical_examination": {
+          "rouge1": 0.4972163474552467,
+          "rougeL": 0.44674263367894973,
+          "bleu4": 0.0746721740763428,
+          "bertscore": 0.9021680951118469
+        },
+        "assessment": {
+          "rouge1": 0.24115247344898158,
+          "rougeL": 0.20500007875592935,
+          "bleu4": 0.03279964446004327,
+          "bertscore": 0.8843128085136414
+        },
+        "plan": {
+          "rouge1": 0.3788901755996551,
+          "rougeL": 0.3229134186554935,
+          "bleu4": 0.06972596189535575,
+          "bertscore": 0.890616774559021
+        },
+        "safety_netting": {
+          "rouge1": 0.2558434095208152,
+          "rougeL": 0.1881462729890877,
+          "bleu4": 0.025217592337034786,
+          "bertscore": 0.8551486134529114
+        }
+      }
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.49239613777242586,
+        "rouge2": 0.22684681279957603,
+        "rougeL": 0.3325114560065323
+      },
+      "bleu": {
+        "avg_bleu1": 0.39343204717716185,
+        "avg_bleu2": 0.256176986492289,
+        "avg_bleu3": 0.1788252713847595,
+        "avg_bleu4": 0.12316238728698069
+      },
+      "bertscore": {
+        "precision": 0.8668106198310852,
+        "recall": 0.8644727468490601,
+        "f1": 0.8656240701675415
+      },
+      "meteor": 0.4398514015101613,
+      "medcon_f1": 0.5978641425528762,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.41,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.07,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 4.97,
+        "min_hallucination": 4,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.99,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.56,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.93,
+        "min_conciseness": 3,
+        "max_conciseness": 4,
+        "avg_overall": 4.4828,
+        "min_overall": 3.67,
+        "max_overall": 4.83,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.3180132714825661,
+          "rougeL": 0.2952987411731083,
+          "bleu4": 0.05596841871910173,
+          "bertscore": 0.8944773077964783
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.41900854275041993,
+          "rougeL": 0.3264887230664838,
+          "bleu4": 0.10038893644192573,
+          "bertscore": 0.9016481637954712
+        },
+        "past_medical_history": {
+          "rouge1": 0.34118221404411336,
+          "rougeL": 0.340312648826722,
+          "bleu4": 0.09186013144725548,
+          "bertscore": 0.8971971273422241
+        },
+        "medications": {
+          "rouge1": 0.512701937811071,
+          "rougeL": 0.5091493062321235,
+          "bleu4": 0.029701131856953798,
+          "bertscore": 0.9048957824707031
+        },
+        "allergies": {
+          "rouge1": 0.16095845534036304,
+          "rougeL": 0.1568143412752471,
+          "bleu4": 0.021469124687433783,
+          "bertscore": 0.8438006639480591
+        },
+        "physical_examination": {
+          "rouge1": 0.4796553637892594,
+          "rougeL": 0.43352236135770583,
+          "bleu4": 0.07253567573754091,
+          "bertscore": 0.9009950757026672
+        },
+        "assessment": {
+          "rouge1": 0.24321044858040114,
+          "rougeL": 0.20917708415743913,
+          "bleu4": 0.037272831415016874,
+          "bertscore": 0.884194552898407
+        },
+        "plan": {
+          "rouge1": 0.382869459025869,
+          "rougeL": 0.31596973931635847,
+          "bleu4": 0.06864636532548815,
+          "bertscore": 0.8907753229141235
+        },
+        "safety_netting": {
+          "rouge1": 0.2533849938839195,
+          "rougeL": 0.1857428155515197,
+          "bleu4": 0.02378284027947813,
+          "bertscore": 0.8551769852638245
+        }
+      }
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.720359826508693,
+        "rouge2": 0.48514474482536574,
+        "rougeL": 0.620810460794388
+      },
+      "bleu": {
+        "avg_bleu1": 0.6236134302327031,
+        "avg_bleu2": 0.5042075036036454,
+        "avg_bleu3": 0.4274121036690073,
+        "avg_bleu4": 0.3623863031192633
+      },
+      "bertscore": {
+        "precision": 0.9377948045730591,
+        "recall": 0.938636064529419,
+        "f1": 0.9381906390190125
+      },
+      "meteor": 0.725028010339191,
+      "medcon_f1": 0.7973664818885708,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.04,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.27,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.66,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.79,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.95,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.22,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.328299999999998,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 4,
+        "samples_with_critical_errors": 3
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8160783981561878,
+          "rougeL": 0.7965205677512985,
+          "bleu4": 0.5856657552256711,
+          "bertscore": 0.9693489670753479
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.5652083275720988,
+          "rougeL": 0.47805661762209384,
+          "bleu4": 0.21161263775851033,
+          "bertscore": 0.9282635450363159
+        },
+        "past_medical_history": {
+          "rouge1": 0.8111392496392498,
+          "rougeL": 0.8075836940836942,
+          "bleu4": 0.48422937050223797,
+          "bertscore": 0.9716170430183411
+        },
+        "medications": {
+          "rouge1": 0.7915359640359639,
+          "rougeL": 0.7915359640359639,
+          "bleu4": 0.18249928407785043,
+          "bertscore": 0.9730145931243896
+        },
+        "allergies": {
+          "rouge1": 0.8109433943551904,
+          "rougeL": 0.8087003991181416,
+          "bleu4": 0.6042057628909173,
+          "bertscore": 0.9740054607391357
+        },
+        "physical_examination": {
+          "rouge1": 0.7098438546366626,
+          "rougeL": 0.6840883799967824,
+          "bleu4": 0.34681770994598404,
+          "bertscore": 0.949797511100769
+        },
+        "assessment": {
+          "rouge1": 0.5256463224752413,
+          "rougeL": 0.4704662428945916,
+          "bleu4": 0.17615250079071323,
+          "bertscore": 0.927964448928833
+        },
+        "plan": {
+          "rouge1": 0.5607276233462873,
+          "rougeL": 0.4998814384753241,
+          "bleu4": 0.19762889866406996,
+          "bertscore": 0.9265486001968384
+        },
+        "safety_netting": {
+          "rouge1": 0.6652461603140348,
+          "rougeL": 0.5975487027414954,
+          "bleu4": 0.2798374151492713,
+          "bertscore": 0.9357139468193054
+        }
+      }
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.7232520163143568,
+        "rouge2": 0.4875316024663289,
+        "rougeL": 0.622996307920586
+      },
+      "bleu": {
+        "avg_bleu1": 0.6273137735692955,
+        "avg_bleu2": 0.5068416096082902,
+        "avg_bleu3": 0.4291701701875972,
+        "avg_bleu4": 0.363400582818032
+      },
+      "bertscore": {
+        "precision": 0.937914252281189,
+        "recall": 0.938719630241394,
+        "f1": 0.9382910132408142
+      },
+      "meteor": 0.72777929716645,
+      "medcon_f1": 0.7939762583680634,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.02,
+        "min_clinical_accuracy": 3,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.36,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.79,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.8,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.91,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.36,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.375900000000001,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 4,
+        "samples_with_critical_errors": 3
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8149099567764461,
+          "rougeL": 0.7899031317816955,
+          "bleu4": 0.5919884393691365,
+          "bertscore": 0.9693325757980347
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.57701841345446,
+          "rougeL": 0.4889903813197546,
+          "bleu4": 0.21716870930006416,
+          "bertscore": 0.9298457503318787
+        },
+        "past_medical_history": {
+          "rouge1": 0.8135251970251971,
+          "rougeL": 0.80643117993118,
+          "bleu4": 0.48910761961478294,
+          "bertscore": 0.9709621667861938
+        },
+        "medications": {
+          "rouge1": 0.797884448884449,
+          "rougeL": 0.797884448884449,
+          "bleu4": 0.1729621228702419,
+          "bertscore": 0.9738433361053467
+        },
+        "allergies": {
+          "rouge1": 0.8092830934692605,
+          "rougeL": 0.8064956967495666,
+          "bleu4": 0.6003707652304189,
+          "bertscore": 0.9729939103126526
+        },
+        "physical_examination": {
+          "rouge1": 0.7083173537290197,
+          "rougeL": 0.6806244718510902,
+          "bleu4": 0.34970865588975253,
+          "bertscore": 0.9485235810279846
+        },
+        "assessment": {
+          "rouge1": 0.5257800030338865,
+          "rougeL": 0.47549323425012674,
+          "bleu4": 0.18058908370031218,
+          "bertscore": 0.927807629108429
+        },
+        "plan": {
+          "rouge1": 0.5603902887400786,
+          "rougeL": 0.49588135129644473,
+          "bleu4": 0.20093963167758788,
+          "bertscore": 0.9265390634536743
+        },
+        "safety_netting": {
+          "rouge1": 0.6660195726254117,
+          "rougeL": 0.599800566519572,
+          "bleu4": 0.2752594273388409,
+          "bertscore": 0.9354158043861389
+        }
+      }
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.5580464466063406,
+        "rouge2": 0.3054347493021249,
+        "rougeL": 0.4212581082305583
+      },
+      "bleu": {
+        "avg_bleu1": 0.3967506413300106,
+        "avg_bleu2": 0.2825290678021242,
+        "avg_bleu3": 0.21407425351961915,
+        "avg_bleu4": 0.16139023004382952
+      },
+      "bertscore": {
+        "precision": 0.8745762705802917,
+        "recall": 0.8752202391624451,
+        "f1": 0.874870240688324
+      },
+      "meteor": 0.4261072784387763,
+      "medcon_f1": 0.6634382618613663,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.79,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.36,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 5.0,
+        "min_clinical_safety": 5,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.95,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.51,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.761100000000001,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.5295612554254497,
+          "rougeL": 0.5240056998698942,
+          "bleu4": 0.22078748208888185,
+          "bertscore": 0.8950755596160889
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.4952137445633192,
+          "rougeL": 0.397711996693574,
+          "bleu4": 0.1547479769185637,
+          "bertscore": 0.908883810043335
+        },
+        "past_medical_history": {
+          "rouge1": 0.5090442481495113,
+          "rougeL": 0.5090442481495113,
+          "bleu4": 0.16359396316676317,
+          "bertscore": 0.8839146494865417
+        },
+        "medications": {
+          "rouge1": 0.5111131384954914,
+          "rougeL": 0.509779805162158,
+          "bleu4": 0.09067525647345052,
+          "bertscore": 0.8997328877449036
+        },
+        "allergies": {
+          "rouge1": 0.30069085617946967,
+          "rougeL": 0.30069085617946967,
+          "bleu4": 0.046193085427212247,
+          "bertscore": 0.8394064903259277
+        },
+        "physical_examination": {
+          "rouge1": 0.5579806749663634,
+          "rougeL": 0.5154951856901697,
+          "bleu4": 0.09558058714348645,
+          "bertscore": 0.8910020589828491
+        },
+        "assessment": {
+          "rouge1": 0.4239627500409796,
+          "rougeL": 0.3724219523024659,
+          "bleu4": 0.1168109391056293,
+          "bertscore": 0.8935199975967407
+        },
+        "plan": {
+          "rouge1": 0.4687333217257613,
+          "rougeL": 0.41044514083588673,
+          "bleu4": 0.10835808600005091,
+          "bertscore": 0.8936881422996521
+        },
+        "safety_netting": {
+          "rouge1": 0.25696949306859534,
+          "rougeL": 0.1963530174865452,
+          "bleu4": 0.02029543590389763,
+          "bertscore": 0.8566926717758179
+        }
+      }
+    }
+  },
+  "Llama-3.2 (1B)": {
+    "baseline": {
+      "rouge": {
+        "rouge1": 0.45678615024024677,
+        "rouge2": 0.18613708430285508,
+        "rougeL": 0.28580702625646554
+      },
+      "bleu": {
+        "avg_bleu1": 0.3346911388093888,
+        "avg_bleu2": 0.2003962132330627,
+        "avg_bleu3": 0.13025710486929298,
+        "avg_bleu4": 0.08106200614519347
+      },
+      "bertscore": {
+        "precision": 0.8745607137680054,
+        "recall": 0.8579788208007812,
+        "f1": 0.8661720156669617
+      },
+      "meteor": 0.4042211477855048,
+      "medcon_f1": 0.5953355589254867,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.38,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 3.95,
+        "min_completeness": 2,
+        "max_completeness": 5,
+        "avg_hallucination": 2.83,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.18,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.35,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.72,
+        "min_conciseness": 3,
+        "max_conciseness": 4,
+        "avg_overall": 3.7598999999999982,
+        "min_overall": 3.0,
+        "max_overall": 4.67,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 31,
+        "samples_with_critical_errors": 23
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.22624895780776946,
+          "rougeL": 0.20024771454492885,
+          "bleu4": 0.027074813874635638,
+          "bertscore": 0.867300271987915
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.3321757545033791,
+          "rougeL": 0.261762387552763,
+          "bleu4": 0.046675724658724674,
+          "bertscore": 0.8894205689430237
+        },
+        "past_medical_history": {
+          "rouge1": 0.3383151700669538,
+          "rougeL": 0.3350959347025571,
+          "bleu4": 0.09787025665900145,
+          "bertscore": 0.8919129967689514
+        },
+        "medications": {
+          "rouge1": 0.24758210133028796,
+          "rougeL": 0.24419613641800728,
+          "bleu4": 0.02651488949357504,
+          "bertscore": 0.8880610466003418
+        },
+        "allergies": {
+          "rouge1": 0.23575486597065085,
+          "rougeL": 0.23024314218584585,
+          "bleu4": 0.023336153587428608,
+          "bertscore": 0.8566878437995911
+        },
+        "physical_examination": {
+          "rouge1": 0.3574916585406782,
+          "rougeL": 0.3007364587620753,
+          "bleu4": 0.05380777873081814,
+          "bertscore": 0.8934133648872375
+        },
+        "assessment": {
+          "rouge1": 0.19978028199836456,
+          "rougeL": 0.15969388169612417,
+          "bleu4": 0.022408529683652763,
+          "bertscore": 0.8730670809745789
+        },
+        "plan": {
+          "rouge1": 0.29247786444263235,
+          "rougeL": 0.2366940375280356,
+          "bleu4": 0.0472860951988358,
+          "bertscore": 0.8828511238098145
+        },
+        "safety_netting": {
+          "rouge1": 0.2149990067889843,
+          "rougeL": 0.1435482970786609,
+          "bleu4": 0.014419203361878574,
+          "bertscore": 0.8441192507743835
+        }
+      }
+    },
+    "rag_only": {
+      "rouge": {
+        "rouge1": 0.4591744131617186,
+        "rouge2": 0.18750237820537127,
+        "rougeL": 0.28647887608375555
+      },
+      "bleu": {
+        "avg_bleu1": 0.33827556237255313,
+        "avg_bleu2": 0.2021933661845241,
+        "avg_bleu3": 0.13160683584609312,
+        "avg_bleu4": 0.08224348032118
+      },
+      "bertscore": {
+        "precision": 0.8745863437652588,
+        "recall": 0.8584316968917847,
+        "f1": 0.8664172291755676
+      },
+      "meteor": 0.40665603703756054,
+      "medcon_f1": 0.5919951851316763,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.37,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 3.91,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 2.82,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.2,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.32,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 3.72,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 3.738399999999998,
+        "min_overall": 2.67,
+        "max_overall": 4.83,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 35,
+        "samples_with_critical_errors": 27
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.22894368653676767,
+          "rougeL": 0.20201712784861164,
+          "bleu4": 0.027841744641204903,
+          "bertscore": 0.8676864504814148
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.3449966896555122,
+          "rougeL": 0.27190917805366416,
+          "bleu4": 0.057319686395602275,
+          "bertscore": 0.8902031779289246
+        },
+        "past_medical_history": {
+          "rouge1": 0.35060803495332166,
+          "rougeL": 0.3487221329222583,
+          "bleu4": 0.11154844045272261,
+          "bertscore": 0.8951833248138428
+        },
+        "medications": {
+          "rouge1": 0.2535976468323323,
+          "rougeL": 0.2503421167026603,
+          "bleu4": 0.028901279427835037,
+          "bertscore": 0.8906604051589966
+        },
+        "allergies": {
+          "rouge1": 0.23105036308438084,
+          "rougeL": 0.22637658185711915,
+          "bleu4": 0.02384894682988113,
+          "bertscore": 0.8563778400421143
+        },
+        "physical_examination": {
+          "rouge1": 0.36454640206689715,
+          "rougeL": 0.30242316551150045,
+          "bleu4": 0.05284763319934477,
+          "bertscore": 0.8928876519203186
+        },
+        "assessment": {
+          "rouge1": 0.19628252544349173,
+          "rougeL": 0.1589984201650848,
+          "bleu4": 0.024109627116107698,
+          "bertscore": 0.8722259402275085
+        },
+        "plan": {
+          "rouge1": 0.28670533467297843,
+          "rougeL": 0.23444202622342442,
+          "bleu4": 0.04491829658301422,
+          "bertscore": 0.883124828338623
+        },
+        "safety_netting": {
+          "rouge1": 0.21638919643189372,
+          "rougeL": 0.14007705599206496,
+          "bleu4": 0.016322313355177885,
+          "bertscore": 0.8435512781143188
+        }
+      }
+    },
+    "ft_only": {
+      "rouge": {
+        "rouge1": 0.6973788248210117,
+        "rouge2": 0.4491135126220923,
+        "rougeL": 0.5904982930991911
+      },
+      "bleu": {
+        "avg_bleu1": 0.5975676127630547,
+        "avg_bleu2": 0.4719015675981391,
+        "avg_bleu3": 0.39325782190274344,
+        "avg_bleu4": 0.328145869051895
+      },
+      "bertscore": {
+        "precision": 0.9347301721572876,
+        "recall": 0.934622049331665,
+        "f1": 0.9346528649330139
+      },
+      "meteor": 0.7080894103367862,
+      "medcon_f1": 0.7775014085301528,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.78,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.16,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 3.22,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.58,
+        "min_clinical_safety": 3,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.78,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.1,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.129399999999999,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 14,
+        "samples_with_critical_errors": 12
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8230128988658402,
+          "rougeL": 0.8090128054951583,
+          "bleu4": 0.6106284951425734,
+          "bertscore": 0.9722471833229065
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.5259533399487437,
+          "rougeL": 0.4400760576804024,
+          "bleu4": 0.17508223999221392,
+          "bertscore": 0.9232844710350037
+        },
+        "past_medical_history": {
+          "rouge1": 0.7440965423465424,
+          "rougeL": 0.7440965423465424,
+          "bleu4": 0.41595436620544635,
+          "bertscore": 0.9617661833763123
+        },
+        "medications": {
+          "rouge1": 0.8002373182373183,
+          "rougeL": 0.7904766344766345,
+          "bleu4": 0.20541734553922994,
+          "bertscore": 0.9725801348686218
+        },
+        "allergies": {
+          "rouge1": 0.7920019538759453,
+          "rougeL": 0.789533333687491,
+          "bleu4": 0.5656416371196709,
+          "bertscore": 0.9720475673675537
+        },
+        "physical_examination": {
+          "rouge1": 0.6748080874648393,
+          "rougeL": 0.6435279625890533,
+          "bleu4": 0.3016565254627588,
+          "bertscore": 0.9467085003852844
+        },
+        "assessment": {
+          "rouge1": 0.5150020196035733,
+          "rougeL": 0.4505712669989457,
+          "bleu4": 0.16516271564054424,
+          "bertscore": 0.9256448149681091
+        },
+        "plan": {
+          "rouge1": 0.5435488912023015,
+          "rougeL": 0.48771453855222163,
+          "bleu4": 0.18367785592158006,
+          "bertscore": 0.9253606200218201
+        },
+        "safety_netting": {
+          "rouge1": 0.6357502461146559,
+          "rougeL": 0.563405273926576,
+          "bleu4": 0.23012106429841134,
+          "bertscore": 0.9319269061088562
+        }
+      }
+    },
+    "ft_rag": {
+      "rouge": {
+        "rouge1": 0.6954762501052285,
+        "rouge2": 0.4488060009524991,
+        "rougeL": 0.590914257580528
+      },
+      "bleu": {
+        "avg_bleu1": 0.5974197548319394,
+        "avg_bleu2": 0.4730432386389982,
+        "avg_bleu3": 0.394776094462432,
+        "avg_bleu4": 0.3297255922713363
+      },
+      "bertscore": {
+        "precision": 0.9349468946456909,
+        "recall": 0.9344029426574707,
+        "f1": 0.9346482753753662
+      },
+      "meteor": 0.7078376915012591,
+      "medcon_f1": 0.7806190429377707,
+      "llm_judge": {
+        "avg_clinical_accuracy": 3.71,
+        "min_clinical_accuracy": 2,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.1,
+        "min_completeness": 4,
+        "max_completeness": 5,
+        "avg_hallucination": 3.15,
+        "min_hallucination": 2,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 4.62,
+        "min_clinical_safety": 4,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.73,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.12,
+        "min_conciseness": 3,
+        "max_conciseness": 5,
+        "avg_overall": 4.094599999999999,
+        "min_overall": 3.33,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 12,
+        "samples_with_critical_errors": 11
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.8297661456190869,
+          "rougeL": 0.8149327189150718,
+          "bleu4": 0.6140610348435984,
+          "bertscore": 0.9728645086288452
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.515569467962949,
+          "rougeL": 0.4299923462766258,
+          "bleu4": 0.1646699779800892,
+          "bertscore": 0.9207988977432251
+        },
+        "past_medical_history": {
+          "rouge1": 0.7524799367299367,
+          "rougeL": 0.7524799367299367,
+          "bleu4": 0.4352134583521544,
+          "bertscore": 0.9643211364746094
+        },
+        "medications": {
+          "rouge1": 0.8147093462093463,
+          "rougeL": 0.8049486624486625,
+          "bleu4": 0.21216631151265666,
+          "bertscore": 0.97406005859375
+        },
+        "allergies": {
+          "rouge1": 0.7973599414411708,
+          "rougeL": 0.7952002775756246,
+          "bleu4": 0.5688934932849736,
+          "bertscore": 0.9723161458969116
+        },
+        "physical_examination": {
+          "rouge1": 0.6740074683531195,
+          "rougeL": 0.646973019967699,
+          "bleu4": 0.30988471633546705,
+          "bertscore": 0.9455462694168091
+        },
+        "assessment": {
+          "rouge1": 0.5179655044072701,
+          "rougeL": 0.45989314236538903,
+          "bleu4": 0.18196636043881104,
+          "bertscore": 0.9276871681213379
+        },
+        "plan": {
+          "rouge1": 0.5410547018395735,
+          "rougeL": 0.4851246830913013,
+          "bleu4": 0.18207768574133928,
+          "bertscore": 0.9246852993965149
+        },
+        "safety_netting": {
+          "rouge1": 0.6365572701305063,
+          "rougeL": 0.5635809508190591,
+          "bleu4": 0.2357174448984362,
+          "bertscore": 0.9312166571617126
+        }
+      }
+    },
+    "teacher": {
+      "rouge": {
+        "rouge1": 0.5585388899792185,
+        "rouge2": 0.30410196912496046,
+        "rougeL": 0.42135341240302704
+      },
+      "bleu": {
+        "avg_bleu1": 0.4001717895363616,
+        "avg_bleu2": 0.2854001891670575,
+        "avg_bleu3": 0.2164377167294043,
+        "avg_bleu4": 0.1630853536737523
+      },
+      "bertscore": {
+        "precision": 0.8750354647636414,
+        "recall": 0.8754367828369141,
+        "f1": 0.8752110004425049
+      },
+      "meteor": 0.42760825388678275,
+      "medcon_f1": 0.662980477344998,
+      "llm_judge": {
+        "avg_clinical_accuracy": 4.8,
+        "min_clinical_accuracy": 4,
+        "max_clinical_accuracy": 5,
+        "avg_completeness": 4.4,
+        "min_completeness": 3,
+        "max_completeness": 5,
+        "avg_hallucination": 5.0,
+        "min_hallucination": 5,
+        "max_hallucination": 5,
+        "avg_clinical_safety": 5.0,
+        "min_clinical_safety": 5,
+        "max_clinical_safety": 5,
+        "avg_coherence": 4.97,
+        "min_coherence": 4,
+        "max_coherence": 5,
+        "avg_conciseness": 4.5,
+        "min_conciseness": 4,
+        "max_conciseness": 5,
+        "avg_overall": 4.7742,
+        "min_overall": 4.0,
+        "max_overall": 5.0,
+        "num_evaluated": 100,
+        "num_failed": 0,
+        "total_critical_errors": 0,
+        "samples_with_critical_errors": 0
+      },
+      "num_samples": 100,
+      "per_section": {
+        "chief_complaint": {
+          "rouge1": 0.5211771258497264,
+          "rougeL": 0.5150104591830597,
+          "bleu4": 0.21383589346805137,
+          "bertscore": 0.8952206373214722
+        },
+        "history_of_present_illness": {
+          "rouge1": 0.4864124600759096,
+          "rougeL": 0.3908164012633282,
+          "bleu4": 0.14846974108918037,
+          "bertscore": 0.9083278179168701
+        },
+        "past_medical_history": {
+          "rouge1": 0.5047574924215791,
+          "rougeL": 0.5047574924215791,
+          "bleu4": 0.16383786600915104,
+          "bertscore": 0.8856598138809204
+        },
+        "medications": {
+          "rouge1": 0.5156806347247523,
+          "rougeL": 0.5142520632961809,
+          "bleu4": 0.1144483913198571,
+          "bertscore": 0.9009483456611633
+        },
+        "allergies": {
+          "rouge1": 0.29993306647985735,
+          "rougeL": 0.29993306647985735,
+          "bleu4": 0.04296918365300283,
+          "bertscore": 0.8392341732978821
+        },
+        "physical_examination": {
+          "rouge1": 0.5603114273154105,
+          "rougeL": 0.5175238677600922,
+          "bleu4": 0.1020098939433214,
+          "bertscore": 0.890961229801178
+        },
+        "assessment": {
+          "rouge1": 0.4126743877128256,
+          "rougeL": 0.36266627027467957,
+          "bleu4": 0.10738198179470639,
+          "bertscore": 0.8921365141868591
+        },
+        "plan": {
+          "rouge1": 0.47969897078960044,
+          "rougeL": 0.4191660050124614,
+          "bleu4": 0.117174685938139,
+          "bertscore": 0.8948863744735718
+        },
+        "safety_netting": {
+          "rouge1": 0.25615066020116667,
+          "rougeL": 0.19681330111091933,
+          "bleu4": 0.020891065162216636,
+          "bertscore": 0.8568084239959717
+        }
+      }
+    }
+  }
+}
