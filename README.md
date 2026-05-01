@@ -36,7 +36,8 @@ This project implements a **teacher-student knowledge distillation** approach fo
 ## 🏗️ Architecture
 
 The system has in three stages: a **teacher pipeline** that generates synthetic training data, and a **student pipeline** that fine-tunes and does the inference on small language models on that data, and a evaluation framework that uses automated metrics, UQ and SMILE to benchmark student performance.
-![Architecture](assets/Frame 2.jpg)
+![Architecture](assets/Frame%202.jpg)
+
 
 ---
 
