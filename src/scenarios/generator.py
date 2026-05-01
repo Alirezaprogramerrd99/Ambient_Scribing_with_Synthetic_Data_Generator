@@ -30,13 +30,13 @@ from src.models import (
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
 # Scenario Components
-# =============================================================================
 
 @dataclass
 class PatientDemographics:
     """Patient demographic information"""
+    
+    
     
     age: int
     age_group: AgeGroup
@@ -176,9 +176,7 @@ class ClinicalScenario:
         }
 
 
-# =============================================================================
 # Scenario Templates
-# =============================================================================
 
 class ScenarioTemplates:
     """Pre-defined scenario templates organized by specialty"""
@@ -191,6 +189,8 @@ class ScenarioTemplates:
             ("shortness of breath on exertion", ["ankle swelling", "fatigue", "orthopnea"]),
             ("leg swelling", ["shortness of breath", "weight gain", "fatigue"]),
         ],
+        
+        
         ClinicalSpecialty.RESPIRATORY: [
             ("cough", ["sputum production", "shortness of breath", "fever", "wheeze"]),
             ("shortness of breath", ["cough", "wheeze", "chest tightness"]),
@@ -232,14 +232,19 @@ class ScenarioTemplates:
             ("itchy skin", ["rash", "dry skin", "sleep disturbance"]),
             ("skin lesion", ["change in size", "change in colour", "bleeding"]),
         ],
+        
         ClinicalSpecialty.INFECTIOUS_DISEASE: [
             ("fever", ["chills", "sweats", "fatigue", "body aches"]),
             ("sore throat", ["fever", "difficulty swallowing", "swollen glands"]),
         ],
+        
+        
         ClinicalSpecialty.UROLOGY: [
             ("urinary frequency", ["urgency", "burning", "blood in urine"]),
             ("difficulty urinating", ["weak stream", "incomplete emptying", "nocturia"]),
         ],
+        
+        
         ClinicalSpecialty.GENERAL_PRACTICE: [
             ("tiredness", ["weight change", "mood changes", "sleep problems"]),
             ("feeling unwell", ["fever", "aches", "fatigue"]),
@@ -284,9 +289,8 @@ class ScenarioTemplates:
     ALCOHOL_STATUS = ["non-drinker", "occasional", "moderate (14 units/week)", "heavy drinker"]
 
 
-# =============================================================================
 # Scenario Generator
-# =============================================================================
+
 
 class ScenarioGenerator:
     """

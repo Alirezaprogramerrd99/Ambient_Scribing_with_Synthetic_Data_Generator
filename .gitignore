@@ -39,3 +39,10 @@ final_eval_llama3b
 final_eval_llama1b
 
 results/dissertation_plots_final/rag_architecture_diagram.md
+
+
+notebooks/rag_composite.ipynb
+notebooks/rag_plots.ipynb
+
+test_openai.py
+rag_arch.txt
