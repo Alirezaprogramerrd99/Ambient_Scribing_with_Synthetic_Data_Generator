@@ -213,6 +213,105 @@ ambient_scribe_teacher/
 
 ---
 
+## Teacher Model
+
+The teacher module (`src/teacher/`) is the core component responsible for generating synthetic clinical dialogue-summary pairs. It is built around an abstract `BaseTeacher` class that standardises the interface across three LLM backends.
+
+### Class Hierarchy
+
+```
+BaseTeacher  (src/teacher/base.py - abstract)
+├── OllamaTeacher      local inference via Ollama HTTP API
+├── OpenAITeacher      cloud inference via OpenAI (GPT-4o, GPT-4o-mini, ...)
+└── AnthropicTeacher   cloud inference via Anthropic (Claude)
+```
+
+### Generation Workflow
+
+For every clinical scenario the teacher executes the following steps in sequence:
+
+1. **Query expansion** - `MedicalQueryProcessor` enriches the scenario description with clinical synonyms and related terminology before RAG retrieval.
+2. **Guideline retrieval** - If a retriever is configured, relevant documents are fetched from the vector store using cosine similarity (default threshold: 0.35). A fallback message is inserted when no documents exceed the threshold.
+3. **Prompt construction** - The expanded scenario and retrieved guideline context are injected into a structured clinical prompt template managed by `ClinicalPrompts`.
+4. **LLM call with retries** - The configured backend is called with exponential back-off retry logic. The number of attempts is controlled by `max_retries` in `GenerationConfig`.
+5. **Response parsing and validation** - The raw JSON response is parsed and validated against Pydantic schemas (`ClinicalDialogue`, `ClinicalSummary`). Malformed responses trigger a retry.
+6. **Difficulty assessment** - A second LLM call at temperature 0.3 assigns a complexity score from 1 to 10 following the Woo et al. (2025) methodology. A heuristic fallback based on dialogue length, HPI word count, differential diagnoses, plan complexity, and polypharmacy is used when the LLM call fails.
+7. **Sample assembly** - Dialogue, summary, scenario metadata, generation metadata, RAG metadata, and difficulty metadata are combined into a `SyntheticSample` and returned as a `GenerationResult`.
+
+### Supported Backends and Models
+
+| Backend | Class | Supported Models |
+|---|---|---|
+| Ollama (local) | `OllamaTeacher` | `llama3.1:8b`, `llama3.1:70b`, `mistral:7b`, `mixtral:8x7b`, `phi3:mini`, `medllama2:7b`, `meditron:7b` |
+| OpenAI | `OpenAITeacher` | `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` |
+| Anthropic | `AnthropicTeacher` | `claude-sonnet-4-20250514`, `claude-3-opus-20240229` |
+
+Use `get_recommended_model(use_case, max_vram_gb)` to select an Ollama model automatically based on available VRAM.
+
+### Difficulty Scoring
+
+Each generated sample is assigned a numeric difficulty score following the Woo et al. (2025) methodology. The LLM evaluates the dialogue and summary at low temperature. If that call fails, a heuristic evaluator scores the same features:
+
+| Score | Level | Typical Characteristics |
+|---|---|---|
+| 1-3 | Low | Single complaint, straightforward diagnosis, short dialogue |
+| 4-6 | Medium | Comorbidities present, requires differential reasoning |
+| 7-10 | High | Complex polypharmacy, multi-system involvement, red-flag features |
+
+The heuristic fallback evaluates five factors: dialogue turn count, HPI word count, presence of multiple differentials in the assessment, plan comprehensiveness (referrals, monitoring, follow-up), and polypharmacy (three or more medications). Reasoning steps and contributing factors are stored in `DifficultyMetadata` for curriculum learning and data filtering downstream.
+
+### Python API
+
+```python
+from src.teacher import create_teacher
+from src.knowledge_base import create_rag_system
+
+# Optional: attach a RAG retriever
+retriever = create_rag_system(
+    backend="llama_index",
+    documents_dir="./medical_knowledge",
+)
+
+# Create an Ollama teacher (local)
+teacher = create_teacher(
+    provider="ollama",
+    model_name="llama3.1:8b",
+    retriever=retriever,
+    temperature=0.7,
+    max_tokens=4096,
+)
+
+# Generate a single sample
+result = teacher.generate(
+    scenario="62-year-old male with exertional chest pain radiating to the left arm",
+    use_rag=True,
+    use_llm_difficulty_assessment=True,
+)
+
+if result.success:
+    sample = result.sample
+    print(sample.dialogue_text)
+    print(sample.summary.assessment)
+    print(f"Difficulty: {sample.difficulty.difficulty_level.value} "
+          f"(score {sample.difficulty.difficulty_score})")
+
+# Create an OpenAI teacher (cloud)
+teacher_openai = create_teacher(
+    provider="openai",
+    model_name="gpt-4o-mini",
+    retriever=retriever,
+)
+
+# Create an Anthropic teacher (cloud)
+teacher_anthropic = create_teacher(
+    provider="anthropic",
+    model_name="claude-sonnet-4-20250514",
+    retriever=retriever,
+)
+```
+
+---
+
 ## 🔧 Configuration
 
 ### Environment Variables
@@ -271,41 +370,102 @@ config = PipelineConfig(
 
 ---
 
-## 📊 Output Format
+## Output Format
 
-Generated samples are saved as JSONL with the following structure:
+Generated samples are saved as JSONL (one JSON object per line). Each record is a complete `SyntheticSample` containing the dialogue, clinical summary, and all metadata produced during generation.
+
+### Complete Schema
 
 ```json
 {
   "id": "ollama_abc123def456",
   "dialogue": [
-    {"speaker": "Doctor", "text": "Good morning, what brings you in today?"},
-    {"speaker": "Patient", "text": "I've been having chest pain for 3 days..."}
+    {"speaker": "Doctor", "text": "Good morning, what brings you in today?", "turn_number": 1},
+    {"speaker": "Patient", "text": "I've been having chest pain for 3 days...", "turn_number": 2}
   ],
   "summary": {
     "chief_complaint": "Chest pain for 3 days",
-    "history_of_present_illness": "55-year-old male presents with...",
-    "assessment": "Suspected stable angina",
-    "plan": "Order ECG and troponins...",
+    "history_of_present_illness": "62-year-old male presents with exertional chest pain...",
+    "past_medical_history": "Hypertension, type 2 diabetes",
+    "medications": "Metformin 500mg BD, Amlodipine 5mg OD",
+    "allergies": "No known drug allergies (NKDA)",
+    "social_history": "Non-smoker, occasional alcohol",
+    "family_history": "Father had MI at 60",
+    "physical_examination": "BP 148/92, HR 82, afebrile. Mild chest wall tenderness.",
+    "assessment": "Suspected stable angina; rule out ACS",
+    "plan": "12-lead ECG, troponin I x2, refer cardiology, commence aspirin 75mg OD",
+    "safety_netting": "Return immediately if pain worsens, radiates to jaw or arm, or SOB develops",
     "soap": {
-      "S": "...",
-      "O": "...",
-      "A": "...",
-      "P": "..."
+      "S": "62M with 3-day history of exertional chest pain with left arm radiation...",
+      "O": "BP 148/92, HR 82, afebrile, mild chest wall tenderness on palpation...",
+      "A": "Suspected stable angina; ACS to be excluded pending investigations...",
+      "P": "12-lead ECG, serial troponin, aspirin 75mg OD, urgent cardiology referral..."
     }
   },
   "scenario": {
+    "scenario_text": "62-year-old male with exertional chest pain radiating to the left arm",
     "specialty": "Cardiology",
-    "urgency": "routine"
+    "urgency": "urgent",
+    "age_group": "elderly",
+    "gender": "male"
   },
-  "difficulty": {
-    "difficulty_score": 5,
-    "difficulty_level": "medium"
+  "generation": {
+    "model_name": "llama3.1:8b",
+    "model_provider": "ollama",
+    "temperature": 0.7,
+    "timestamp": "2025-05-01T14:23:01",
+    "generation_time_seconds": 12.4,
+    "prompt_tokens": 820,
+    "completion_tokens": 1104
   },
   "rag": {
     "rag_enabled": true,
-    "sources": ["nice_guidelines/chest_pain.txt"]
+    "num_sources_retrieved": 3,
+    "sources": ["nice_guidelines/chest_pain.txt", "nice_guidelines/acs.txt"],
+    "retrieval_scores": [0.82, 0.74, 0.61],
+    "context_used": "NICE CG95: Chest pain of recent onset..."
+  },
+  "difficulty": {
+    "difficulty_score": 7,
+    "difficulty_level": "high",
+    "reasoning_steps": [
+      "Extended dialogue (22 turns suggests complex consultation)",
+      "Multiple differential diagnoses require broader clinical reasoning"
+    ],
+    "clinical_complexity_factors": ["multiple_differentials", "comprehensive_plan"],
+    "rationale": "Complex cardiac presentation requiring ACS workup and specialist referral"
   }
+}
+```
+
+### Clinical Summary Fields
+
+| Field | Required | Description |
+|---|---|---|
+| `chief_complaint` | Yes | Primary reason for visit (min 3 words) |
+| `history_of_present_illness` | Yes | Onset, duration, character, severity, aggravating/relieving factors, associated symptoms |
+| `past_medical_history` | No | Relevant prior conditions |
+| `medications` | No | Current medications with dosages |
+| `allergies` | No | Drug allergies or NKDA |
+| `social_history` | No | Smoking, alcohol, occupation, living situation |
+| `family_history` | No | Relevant family medical history |
+| `physical_examination` | No | Vital signs and examination findings |
+| `assessment` | Yes | Working diagnosis or differential diagnoses |
+| `plan` | Yes | Tests, treatments, medications, referrals, follow-up |
+| `safety_netting` | No | Warning signs and advice on when to return |
+| `soap` | No | Parallel SOAP note with S, O, A, P fields |
+
+### Training Format
+
+For downstream fine-tuning, samples can be exported in a simplified instruction format using `sample.to_training_format()`:
+
+```json
+{
+  "id": "ollama_abc123def456",
+  "input": "Doctor: Good morning...\nPatient: I've been having chest pain...",
+  "output": "{\"chief_complaint\": \"Chest pain for 3 days\", ...}",
+  "difficulty": 7,
+  "specialty": "Cardiology"
 }
 ```
 
