@@ -200,9 +200,14 @@ ambient_scribe_teacher/
 │   └── pipeline/            # Orchestration
 │       └── synthetic_data_pipeline.py
 ├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── synthetic_output/
+│   ├── batch_1/ .. batch_9/   # Raw generation batches (250 scenarios each)
+│   ├── training_data/        # Generic formatted training split
+│   ├── training_data_llama1b/ # Llama-3.2-1B-Instruct formatted split
+│   ├── training_data_llama3b/ # Llama-3.2-3B-Instruct formatted split
+│   ├── chroma_db/            # Manual RAG vector store
+│   ├── llama_index_chroma_db/ # LlamaIndex vector store
+│   ├── synthetic_output/     # Ad-hoc generation outputs
+│   ├── synthetic_output_llama_index/ # LlamaIndex pipeline results
 ├── medical_knowledge/       # Clinical guidelines
 ├── tests/
 ├── notebooks/
@@ -468,6 +473,71 @@ For downstream fine-tuning, samples can be exported in a simplified instruction 
   "specialty": "Cardiology"
 }
 ```
+
+---
+
+## Generated Data
+
+### Synthetic Data Batches
+
+Nine generation batches were produced using **gpt-4o-mini** as the teacher model with **LlamaIndex RAG** enabled. Each batch targeted **250 scenarios** with a different random seed to maximise clinical diversity. Every batch folder contains:
+
+- `synthetic_data_*.jsonl` - final valid samples
+- `scenarios.jsonl` - input scenarios used
+- `intermediate_*.jsonl` - checkpoints saved every 8 samples
+- `summary_*.json` - run statistics (counts, timings, success rate)
+- `benchmark_openai_gpt-4o-mini_*.json` - benchmark quality score
+- `benchmark_report_*.md` - human-readable benchmark report
+- `vector_store/` - batch-local RAG index
+
+| Batch | Scenarios | Valid | Failed | Success Rate | Run Time | File Size | Bench Score |
+|---|---|---|---|---|---|---|---|
+| batch_1 | 250 | 181 | 69 | 72.4% | 11,487 s | 1.73 MB | 0.794 |
+| batch_2 | 250 | 189 | 61 | 75.6% | 10,864 s | 1.80 MB | 0.791 |
+| batch_3 | 250 | 184 | 66 | 73.6% | 10,885 s | 1.75 MB | 0.799 |
+| batch_4 | 250 | 190 | 60 | 76.0% | 13,087 s | 1.81 MB | 0.801 |
+| batch_5 | 250 | 186 | 64 | 74.4% | 11,761 s | 1.78 MB | 0.816 |
+| batch_6 | 250 | 189 | 61 | 75.6% | 10,603 s | 1.80 MB | 0.828 |
+| batch_7 | 250 | 186 | 64 | 74.4% | 11,316 s | 1.77 MB | 0.827 |
+| batch_8 | 250 | 191 | 59 | 76.4% | 11,103 s | 1.82 MB | 0.830 |
+| batch_9 | 250 | 189 | 61 | 75.6% | 11,788 s | 1.80 MB | 0.825 |
+| **Total** | **2,250** | **1,685** | **565** | **74.9% avg** | ~102,893 s | ~16.1 MB | |
+
+### Training Datasets
+
+All three training datasets were prepared from the same **1,685 raw samples** collected across the nine batches. After quality filtering (19.4% removed), **1,358 samples** were retained and split 80/10/10. RAG context was included in 50% of training examples. All sequences fit within the 4,096-token limit (no truncation required).
+
+| Dataset | Base Model | Template | Created | Train | Val | Test | Total | Mean Tokens |
+|---|---|---|---|---|---|---|---|---|
+| `training_data` | generic | - | 2026-02-19 | 1,092 | 133 | 133 | 1,358 | 1,263 |
+| `training_data_llama1b` | `unsloth/Llama-3.2-1B-Instruct` | llama3 | 2026-03-10 | 1,092 | 133 | 133 | 1,358 | 1,294 |
+| `training_data_llama3b` | `unsloth/Llama-3.2-3B-Instruct` | llama3 | 2026-03-09 | 1,092 | 133 | 133 | 1,358 | 1,294 |
+
+The `llama1b` and `llama3b` variants wrap the same filtered corpus in a model-specific chat template, which accounts for the slightly higher mean token count compared to the generic split.
+
+Each training dataset folder contains:
+
+- `train.jsonl` / `val.jsonl` / `test.jsonl` - data splits
+- `dataset_info.json` - creation timestamp, model config, split sizes
+- `preparation_stats.json` - raw/filtered counts, specialty and difficulty distributions, token statistics
+
+**Specialty distribution** (identical across all three datasets):
+
+| Specialty | Samples |
+|---|---|
+| General Practice | 514 |
+| Gastroenterology | 184 |
+| Cardiology | 134 |
+| Urology | 121 |
+| Dermatology | 113 |
+| Neurology | 107 |
+| Geriatrics | 66 |
+| Endocrinology | 41 |
+| Rheumatology | 36 |
+| Psychiatry | 27 |
+| ENT, Musculoskeletal, Paediatrics, Infectious Disease, Nephrology, Emergency Medicine | 16 |
+
+Difficulty is predominantly **medium** (1,352 samples) with 6 **high** samples. No low-difficulty samples passed the quality filter.
 
 ---
 
