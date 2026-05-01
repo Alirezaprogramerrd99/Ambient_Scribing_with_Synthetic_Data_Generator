@@ -35,34 +35,72 @@ This project implements a **teacher-student knowledge distillation** approach fo
 
 ## 🏗️ Architecture
 
+The system runs in two sequential phases: a **teacher pipeline** that generates synthetic training data, and a **student pipeline** that fine-tunes and evaluates small language models on that data.
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Synthetic Data Pipeline                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
-│  │   Scenario   │───▶│    RAG       │───▶│   Teacher    │       │
-│  │  Generator   │    │  Retriever   │    │    Model     │       │
-│  └──────────────┘    └──────────────┘    └──────────────┘       │
-│         │                   │                   │                │
-│         ▼                   ▼                   ▼                │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
-│  │  Scenarios   │    │  Clinical    │    │  Synthetic   │       │
-│  │   (JSON)     │    │  Guidelines  │    │   Samples    │       │
-│  └──────────────┘    └──────────────┘    └──────────────┘       │
-│                                                 │                │
-│                                                 ▼                │
-│                                          ┌──────────────┐       │
-│                                          │  Validation  │       │
-│                                          │   Pipeline   │       │
-│                                          └──────────────┘       │
-│                                                 │                │
-│                                                 ▼                │
-│                                          ┌──────────────┐       │
-│                                          │   Training   │       │
-│                                          │    Data      │       │
-│                                          └──────────────┘       │
-└─────────────────────────────────────────────────────────────────┘
+╔═══════════════════════════════════════════════════════════════════════╗
+║              PHASE 1 — Synthetic Data Generation                     ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  ┌─────────────────┐     ┌──────────────────────┐                    ║
+║  │    Scenario     │     │   RAG Knowledge Base  │                   ║
+║  │    Generator    │     │                       │                   ║
+║  │                 │     │  ┌─────────────────┐  │                   ║
+║  │  ClinicalScenario     │  │  ChromaDB Manual │  │                   ║
+║  │  (specialty,    │     │  │  (BAAI/bge-base) │  │                   ║
+║  │   urgency,      │     │  ├─────────────────┤  │                   ║
+║  │   age, gender)  │     │  │  LlamaIndex RAG  │  │                   ║
+║  └────────┬────────┘     │  └─────────────────┘  │                   ║
+║           │              └──────────┬─────────────┘                  ║
+║           │   scenario + guidelines │                                 ║
+║           └─────────────────────────▼─────────────────┐             ║
+║                                                        │             ║
+║                                          ┌─────────────▼──────────┐ ║
+║                                          │     Teacher Model       │ ║
+║                                          │                         │ ║
+║                                          │  OllamaTeacher          │ ║
+║                                          │  OpenAITeacher (used)   │ ║
+║                                          │  AnthropicTeacher       │ ║
+║                                          └─────────────┬──────────┘ ║
+║                                                        │             ║
+║                                                        ▼             ║
+║                                          ┌─────────────────────────┐ ║
+║                                          │      Validation         │ ║
+║                                          │  structural + clinical  │ ║
+║                                          │  + RAG faithfulness     │ ║
+║                                          └─────────────┬───────────┘ ║
+║                                                        │             ║
+║                                                        ▼             ║
+║                                          ┌─────────────────────────┐ ║
+║                                          │   SyntheticSample       │ ║
+║                                          │   (Pydantic schema)     │ ║
+║                                          │   saved as JSONL        │ ║
+║                                          └─────────────────────────┘ ║
+║                                              MLflow tracks all runs   ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════╗
+║              PHASE 2 — Student Fine-Tuning and Evaluation            ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐  ║
+║  │  Training Data   │   │  QLoRA Fine-Tune │   │   Evaluation     │  ║
+║  │  Preparation     │──▶│  (Unsloth / TRL) │──▶│                  │  ║
+║  │                  │   │                  │   │  ROUGE / BERT    │  ║
+║  │  llama3 template │   │  Llama-3.2-1B    │   │  BERTScore       │  ║
+║  │  50% RAG context │   │  Llama-3.2-3B    │   │  MedCon          │  ║
+║  │  difficulty sort │   │  Phi-3.5-mini    │   │  LLM-as-a-Judge  │  ║
+║  └──────────────────┘   └──────────────────┘   └────────┬─────────┘  ║
+║                                                          │             ║
+║                                                          ▼             ║
+║                                          ┌───────────────────────────┐ ║
+║                                          │  Experiments              │ ║
+║                                          │  baseline / RAG-only      │ ║
+║                                          │  FT-only / FT+RAG         │ ║
+║                                          │  RAG ablation             │ ║
+║                                          │  (MLflow + W&B tracking)  │ ║
+║                                          └───────────────────────────┘ ║
+╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
@@ -381,64 +419,84 @@ Generated samples are saved as JSONL (one JSON object per line). Each record is 
 
 ### Complete Schema
 
+The following is a real sample from batch_3 (`id: openai_3e55043cf15c`). The dialogue is truncated for readability; actual samples contain the full turn sequence.
+
 ```json
 {
-  "id": "ollama_abc123def456",
+  "id": "openai_3e55043cf15c",
   "dialogue": [
-    {"speaker": "Doctor", "text": "Good morning, what brings you in today?", "turn_number": 1},
-    {"speaker": "Patient", "text": "I've been having chest pain for 3 days...", "turn_number": 2}
+    {"speaker": "Doctor",  "text": "Good morning, I'm Dr. Smith. What brings you in today?", "turn_number": 0},
+    {"speaker": "Patient", "text": "Hi, I've been experiencing palpitations for the past few hours.", "turn_number": 1},
+    {"speaker": "Doctor",  "text": "I'm sorry to hear that. Can you tell me more about these palpitations? When did they start?", "turn_number": 2},
+    {"speaker": "Patient", "text": "They started this morning, and they feel pretty mild, but I'm also feeling a bit dizzy.", "turn_number": 3},
+    {"speaker": "...", "text": "... (25 turns total)", "turn_number": null}
   ],
   "summary": {
-    "chief_complaint": "Chest pain for 3 days",
-    "history_of_present_illness": "62-year-old male presents with exertional chest pain...",
-    "past_medical_history": "Hypertension, type 2 diabetes",
-    "medications": "Metformin 500mg BD, Amlodipine 5mg OD",
-    "allergies": "No known drug allergies (NKDA)",
-    "social_history": "Non-smoker, occasional alcohol",
-    "family_history": "Father had MI at 60",
-    "physical_examination": "BP 148/92, HR 82, afebrile. Mild chest wall tenderness.",
-    "assessment": "Suspected stable angina; rule out ACS",
-    "plan": "12-lead ECG, troponin I x2, refer cardiology, commence aspirin 75mg OD",
-    "safety_netting": "Return immediately if pain worsens, radiates to jaw or arm, or SOB develops",
+    "chief_complaint": "Palpitations for a few hours",
+    "history_of_present_illness": "A 22-year-old female presents with palpitations that started this morning, mild in severity. Symptoms are associated with dizziness rated 4/10, chest discomfort, and shortness of breath. Symptoms worsen with spicy food and stress, and improve with antacids.",
+    "past_medical_history": "No significant past medical history.",
+    "medications": "None.",
+    "allergies": "No known drug allergies (NKDA).",
+    "social_history": "No smoking, no significant alcohol use, occupation not discussed.",
+    "family_history": "Non-contributory.",
+    "physical_examination": "Vital signs: BP 120/80 mmHg, HR 90 bpm, SpO2 98%. Cardiac exam shows regular heart sounds. No signs of respiratory distress.",
+    "assessment": "Working diagnosis includes palpitations possibly related to anxiety or GERD. Differential diagnoses include acute coronary syndrome, stable angina, and other gastrointestinal causes.",
+    "plan": "Perform ECG and troponin tests to rule out acute coronary syndrome. Consider lifestyle modifications; if symptoms persist, discuss potential medications. Follow up in 1-2 weeks, and educate patient on red flag symptoms.",
+    "safety_netting": "Patient should seek immediate medical attention if experiencing chest pain lasting over 15 minutes, pain radiating to jaw or arm, sudden severe pain, or any changes in condition.",
     "soap": {
-      "S": "62M with 3-day history of exertional chest pain with left arm radiation...",
-      "O": "BP 148/92, HR 82, afebrile, mild chest wall tenderness on palpation...",
-      "A": "Suspected stable angina; ACS to be excluded pending investigations...",
-      "P": "12-lead ECG, serial troponin, aspirin 75mg OD, urgent cardiology referral..."
+      "S": "22-year-old female with palpitations, dizziness, chest discomfort, and shortness of breath.",
+      "O": "BP 120/80 mmHg, HR 90 bpm, SpO2 98%. Regular heart sounds; no respiratory distress.",
+      "A": "Palpitations likely due to anxiety or GERD; rule out acute coronary syndrome.",
+      "P": "ECG and troponin tests; lifestyle changes; follow-up in 1-2 weeks; educate on red flags."
     }
   },
   "scenario": {
-    "scenario_text": "62-year-old male with exertional chest pain radiating to the left arm",
+    "scenario_text": "22-year-old female presenting with palpitations for few hours, mild severity, associated with dizziness, chest discomfort, shortness of breath, worse with spicy food, stress, better with antacids, bland diet",
     "specialty": "Cardiology",
-    "urgency": "urgent",
-    "age_group": "elderly",
-    "gender": "male"
+    "urgency": "routine",
+    "age_group": "young_adult",
+    "gender": "female"
   },
   "generation": {
-    "model_name": "llama3.1:8b",
-    "model_provider": "ollama",
+    "model_name": "gpt-4o-mini",
+    "model_provider": "openai",
     "temperature": 0.7,
-    "timestamp": "2025-05-01T14:23:01",
-    "generation_time_seconds": 12.4,
-    "prompt_tokens": 820,
-    "completion_tokens": 1104
+    "timestamp": "2026-02-13T02:20:10.623669",
+    "generation_time_seconds": 25.57,
+    "prompt_tokens": 2943,
+    "completion_tokens": 1337
   },
   "rag": {
     "rag_enabled": true,
-    "num_sources_retrieved": 3,
-    "sources": ["nice_guidelines/chest_pain.txt", "nice_guidelines/acs.txt"],
-    "retrieval_scores": [0.82, 0.74, 0.61],
-    "context_used": "NICE CG95: Chest pain of recent onset..."
+    "num_sources_retrieved": 5,
+    "sources": ["neurology_headache", "chest_pain_guidelines", "cardiology"],
+    "retrieval_scores": [0.7612, 0.7140, 0.7112, 0.7109, 0.7067],
+    "context_used": "[Source: cardiology]\n# Cardiology Assessment and Management\n## Acute Coronary Syndrome (ACS)\n### Presentation\n- Typical Pain: Central, crushing chest pain radiating to the left arm, jaw, or neck..."
   },
   "difficulty": {
-    "difficulty_score": 7,
-    "difficulty_level": "high",
+    "difficulty_score": 5,
+    "difficulty_level": "medium",
     "reasoning_steps": [
-      "Extended dialogue (22 turns suggests complex consultation)",
-      "Multiple differential diagnoses require broader clinical reasoning"
+      "Step 1: Identify presenting complaint of palpitations.",
+      "Step 2: Gather relevant history including associated symptoms and triggers.",
+      "Step 3: Consider differential diagnoses such as anxiety, GERD, and acute coronary syndrome.",
+      "Step 4: Determine appropriate investigations like ECG and troponin tests.",
+      "Step 5: Formulate management plan including lifestyle modifications and education on red flags."
     ],
-    "clinical_complexity_factors": ["multiple_differentials", "comprehensive_plan"],
-    "rationale": "Complex cardiac presentation requiring ACS workup and specialist referral"
+    "clinical_complexity_factors": [
+      "Multiple symptoms requiring correlation",
+      "Potential for serious underlying conditions",
+      "Need for risk stratification due to chest discomfort"
+    ],
+    "rationale": ""
+  },
+  "validation": {
+    "status": "passed",
+    "errors": [],
+    "warnings": ["Turn 19: 4 consecutive turns by Doctor"],
+    "structural_valid": true,
+    "clinical_valid": true,
+    "rag_faithfulness": 0.7215
   }
 }
 ```
