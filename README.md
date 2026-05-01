@@ -35,73 +35,8 @@ This project implements a **teacher-student knowledge distillation** approach fo
 
 ## 🏗️ Architecture
 
-The system runs in two sequential phases: a **teacher pipeline** that generates synthetic training data, and a **student pipeline** that fine-tunes and evaluates small language models on that data.
-
-```
-╔═══════════════════════════════════════════════════════════════════════╗
-║              PHASE 1 — Synthetic Data Generation                     ║
-╠═══════════════════════════════════════════════════════════════════════╣
-║                                                                       ║
-║  ┌─────────────────┐     ┌──────────────────────┐                    ║
-║  │    Scenario     │     │   RAG Knowledge Base  │                   ║
-║  │    Generator    │     │                       │                   ║
-║  │                 │     │  ┌─────────────────┐  │                   ║
-║  │  ClinicalScenario     │  │  ChromaDB Manual │  │                   ║
-║  │  (specialty,    │     │  │  (BAAI/bge-base) │  │                   ║
-║  │   urgency,      │     │  ├─────────────────┤  │                   ║
-║  │   age, gender)  │     │  │  LlamaIndex RAG  │  │                   ║
-║  └────────┬────────┘     │  └─────────────────┘  │                   ║
-║           │              └──────────┬─────────────┘                  ║
-║           │   scenario + guidelines │                                 ║
-║           └─────────────────────────▼─────────────────┐             ║
-║                                                        │             ║
-║                                          ┌─────────────▼──────────┐ ║
-║                                          │     Teacher Model       │ ║
-║                                          │                         │ ║
-║                                          │  OllamaTeacher          │ ║
-║                                          │  OpenAITeacher (used)   │ ║
-║                                          │  AnthropicTeacher       │ ║
-║                                          └─────────────┬──────────┘ ║
-║                                                        │             ║
-║                                                        ▼             ║
-║                                          ┌─────────────────────────┐ ║
-║                                          │      Validation         │ ║
-║                                          │  structural + clinical  │ ║
-║                                          │  + RAG faithfulness     │ ║
-║                                          └─────────────┬───────────┘ ║
-║                                                        │             ║
-║                                                        ▼             ║
-║                                          ┌─────────────────────────┐ ║
-║                                          │   SyntheticSample       │ ║
-║                                          │   (Pydantic schema)     │ ║
-║                                          │   saved as JSONL        │ ║
-║                                          └─────────────────────────┘ ║
-║                                              MLflow tracks all runs   ║
-╚═══════════════════════════════════════════════════════════════════════╝
-
-╔═══════════════════════════════════════════════════════════════════════╗
-║              PHASE 2 — Student Fine-Tuning and Evaluation            ║
-╠═══════════════════════════════════════════════════════════════════════╣
-║                                                                       ║
-║  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐  ║
-║  │  Training Data   │   │  QLoRA Fine-Tune │   │   Evaluation     │  ║
-║  │  Preparation     │──▶│  (Unsloth / TRL) │──▶│                  │  ║
-║  │                  │   │                  │   │  ROUGE / BERT    │  ║
-║  │  llama3 template │   │  Llama-3.2-1B    │   │  BERTScore       │  ║
-║  │  50% RAG context │   │  Llama-3.2-3B    │   │  MedCon          │  ║
-║  │  difficulty sort │   │  Phi-3.5-mini    │   │  LLM-as-a-Judge  │  ║
-║  └──────────────────┘   └──────────────────┘   └────────┬─────────┘  ║
-║                                                          │             ║
-║                                                          ▼             ║
-║                                          ┌───────────────────────────┐ ║
-║                                          │  Experiments              │ ║
-║                                          │  baseline / RAG-only      │ ║
-║                                          │  FT-only / FT+RAG         │ ║
-║                                          │  RAG ablation             │ ║
-║                                          │  (MLflow + W&B tracking)  │ ║
-║                                          └───────────────────────────┘ ║
-╚═══════════════════════════════════════════════════════════════════════╝
-```
+The system has in three stages: a **teacher pipeline** that generates synthetic training data, and a **student pipeline** that fine-tunes and does the inference on small language models on that data, and a evaluation framework that uses automated metrics, UQ and SMILE to benchmark student performance.
+![Architecture](assets/Frame 2.jpg)
 
 ---
 
