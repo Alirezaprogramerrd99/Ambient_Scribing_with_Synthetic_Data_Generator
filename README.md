@@ -25,7 +25,8 @@ This project implements a **teacher-student knowledge distillation** approach fo
 ### Key Features
 
 - **🤖 Multiple LLM Backends**: Ollama (local), OpenAI, Anthropic
-- **📚 Dual RAG System**: Manual implementation + LlamaIndex
+- **📚 Sophisticated RAG System**: Dense, Dense-rerank, Dense-rerank+Query_Expansion, and Dense-rerank+Query_Expansion+medical filtering; all implemented via LlamaIndex
+  
 - **✅ Comprehensive Validation**: Structural, clinical, and RAG metrics
 - **🎲 Diverse Scenario Generation**: Demographics, specialties, complexity
 - **📊 Experiment Tracking**: MLflow and Weights & Biases integration
@@ -54,22 +55,9 @@ The system has in three stages: a **teacher pipeline** that generates synthetic 
 # Clone repository
 git clone https://github.com/yourusername/ambient-scribe-teacher.git
 cd ambient-scribe-teacher
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy environment template
-cp .env.example .env
-# Edit .env with your settings
-
-# Install Ollama and pull a model
-ollama pull llama3.1:8b
 ```
+
+**For the rest of the installation and setup instructions, please refer to the [SETUP_GUIDE.md](SETUP_GUIDE.md) file in the repository.**
 
 ### Optional: Install Advanced NLP
 

@@ -526,7 +526,7 @@ class ClinicalScribeInference:
 
         with torch.no_grad():
             # Use greedy decoding when temperature is 0, sampling otherwise
-            # Ref: Woo et al. (2025) tested temp 0 vs 1; Renze & Guven (2024)
+            # Ref: Woo et al. (2025) tested temp 0 vs 1;
             # found no significant difference in problem-solving for temp 0-1.
             use_sampling = self.config.temperature > 0
             
@@ -581,9 +581,7 @@ class ClinicalScribeInference:
         return response
 
 
-# =============================================================================
 # CLI Entry Point
-# =============================================================================
 
 if __name__ == "__main__":
     import argparse

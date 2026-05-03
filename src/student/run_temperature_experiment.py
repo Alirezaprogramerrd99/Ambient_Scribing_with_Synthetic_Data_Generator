@@ -9,7 +9,7 @@ Scientific justification:
   and found temperature 0 slightly outperformed higher values.
 - Renze & Guven (2024) found no significant difference in LLM 
   problem-solving for temperature 0-1.
-- Chang et al. (2023) hypothesized lower temperature suits QA tasks.
+
 
 Usage:
     # Run experiments for one model (creates 4 eval JSONs)
@@ -271,9 +271,7 @@ def _plot_temperature(all_results: Dict, labels: List[str], output_dir: Path):
     print(f"Saved: temperature_comparison.png")
 
 
-# =============================================================================
 # CLI
-# =============================================================================
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")

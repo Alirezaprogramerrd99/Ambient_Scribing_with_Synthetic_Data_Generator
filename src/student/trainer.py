@@ -231,6 +231,8 @@ class StudentTrainer:
                 "See: https://github.com/unslothai/unsloth"
             )
         
+        
+        
         logger.info(f"Loading model: {self.config.base_model}")
         logger.info(f"  4-bit quantisation: {self.config.load_in_4bit}")
         logger.info(f"  Max sequence length: {self.config.max_seq_length}")
@@ -324,6 +326,8 @@ class StudentTrainer:
         from datasets import Dataset
         return Dataset.from_list(ordered)
     
+    
+    
     def _setup_trainer(self, train_dataset, eval_dataset):
         """Configure the SFTTrainer."""
         from trl import SFTTrainer, SFTConfig
@@ -359,6 +363,8 @@ class StudentTrainer:
             max_seq_length=self.config.max_seq_length,
             dataset_text_field="text",
             packing=False,  # Don't pack sequences - clinical examples need boundaries
+            
+            
             
             # Evaluation & Saving
             eval_strategy="steps" if eval_dataset else "no",

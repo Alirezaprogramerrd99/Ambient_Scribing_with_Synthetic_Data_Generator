@@ -240,6 +240,8 @@ class LlamaIndexDocumentLoader:
         
         return documents
     
+    
+    
     def load_file(self, filepath: Union[str, Path]) -> List[Any]:
         """Load a single file"""
         filepath = Path(filepath)
@@ -248,6 +250,7 @@ class LlamaIndexDocumentLoader:
         
         reader = SimpleDirectoryReader(input_files=[str(filepath)])
         return reader.load_data()
+    
     
     def _infer_document_type(self, filepath: str) -> str:
         """Infer document type from filepath"""
@@ -299,6 +302,7 @@ class LlamaIndexIndexer:
         
         self.vector_store_type = vector_store
         self.persist_dir = Path(persist_dir)
+        
         self.collection_name = collection_name
         self.vector_store_kwargs = vector_store_kwargs
         
@@ -432,6 +436,8 @@ class LlamaIndexIndexer:
         logger.info(f"Index built and persisted to {self.persist_dir}")
         return self._index
     
+    
+    
     def load_index(self) -> Any:
         """Load existing index from storage"""
         StorageContext = self.modules["StorageContext"]
@@ -463,9 +469,8 @@ class LlamaIndexIndexer:
         return self._index
 
 
-# =============================================================================
+
 # LlamaIndex Retriever (Implements BaseRetriever Interface)
-# =============================================================================
 
 class LlamaIndexRetriever(BaseRetriever):
     """
@@ -767,6 +772,8 @@ class HybridMedicalRetriever(BaseRetriever):
             retrieval_time_ms=elapsed_ms,
             strategy="hybrid_medical",
         )
+    
+    
     
     def retrieve_with_filter(
         self,

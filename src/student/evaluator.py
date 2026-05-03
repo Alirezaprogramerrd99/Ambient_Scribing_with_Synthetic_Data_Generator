@@ -33,9 +33,8 @@ load_dotenv()  # Load OPENAI_API_KEY from .env file
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
+
 # RAG Ablation Config Registry  (shared by Experiment 1 and Experiment 2)
-# =============================================================================
 
 # Single source of truth for all RAG ablation override dicts.
 # Used by both _run_comparative_experiment (Experiment 1) and
@@ -219,6 +218,8 @@ class LLMJudge:
 
         self.temperature = temperature
         self.max_retries = max_retries
+        
+        
         self._client = None
         self._init_client()
     
@@ -239,6 +240,7 @@ class LLMJudge:
         elif self.provider == "ollama":
             import httpx
             self._client = httpx.Client(timeout=120.0)
+    
     
     def evaluate_single(
         self,
@@ -328,6 +330,8 @@ class LLMJudge:
             results.append(score)
         return results
     
+    
+    
     def _call_llm(self, user_message: str) -> str:
         """Call the LLM judge."""
         if self.provider == "openai":
@@ -352,6 +356,8 @@ class LLMJudge:
             )
             return response.content[0].text
         
+        
+        
         elif self.provider == "ollama":
             response = self._client.post(
                 "http://localhost:11434/api/chat",
@@ -366,6 +372,8 @@ class LLMJudge:
                 },
             )
             return response.json()["message"]["content"]
+    
+    
     
     def _default_scores(self) -> Dict[str, Any]:
         """Return default scores when judge fails."""
@@ -483,9 +491,7 @@ def extract_reference_from_chatml(chatml_text: str) -> str:
     return ""
 
 
-# =============================================================================
 # Main Evaluator
-# =============================================================================
 
 class StudentEvaluator:
     """
@@ -961,6 +967,7 @@ class StudentEvaluator:
         for config_name, rag_overrides in configs_to_run.items():
             logger.info(f"\nRAG Ablation: {config_name} ({rag_overrides})")
             
+            
             try:
                 # Swap the retriever without reloading the model
                 scribe.config.use_rag = True
@@ -1292,9 +1299,7 @@ class StudentEvaluator:
         return report_path
 
 
-# =============================================================================
 # CLI Entry Point
-# =============================================================================
 
 if __name__ == "__main__":
     import argparse

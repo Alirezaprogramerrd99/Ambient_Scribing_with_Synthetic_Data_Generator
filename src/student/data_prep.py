@@ -33,9 +33,8 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
+
 # Chat Template Registry
-# =============================================================================
 
 # Phi-3.5 uses: <|system|>\n{content}<|end|>\n<|user|>\n{content}<|end|>\n<|assistant|>\n{content}<|end|>
 # Qwen2.5 uses: <|im_start|>system\n{content}<|im_end|>\n<|im_start|>user\n{content}<|im_end|>\n<|im_start|>assistant\n{content}<|im_end|>
@@ -889,9 +888,7 @@ class TrainingDataPreparator:
             logger.info(f"  Over max_seq_length:  {ts['over_max_seq']}")
 
 
-# =============================================================================
 # CLI Entry Point
-# =============================================================================
 
 if __name__ == "__main__":
     import argparse
