@@ -185,12 +185,63 @@ ambient_scribe_teacher/
 │   ├── synthetic_output/     # Ad-hoc generation outputs
 │   ├── synthetic_output_llama_index/ # LlamaIndex pipeline results
 ├── medical_knowledge/       # Clinical guidelines
+├── final_results/           # Final evaluation outputs used in the dissertation report
+│   ├── dissertation_final_main/      # Dissertation plots and tables
+│   ├── final_eval_llama1b_main/      # Llama-3.2-1B main evaluation results
+│   ├── final_eval_llama1b_rag_ablation_final/
+│   ├── final_eval_llama3b_main/      # Llama-3.2-3B main evaluation results
+│   ├── final_eval_llama3b_rag_ablation_final/
+│   ├── final_eval_phi_main/          # Phi-3.5-mini main evaluation results
+│   ├── final_eval_phi_rag_ablation_final/
+│   ├── medcon_results_main/          # MEDCON results (main experiments)
+│   ├── medcon_rag_ablation_final/    # MEDCON results (RAG ablation)
+│   └── rag_ablation_final_final/     # RAG ablation aggregated results
 ├── tests/
 ├── notebooks/
+│   ├── logprobs_uq_analysis.ipynb    # Per-token log-probability uncertainty quantification analysis
+│   └── smile_explainability.ipynb    # SMILE (SHAP-based) explainability analysis of student model outputs
 ├── requirements.txt
 ├── pyproject.toml
 └── README.md
 ```
+
+---
+
+## 📚 RAG Pipeline
+
+A Retrieval-Augmented Generation (RAG) pipeline was implemented using **LlamaIndex** and **ChromaDB** to ground the system in clinical evidence.
+
+### Indexing and Retrieval
+
+Clinical guidelines are processed offline into 512-token chunks with 50-token overlap using a semantic section strategy, then embedded with the `BAAI/bge-base-en-v1.5` bi-encoder (768-dim) and stored in a persistent ChromaDB collection. At generation time, each clinical scenario is expanded by `MedicalQueryProcessor` (synonym injection, ICD-10 terms, body-system keywords) before the top-5 retrieved chunks (cosine similarity threshold 0.35) are prepended to the teacher prompt, explicitly instructing GPT-4o-mini to align its management plans, investigations, and safety-netting advice with the retrieved evidence.
+
+<p align="center">
+  <img src="assets/Screenshot%202026-04-21%20152908.jpg" alt="RAG Pipeline" width="850"/>
+</p>
+
+| Stage | Component | Detail |
+|---|---|---|
+| Indexing | `DocumentProcessor` | Text cleaning, abbreviation standardisation |
+| Chunking | `DocChunker` | 512-token chunks, 50-token overlap, semantic section strategy |
+| Embedding | `EmbeddingManager` | `BAAI/bge-base-en-v1.5` (768-dim bi-encoder) |
+| Vector store | ChromaDB | Persistent, `medical_knowledge` collection |
+| Query expansion | `MedicalQueryProcessor` | Synonym injection, ICD-10 terms, body-system keywords |
+| Retrieval | BGE encoder + cosine search | Top-5, threshold >= 0.35 |
+
+### RAG Ablation Configurations
+
+Four progressive retrieval configurations were compared in the ablation study. A shared query extraction step (`_extract_query_from_dialogue`) is applied first across all configurations: the first 3 patient utterances and up to 2 diagnostic doctor lines are concatenated into a query string capped at 500 characters.
+
+<p align="center">
+  <img src="assets/Screenshot%202026-04-30%20150421.jpg" alt="RAG Ablation Configurations" width="850"/>
+</p>
+
+| Config | Method | Description |
+|---|---|---|
+| `dense_only` | BGE + ChromaDB top-5 | Direct cosine similarity retrieval, no reranking (Karpukhin et al., 2020) |
+| `dense_rerank` | BGE + ChromaDB top-10 + Cross-Encoder top-5 | Over-fetches 10 candidates, reranked to top-5 by `ms-marco-MiniLM-L-6-v2` (Nogueira & Cho, 2020) |
+| `dense_rerank_qe` | MedicalQueryProcessor + BGE + ChromaDB top-20 + Cross-Encoder top-5 | Adds rule-based medical query expansion before encoding; 2x over-fetch (top-20) passed to reranker |
+| `full_medical` | All above + Clinical Relevance Filter | Further post-filters reranked candidates by symptom and anatomical entity overlap to produce final top-5 |
 
 ---
 
@@ -640,11 +691,20 @@ mypy src/
 
 ---
 
-## 📚 References
+## 📊 Data Availability
+
+The synthetic clinical dialogue-summary dataset generated in this project is publicly available on Zenodo:
+
+> Rashidi, A. (2026). *Synthetic Clinical Dialogue-Summary Dataset for Ambient Scribing SLM Training*. Zenodo. [https://doi.org/10.5281/zenodo.19986637](https://doi.org/10.5281/zenodo.19986637)
+
+The dataset contains 1,685 validated samples across 9 generation batches, covering 20 clinical specialties, generated using GPT-4o-mini with LlamaIndex RAG grounding.
+
+---
+
+## 📑 References
 
 1. Woo, M., et al. (2025). Synthetic data distillation enables the extraction of clinical information at scale. *npj Digital Medicine*.
 
-2. GitHub: [bbj-lab/clinical-synthetic-data-distil](https://github.com/bbj-lab/clinical-synthetic-data-distil)
 
 ---
 
