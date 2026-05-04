@@ -697,7 +697,7 @@ The synthetic clinical dialogue-summary dataset generated in this project is pub
 
 > Rashidi, A. (2026). *Synthetic Clinical Dialogue-Summary Dataset for Ambient Scribing SLM Training*. Zenodo. [https://doi.org/10.5281/zenodo.19986637](https://doi.org/10.5281/zenodo.19986637)
 
-The dataset contains 1,685 validated samples across 9 generation batches, covering 20 clinical specialties, generated using GPT-4o-mini with LlamaIndex RAG grounding.
+The dataset contains approx 1,700 validated samples across 9 generation batches, generated using GPT-4o-mini with LlamaIndex RAG grounding.
 
 ---
 
