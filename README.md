@@ -1,4 +1,4 @@
-# Ambient Scribe Teacher
+# Ambient Scribe Project
 
 > RAG-Enhanced Teacher Model for Synthetic Clinical Data Generation
 
@@ -36,7 +36,7 @@ This project implements a **teacher-student knowledge distillation** approach fo
 
 ## 🏗️ Architecture
 
-The system has in three stages: a **teacher pipeline** that generates synthetic training data, and a **student pipeline** that fine-tunes and does the inference on small language models on that data, and a evaluation framework that uses automated metrics, UQ and SMILE to benchmark student performance.
+The system operates in three stages: a **teacher pipeline** that generates synthetic training data, a **student pipeline** that fine-tunes small language models on that data and runs RAG-augmented inference, and an **evaluation framework** that benchmarks student performance using automated metrics, uncertainty quantification, and SMILE explainability.
 ![Architecture](assets/Frame%202.jpg)
 
 
@@ -146,8 +146,8 @@ ambient_scribe_teacher/
 │   ├── knowledge_base/      # RAG components
 │   │   ├── document_processor.py
 │   │   ├── indexer.py       # Vector store indexing
-│   │   ├── retriever.py     # Manual retriever
-│   │   ├── llama_index_rag.py  # LlamaIndex retriever
+│   │   ├── retriever.py     # Dense retriever (ChromaDB, superseded by LlamaIndex)
+│   │   ├── llama_index_rag.py  # LlamaIndex retriever (used in production)
 │   │   └── rag_factory.py   # Factory for switching
 │   ├── teacher/             # LLM teachers
 │   │   ├── base.py          # Abstract base class
@@ -159,6 +159,20 @@ ambient_scribe_teacher/
 │   │   └── rag_metrics.py   # RAG quality
 │   ├── scenarios/           # Scenario generation
 │   │   └── generator.py
+│   ├── student/             # Student fine-tuning and evaluation
+│   │   ├── data_prep.py        # Quality filtering, chat template formatting, splits
+│   │   ├── trainer.py          # QLoRA fine-tuning (Unsloth + TRL)
+│   │   ├── exporter.py         # LoRA merge, GGUF conversion, Ollama registration
+│   │   ├── inference_fixed.py  # RAG-augmented inference (LlamaIndex)
+│   │   ├── evaluator.py        # 5-way comparison + LLM-as-a-Judge
+│   │   ├── compute_medcon.py   # MEDCON via QuickUMLS (WSL)
+│   │   ├── logprobs_analysis.py  # Token log-prob uncertainty quantification
+│   │   ├── post_eval_metrics.py  # Post-hoc ROUGE/BERTScore/BLEU/MEDCON
+│   │   ├── plot_dissertation_v2.py  # Dissertation tables and plots
+│   │   ├── plot_rag_ablation.py  # RAG ablation Table C and plots
+│   │   ├── plot_medcon.py      # MEDCON visualisations
+│   │   ├── run_temperature_experiment.py  # Temperature sensitivity experiment
+│   │   └── run_student_pipeline.py  # End-to-end orchestrator
 │   └── pipeline/            # Orchestration
 │       └── synthetic_data_pipeline.py
 ├── data/
@@ -166,7 +180,7 @@ ambient_scribe_teacher/
 │   ├── training_data/        # Generic formatted training split
 │   ├── training_data_llama1b/ # Llama-3.2-1B-Instruct formatted split
 │   ├── training_data_llama3b/ # Llama-3.2-3B-Instruct formatted split
-│   ├── chroma_db/            # Manual RAG vector store
+│   ├── chroma_db/            # ChromaDB vector store (legacy)
 │   ├── llama_index_chroma_db/ # LlamaIndex vector store
 │   ├── synthetic_output/     # Ad-hoc generation outputs
 │   ├── synthetic_output_llama_index/ # LlamaIndex pipeline results
@@ -327,7 +341,7 @@ config = PipelineConfig(
     
     # RAG
     use_rag=True,
-    rag_backend="llama_index",  # or "manual"
+    rag_backend="llama_index",
     
     # Validation
     enable_validation=True,
@@ -425,7 +439,7 @@ The following is a real sample from batch_3 (`id: openai_3e55043cf15c`). The dia
 }
 ```
 
-### Clinical Summary Fields
+<!-- ### Clinical Summary Fields
 
 | Field | Required | Description |
 |---|---|---|
@@ -440,7 +454,7 @@ The following is a real sample from batch_3 (`id: openai_3e55043cf15c`). The dia
 | `assessment` | Yes | Working diagnosis or differential diagnoses |
 | `plan` | Yes | Tests, treatments, medications, referrals, follow-up |
 | `safety_netting` | No | Warning signs and advice on when to return |
-| `soap` | No | Parallel SOAP note with S, O, A, P fields |
+| `soap` | No | Parallel SOAP note with S, O, A, P fields | -->
 
 ### Training Format
 
@@ -491,7 +505,7 @@ All three training datasets were prepared from the same **1,685 raw samples** co
 
 | Dataset | Base Model | Template | Created | Train | Val | Test | Total | Mean Tokens |
 |---|---|---|---|---|---|---|---|---|
-| `training_data` | generic | - | 2026-02-19 | 1,092 | 133 | 133 | 1,358 | 1,263 |
+| `training_data` | generic-used for phi | - | 2026-02-19 | 1,092 | 133 | 133 | 1,358 | 1,263 |
 | `training_data_llama1b` | `unsloth/Llama-3.2-1B-Instruct` | llama3 | 2026-03-10 | 1,092 | 133 | 133 | 1,358 | 1,294 |
 | `training_data_llama3b` | `unsloth/Llama-3.2-3B-Instruct` | llama3 | 2026-03-09 | 1,092 | 133 | 133 | 1,358 | 1,294 |
 
@@ -520,6 +534,86 @@ Each training dataset folder contains:
 | ENT, Musculoskeletal, Paediatrics, Infectious Disease, Nephrology, Emergency Medicine | 16 |
 
 Difficulty is predominantly **medium** (1,352 samples) with 6 **high** samples. No low-difficulty samples passed the quality filter.
+
+---
+
+## 🎓 Student Pipeline
+
+The student module (`src/student/`) handles fine-tuning, RAG-augmented inference, and evaluation of small language models on the synthetic data generated by the teacher pipeline.
+
+### Module Overview
+
+| File | Class / Entry Point | Purpose |
+|---|---|---|
+| `data_prep.py` | `TrainingDataPreparator` | Quality filtering, chat template formatting (llama3/phi3/qwen2), stratified 80/10/10 splits |
+| `trainer.py` | `StudentTrainer` | QLoRA (4-bit) fine-tuning via Unsloth + TRL |
+| `exporter.py` | `ModelExporter` | Merge LoRA adapters into base model, GGUF conversion (q4_k_m), Ollama registration |
+| `inference_fixed.py` | `ClinicalScribeInference` | RAG-augmented inference via LlamaIndex, stop-token handling, output cleaning |
+| `evaluator.py` | `StudentEvaluator` + `LLMJudge` | 5-way comparative evaluation + LLM-as-a-Judge scoring (GPT-4o-mini) |
+| `compute_medcon.py` | `UMLSConceptExtractor` | MEDCON precision/recall/F1 via QuickUMLS (designed to run in WSL Ubuntu) |
+| `logprobs_analysis.py` | script | Token log-probability uncertainty quantification |
+| `post_eval_metrics.py` | script | Post-hoc ROUGE/BERTScore/BLEU/MEDCON from evaluation JSONs, no model dependency |
+| `plot_dissertation_v2.py` | script | Table A (automated metrics), Table B (LLM Judge), radar charts, bar charts, heatmaps |
+| `plot_rag_ablation.py` | script | Table C (RAG ablation) and comparison plots (4 RAG configurations) |
+| `plot_medcon.py` | script | MEDCON-specific visualisations |
+| `run_temperature_experiment.py` | script | Temperature sensitivity experiment (0.0, 0.1, 0.3, 0.7, 1.0) on `ft_rag` config |
+| `run_student_pipeline.py` | script | End-to-end orchestrator: Steps 1 (prepare) through 5 (evaluate) |
+
+### Fine-Tuning (QLoRA)
+
+Models are fine-tuned using **4-bit QLoRA** via [Unsloth](https://github.com/unslothai/unsloth) and TRL's `SFTTrainer`. Key defaults from `TrainingConfig`:
+
+| Parameter | Value |
+|---|---|
+| LoRA rank (`lora_r`) | 32 |
+| LoRA alpha | 64 |
+| Target modules | q/k/v/o projections + gate/up/down (MLP) |
+| Learning rate | 2e-4 (cosine schedule, 5% warmup) |
+| Batch size | 4 per device + 4 gradient accumulation steps (effective 16) |
+| Epochs | 3 |
+| Max sequence length | 4,096 tokens |
+| Optimiser | AdamW 8-bit |
+
+Models trained: `unsloth/Llama-3.2-1B-Instruct`, `unsloth/Llama-3.2-3B-Instruct`, `unsloth/Phi-3.5-mini-instruct`.
+
+### Evaluation Framework
+
+The evaluator runs five experimental conditions for each model:
+
+| Config | Fine-tuned | RAG |
+|---|---|---|
+| `baseline` | No | No |
+| `rag_only` | No | LlamaIndex (Dense+Rerank+QE) |
+| `ft_only` | Yes | No |
+| `ft_rag` | Yes | LlamaIndex (Dense+Rerank+QE) |
+| `teacher` | N/A | Reference outputs from GPT-4o-mini |
+
+The RAG ablation study tests four progressive retrieval configurations on the `ft_rag` condition:
+
+| Config | Retrieval Method |
+|---|---|
+| `dense_only` | Dense retrieval only |
+| `dense_rerank` | Dense + cross-encoder reranker |
+| `dense_rerank_qe` | Dense + reranker + query expansion |
+| `full_medical` | Dense + reranker + query expansion + clinical filtering |
+
+Automated metrics: **ROUGE-1/2/L**, **BERTScore**, **BLEU-1-4**, **METEOR**, **MEDCON** (UMLS CUI overlap).
+
+LLM-as-a-Judge dimensions scored 1-5 by GPT-4o-mini: clinical accuracy, completeness, hallucination, clinical safety, coherence, conciseness.
+
+### Running the Student Pipeline
+
+```bash
+# Run individual steps
+python src/student/run_student_pipeline.py --prepare-data
+python src/student/run_student_pipeline.py --train
+python src/student/run_student_pipeline.py --export
+python src/student/run_student_pipeline.py --test-inference
+python src/student/run_student_pipeline.py --evaluate
+
+# Or run all steps sequentially
+python src/student/run_student_pipeline.py --all
+```
 
 ---
 
