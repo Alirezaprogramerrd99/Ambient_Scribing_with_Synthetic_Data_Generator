@@ -717,7 +717,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## 🙏 Acknowledgments
 
 - LlamaIndex for RAG framework
-- NICE for clinical guidelines
+- Unsloth for fine-tuning and inference
 
 ---
 
