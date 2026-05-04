@@ -43,6 +43,7 @@ class ValidationRules:
     require_doctor_start: bool = False  # Flexible - patient can start
     require_both_speakers: bool = True
     max_consecutive_same_speaker: int = 3
+    min_clinician_questions: int = 3  # Minimum doctor turns ending with '?'
     
     # Summary rules
     min_chief_complaint_words: int = 3
@@ -65,6 +66,7 @@ class ValidationRules:
             "max_dialogue_turns": self.max_dialogue_turns,
             "min_words_per_turn": self.min_words_per_turn,
             "require_both_speakers": self.require_both_speakers,
+            "min_clinician_questions": self.min_clinician_questions,
             "min_hpi_words": self.min_hpi_words,
             "check_clinical_terminology": self.check_clinical_terminology,
         }
@@ -203,6 +205,24 @@ class StructuralValidator:
                     severity=ErrorSeverity.CRITICAL,
                 ))
         
+        # Check for minimum clinician questions
+        clinician_questions = sum(
+            1 for turn in dialogue
+            if turn.speaker == Speaker.DOCTOR and turn.text.strip().endswith("?")
+        )
+        
+        
+        if clinician_questions < self.rules.min_clinician_questions:
+            errors.append(ValidationError(
+                field="dialogue",
+                error_type="insufficient_clinician_questions",
+                message=(
+                    f"Dialogue has {clinician_questions} clinician question(s), "
+                    f"minimum is {self.rules.min_clinician_questions}"
+                ),
+                severity=ErrorSeverity.MAJOR,
+            ))
+
         # Check for excessive consecutive same speaker
         consecutive_count = 1
         for i in range(1, len(speakers)):
