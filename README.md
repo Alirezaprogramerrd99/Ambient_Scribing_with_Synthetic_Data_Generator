@@ -8,7 +8,7 @@
 A comprehensive framework for generating high-quality synthetic clinical dialogue-summary pairs for training Small Language Models (SLMs) in ambient clinical scribing.
 
 **Author:** Alireza Rashidi  
-**MSc Project:** Trustworthy SLMs for Ambient Clinical Scribing
+**MSc Project:** Trustworthy SLMs for Ambient Clinical Scribing - **University of Hull, 2025-2026**
 
 **Based on:** Woo et al. (2025) - *Synthetic data distillation enables the extraction of clinical information at scale* (npj Digital Medicine)
 
