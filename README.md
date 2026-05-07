@@ -701,7 +701,7 @@ The dataset contains approx 1,700 validated samples across 9 generation batches,
 
 ---
 
-## 📑 References
+## 📑 Related Research Works
 
 1. Woo, M., et al. (2025). Synthetic data distillation enables the extraction of clinical information at scale. *npj Digital Medicine*.
 
